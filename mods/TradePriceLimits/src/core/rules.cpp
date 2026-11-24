@@ -6,9 +6,112 @@
 #include <windows.h>
 #include <mini/ini.h>
 
+#include <cctype>
+#include <cstdio>
+
 namespace tpl {
 
 namespace {
+
+struct NamedKey {
+    const char* name;
+    uint32_t    vk;
+};
+
+constexpr NamedKey kNamedKeys[] = {
+    { "F1",         VK_F1 },
+    { "F2",         VK_F2 },
+    { "F3",         VK_F3 },
+    { "F4",         VK_F4 },
+    { "F5",         VK_F5 },
+    { "F6",         VK_F6 },
+    { "F7",         VK_F7 },
+    { "F8",         VK_F8 },
+    { "F9",         VK_F9 },
+    { "F10",        VK_F10 },
+    { "F11",        VK_F11 },
+    { "F12",        VK_F12 },
+    { "INSERT",     VK_INSERT },
+    { "DELETE",     VK_DELETE },
+    { "HOME",       VK_HOME },
+    { "END",        VK_END },
+    { "PAGEUP",     VK_PRIOR },
+    { "PGUP",       VK_PRIOR },
+    { "PAGEDOWN",   VK_NEXT },
+    { "PGDN",       VK_NEXT },
+    { "PAUSE",      VK_PAUSE },
+    { "SCROLLLOCK", VK_SCROLL },
+    { "BACKSPACE",  VK_BACK },
+    { "TAB",        VK_TAB },
+    { "TILDE",      VK_OEM_3 },
+};
+
+bool equalsIgnoreCase(std::string_view a, std::string_view b) noexcept
+{
+    if (a.size() != b.size()) {
+        return false;
+    }
+    for (size_t i = 0; i < a.size(); ++i) {
+        if (std::toupper(static_cast<unsigned char>(a[i])) !=
+            std::toupper(static_cast<unsigned char>(b[i]))) {
+            return false;
+        }
+    }
+    return true;
+}
+
+uint32_t parseVirtualKey(std::string_view raw) noexcept
+{
+    while (!raw.empty() && std::isspace(static_cast<unsigned char>(raw.front()))) {
+        raw.remove_prefix(1);
+    }
+    while (!raw.empty() && std::isspace(static_cast<unsigned char>(raw.back()))) {
+        raw.remove_suffix(1);
+    }
+    if (raw.empty()) {
+        return VK_F8;
+    }
+
+    for (const auto& entry : kNamedKeys) {
+        if (equalsIgnoreCase(raw, entry.name)) {
+            return entry.vk;
+        }
+    }
+
+    if (raw.size() == 1) {
+        const unsigned char c = static_cast<unsigned char>(std::toupper(static_cast<unsigned char>(raw[0])));
+        if ((c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')) {
+            return static_cast<uint32_t>(c);
+        }
+    }
+
+    if (raw.size() > 2 && raw[0] == '0' && (raw[1] == 'x' || raw[1] == 'X')) {
+        try {
+            const unsigned long parsed = std::stoul(std::string(raw), nullptr, 16);
+            if (parsed >= 0x08 && parsed <= 0xFE && parsed != VK_ESCAPE) {
+                return static_cast<uint32_t>(parsed);
+            }
+        } catch (...) {
+        }
+    }
+
+    return VK_F8;
+}
+
+std::string formatVirtualKey(uint32_t vk)
+{
+    for (const auto& entry : kNamedKeys) {
+        if (entry.vk == vk) {
+            return entry.name;
+        }
+    }
+    if ((vk >= 'A' && vk <= 'Z') || (vk >= '0' && vk <= '9')) {
+        return std::string(1, static_cast<char>(vk));
+    }
+    char buf[16]{};
+    std::snprintf(buf, sizeof(buf), "0x%02X", vk);
+    return buf;
+}
 std::string wToU8(const std::wstring& w)
 {
     if (w.empty()) {
@@ -151,6 +254,23 @@ void RuleEngine::setEnforcementEnabled(bool enabled) noexcept
 bool RuleEngine::isEnforcementEnabled() const noexcept
 {
     return m_enforcementEnabled.load(std::memory_order_relaxed);
+}
+
+void RuleEngine::setToggleKey(uint32_t vk) noexcept
+{
+    if (vk >= 0x08 && vk <= 0xFE && vk != VK_ESCAPE) {
+        m_toggleKey.store(vk, std::memory_order_relaxed);
+    }
+}
+
+uint32_t RuleEngine::toggleKey() const noexcept
+{
+    return m_toggleKey.load(std::memory_order_relaxed);
+}
+
+std::string RuleEngine::toggleKeyName() const
+{
+    return formatVirtualKey(m_toggleKey.load(std::memory_order_relaxed));
 }
 
 bool RuleEngine::hasAnyActiveLimit() const noexcept
@@ -371,6 +491,7 @@ void RuleEngine::loadFromSave(const std::wstring& saveDir)
     mINI::INIStructure ini;
     if (!file.read(ini)) {
         m_enforcementEnabled.store(true, std::memory_order_relaxed);
+        m_toggleKey.store(VK_F8, std::memory_order_relaxed);
         return;
     }
 
@@ -379,6 +500,12 @@ void RuleEngine::loadFromSave(const std::wstring& saveDir)
         m_enforcementEnabled.store(val != "0" && val != "false", std::memory_order_relaxed);
     } else {
         m_enforcementEnabled.store(true, std::memory_order_relaxed);
+    }
+
+    if (ini.has("__settings") && ini["__settings"].has("toggle_key")) {
+        m_toggleKey.store(parseVirtualKey(ini["__settings"]["toggle_key"]), std::memory_order_relaxed);
+    } else {
+        m_toggleKey.store(VK_F8, std::memory_order_relaxed);
     }
 
     std::lock_guard lock(m_mutex);
@@ -440,6 +567,7 @@ void RuleEngine::saveToSave(const std::wstring& saveDir) const
 
     ini["__settings"]["enforcement_enabled"] =
         m_enforcementEnabled.load(std::memory_order_relaxed) ? "1" : "0";
+    ini["__settings"]["toggle_key"] = toggleKeyName();
 
     std::lock_guard lock(m_mutex);
     for (const auto& r : m_rules) {

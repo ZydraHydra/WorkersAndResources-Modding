@@ -15,6 +15,7 @@
 #include <atomic>
 #include <cctype>
 #include <chrono>
+#include <cstdio>
 #include <cstring>
 #include <mutex>
 #include <string>
@@ -198,7 +199,8 @@ void toggleOverlay(bool show)
 
 LRESULT CALLBACK hookedWndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
-    if (msg == WM_KEYDOWN && wp == VK_F8 && ((lp & (1LL << 30)) == 0)) {
+    const uint32_t toggleVk = tpl::RuleEngine::get().toggleKey();
+    if (msg == WM_KEYDOWN && static_cast<uint32_t>(wp) == toggleVk && ((lp & (1LL << 30)) == 0)) {
         toggleOverlay(!g_visible.load());
         return 0;
     }
@@ -367,8 +369,11 @@ void renderUI()
     }
 
     ImGui::SetNextWindowSize(ImVec2(1180, 620), ImGuiCond_FirstUseEver);
+    const std::string keyName = tpl::RuleEngine::get().toggleKeyName();
+    char titleBuf[96]{};
+    std::snprintf(titleBuf, sizeof(titleBuf), "TradePriceLimits  [%s / Esc]###TradePriceLimits", keyName.c_str());
     bool open = true;
-    if (ImGui::Begin("TradePriceLimits  [F8 / Esc]", &open, ImGuiWindowFlags_NoCollapse)) {
+    if (ImGui::Begin(titleBuf, &open, ImGuiWindowFlags_NoCollapse)) {
         // ── Header status bar ─────────────────────────────────────────────
         {
             std::lock_guard lock(g_savePathMutex);
@@ -439,13 +444,13 @@ void renderUI()
         }
 
         if (g_showHelp) {
-            ImGui::BeginChild("##tpl_help", ImVec2(0.f, 138.f), true);
+            ImGui::BeginChild("##tpl_help", ImVec2(0.f, 152.f), true);
             ImGui::TextColored(ImVec4(0.84f, 0.72f, 0.34f, 1.f), "How TradePriceLimits Works (0 = Disabled):");
             ImGui::BulletText("Dispatch gating: Stops NEW Distribution Office dispatches (Road & Rail) to/from Customs. Trucks/trains already en route are NOT cancelled and will finish their current trip.");
             ImGui::BulletText("Fixed mode: Set exact currency limits. Max Buy stops imports above your cap; Min Sell stops exports below your floor (RUB = Soviet Customs, USD = Western Customs).");
             ImGui::BulletText("Negative prices (waste/trash): Signed limits work directly (e.g. Max Buy -300 stops importing trash if Customs pays less than 300/t; Min Sell -400 stops exporting if disposal costs > 400/t).");
             ImGui::BulletText("Base %% mode: Scales with inflation! Max Buy %% is a %% of Baseline Buy (e.g. 115%% = +15%% cap; for negative waste use e.g. 90%% so payout cannot drop >10%%). Min Sell %% is a %% of Baseline Sell.");
-            ImGui::BulletText("Baseline & Rebase: Click Rebase (or Rebase All) to snapshot today's live market prices as 100%%. Press Enter or click away to apply; auto-saves with the game (or Ctrl+S).");
+            ImGui::BulletText("Baseline, Save & Hotkey: Click Rebase (or Rebase All) to snapshot live prices as 100%%. Auto-saves on Save/Autosave (or Ctrl+S); rebind open key via toggle_key in trade_price_limits.ini.");
             ImGui::EndChild();
         }
 

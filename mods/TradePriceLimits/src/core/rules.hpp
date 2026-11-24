@@ -85,9 +85,12 @@ public:
     [[nodiscard]] std::wstring activeSaveDir() const noexcept;
     [[nodiscard]] bool         hasSave() const noexcept;
 
-    void               setEnforcementEnabled(bool enabled) noexcept;
-    [[nodiscard]] bool isEnforcementEnabled() const noexcept;
-    [[nodiscard]] bool hasAnyActiveLimit() const noexcept;
+    void                      setEnforcementEnabled(bool enabled) noexcept;
+    [[nodiscard]] bool        isEnforcementEnabled() const noexcept;
+    void                      setToggleKey(uint32_t vk) noexcept;
+    [[nodiscard]] uint32_t    toggleKey() const noexcept;
+    [[nodiscard]] std::string toggleKeyName() const;
+    [[nodiscard]] bool        hasAnyActiveLimit() const noexcept;
 
     void ensureResource(const std::string& name, float mockRub = 0.f, float mockUsd = 0.f);
     [[nodiscard]] std::vector<ResourceRule> rules() const;
@@ -118,6 +121,7 @@ private:
     std::vector<ResourceRule>                      m_rules;
     std::wstring                                   m_saveDir;
     std::atomic<bool>                              m_enforcementEnabled{true};
+    std::atomic<uint32_t>                          m_toggleKey{0x77}; // VK_F8
     std::atomic<bool>                              m_hasAnyActiveLimit{false};
     std::array<FastThresholdSlot, kMaxFastResources> m_fastSlots{};
 

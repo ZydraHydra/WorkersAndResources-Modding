@@ -39,11 +39,21 @@ Also compatible with [**TesmioLoader**](https://maxlegend.github.io/TesmioLoader
 - **60s Simulation-Linked Counter:** Fixed ring buffer counting blocked customs dispatches over the last 60 seconds of active (unpaused) simulation time.
 - **Save-Safe Sidecar (`trade_price_limits.ini`):** Auto-loads when opening a save and auto-saves on Save / Autosave / `Ctrl+S` inside the save folder without modifying WRSR's binary save files.
 
-## Controls
+## Controls & Rebinding
 
 | Shortcut / Control | Action |
 |---|---|
-| `F8` | Toggle TradePriceLimits overlay |
+| `F8` *(default)* | Toggle TradePriceLimits overlay |
 | `Esc` | Close overlay |
 | `Ctrl+S` | Save rules to active save's `trade_price_limits.ini` |
 | `Ctrl+R` | Rebase all resources to current live market prices |
+
+To change the overlay toggle key, edit `[__settings]` in your save folder's `trade_price_limits.ini`:
+
+```ini
+[__settings]
+enforcement_enabled=1
+toggle_key=F8
+```
+
+Supported values: `F1`–`F12`, `Insert`, `Delete`, `Home`, `End`, `PageUp`, `PageDown`, `Pause`, `ScrollLock`, `Tab`, `Tilde`, single letters/digits (`A`–`Z`, `0`–`9`), or a hex Windows virtual-key code (e.g. `0x78`).
