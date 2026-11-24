@@ -172,4 +172,11 @@ jobs:
             if ($LASTEXITCODE -ne 0) {
               throw "SteamCMD upload failed for $($vdf.FullName) with exit code $LASTEXITCODE"
             }
+
+            $vdfText = Get-Content $vdf.FullName -Raw
+            if ($vdfText -match '"publishedfileid"\s+"(\d+)"') {
+              $pubId = $Matches[1]
+              $trackName = Split-Path (Split-Path $vdf.FullName -Parent) -Leaf
+              "Published **$trackName** -> Steam Workshop ID ``$pubId`` (https://steamcommunity.com/sharedfiles/filedetails/?id=$pubId)" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            }
           }
