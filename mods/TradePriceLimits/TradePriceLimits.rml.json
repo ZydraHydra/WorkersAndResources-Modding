@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "tuefekci.trade_price_limits",
+  "name": "TradePriceLimits",
+  "version": "1.0.0",
+  "author": "tuefekci",
+  "description": "Per-resource Max Buy and Min Sell price thresholds for Customs House border logistics with an external F8 ImGui overlay and per-save INI sidecar.",
+  "dll": "TradePriceLimits.dll",
+  "loaderApi": {
+    "min": 1,
+    "max": 1
+  },
+  "supportedGameVersions": [],
+  "requiredSymbols": [],
+  "optionalSymbols": [],
+  "dependencies": [],
+  "conflicts": [],
+  "loadBefore": [],
+  "loadAfter": [],
+  "defaultPriority": 1000,
+  "enabledByDefault": true
+}

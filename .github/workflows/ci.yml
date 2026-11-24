@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  repo-hygiene:
+    name: Clean-Room & Hygiene Audit
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Audit manifests & clean-room rules
+        shell: pwsh
+        run: |
+          $files = git ls-files | Where-Object { $_ -ne '.github/workflows/ci.yml' }
+          $pattern = 'ghp_|github_pat_|AIza|GPL-3\.0|GNU General Public License|(?<![A-Za-z])C:\\Users\\'
+          $hits = $files | Select-String -Pattern $pattern -AllMatches
+          if ($hits) {
+            $hits | Format-Table Path, LineNumber, Line -AutoSize
+            throw "Repo audit failed."
+          }
+
+          Get-ChildItem mods -Recurse -Include "*.rml.json","game_versions.json" | ForEach-Object {
+            Write-Host "Validating $($_.FullName)"
+            Get-Content $_.FullName -Raw | ConvertFrom-Json | Out-Null
+          }
+
+  build-win64:
+    name: Build & Stage All Mods × All Game Versions (Windows x64)
+    needs: repo-hygiene
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Needed for accurate automatic git commit-count versioning per mod
+
+      - name: Install Ninja
+        shell: pwsh
+        run: choco install ninja -y --no-progress
+
+      - name: Build all mods across all declared WRSR game versions
+        shell: pwsh
+        run: .\scripts\build.ps1 -Mod all -Config Release -GameVersion all
+
+      - name: Stage all Workshop release tracks
+        shell: pwsh
+        run: |
+          Get-ChildItem mods -Directory | ForEach-Object {
+            .\scripts\package_workshop.ps1 -Mod $_.Name -GameVersion all
+          }
+
+      - name: Upload compiled DLLs & Workshop archives
+        uses: actions/upload-artifact@v4
+        with:
+          name: wrsr-mods-win64-all-game-versions
+          path: |
+            build/release/**/mods/**/*.dll
+            build/release/**/mods/**/*.rml.json
+            release/**/*.zip
+          retention-days: 14

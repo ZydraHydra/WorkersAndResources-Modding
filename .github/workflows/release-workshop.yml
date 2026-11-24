@@ -1,0 +1,175 @@
+name: Release & Steam Workshop Publish
+
+on:
+  push:
+    tags:
+      - "*-v*.*.*"
+  workflow_dispatch:
+    inputs:
+      mod:
+        description: "Mod folder under mods/ to release"
+        required: true
+        default: "TradePriceLimits"
+        type: choice
+        options:
+          - TradePriceLimits
+      game_version:
+        description: "WRSR game version track ('all' or specific id like '1.1.1.7' / 'latest')"
+        required: true
+        default: "all"
+        type: string
+      version:
+        description: "Version override (leave empty for automatic version)"
+        required: false
+        default: ""
+        type: string
+      changenote:
+        description: "Steam Workshop & Release changenote"
+        required: false
+        default: ""
+        type: string
+      visibility:
+        description: "Steam Workshop visibility (0=Public, 1=FriendsOnly, 2=Hidden)"
+        required: true
+        default: "2"
+        type: choice
+        options:
+          - "2"
+          - "1"
+          - "0"
+      publish_to_workshop:
+        description: "Upload to Steam Workshop if Steam secrets are configured"
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  release-and-publish:
+    name: Build, Release & Workshop Upload
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required for per-mod automatic git commit versioning
+
+      - name: Resolve mod, version & game-version track(s)
+        id: meta
+        shell: pwsh
+        run: |
+          if ("${{ github.event_name }}" -eq "push") {
+            # Supports:
+            #   <Mod>-wrsr<GameVer>-v<SemVer>  (e.g. TradePriceLimits-wrsr1.1.1.7-v1.0.2) -> single game release
+            #   <Mod>-v<SemVer>                 (e.g. TradePriceLimits-v1.0.2)             -> all game versions
+            if ("${{ github.ref_name }}" -match '^([A-Za-z0-9_]+)-wrsr([A-Za-z0-9._-]+)-v([0-9]+\.[0-9]+\.[0-9]+.*)$') {
+              $mod         = $Matches[1]
+              $gameVersion = $Matches[2]
+              $version     = $Matches[3]
+            } elseif ("${{ github.ref_name }}" -match '^([A-Za-z0-9_]+)-v([0-9]+\.[0-9]+\.[0-9]+.*)$') {
+              $mod         = $Matches[1]
+              $gameVersion = "all"
+              $version     = $Matches[2]
+            } else {
+              throw "Tag '${{ github.ref_name }}' must match '<Mod>-v<SemVer>' or '<Mod>-wrsr<GameVer>-v<SemVer>'"
+            }
+            $visibility = "0"
+            $changenote = "Release v$version"
+            $publish    = "true"
+            $tagName    = "${{ github.ref_name }}"
+          } else {
+            $mod         = "${{ inputs.mod }}"
+            $gameVersion = "${{ inputs.game_version }}"
+            $info        = .\scripts\get_mod_version.ps1 -Mod $mod -VersionOverride "${{ inputs.version }}" -AsObject
+            $version     = $info.version
+            $visibility  = "${{ inputs.visibility }}"
+            $changenote  = if ("${{ inputs.changenote }}") { "${{ inputs.changenote }}" } else { "Release v$version" }
+            $publish     = "${{ inputs.publish_to_workshop }}"
+            $tagName     = if ($gameVersion -eq "all") { "${mod}-v${version}" } else { "${mod}-wrsr${gameVersion}-v${version}" }
+          }
+
+          if (-not (Test-Path "mods/$mod")) {
+            throw "Mod directory mods/$mod does not exist"
+          }
+
+          "mod=$mod"                  | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "game_version=$gameVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "version=$version"          | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "visibility=$visibility"    | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "changenote=$changenote"    | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "publish=$publish"          | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "tag=$tagName"              | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Install Ninja
+        shell: pwsh
+        run: choco install ninja -y --no-progress
+
+      - name: Build & Stage Mod per Game Version
+        shell: pwsh
+        run: |
+          .\scripts\package_workshop.ps1 `
+            -Mod "${{ steps.meta.outputs.mod }}" `
+            -Version "${{ steps.meta.outputs.version }}" `
+            -GameVersion "${{ steps.meta.outputs.game_version }}" `
+            -Visibility "${{ steps.meta.outputs.visibility }}" `
+            -Changenote "${{ steps.meta.outputs.changenote }}" `
+            -Build
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: "${{ steps.meta.outputs.mod }} v${{ steps.meta.outputs.version }} (WRSR: ${{ steps.meta.outputs.game_version }})"
+          body: "${{ steps.meta.outputs.changenote }}"
+          generate_release_notes: true
+          files: |
+            release/${{ steps.meta.outputs.mod }}_v${{ steps.meta.outputs.version }}_wrsr-*/*.zip
+
+      - name: Check SteamCMD CI Secrets
+        id: steam_check
+        shell: pwsh
+        run: |
+          $hasUser = -not [string]::IsNullOrWhiteSpace("${{ secrets.STEAM_USERNAME }}")
+          $hasAuth = (-not [string]::IsNullOrWhiteSpace("${{ secrets.STEAM_CONFIG_VDF }}")) -or
+                     (-not [string]::IsNullOrWhiteSpace("${{ secrets.STEAM_PASSWORD }}"))
+          $shouldRun = ("${{ steps.meta.outputs.publish }}" -eq "true") -and $hasUser -and $hasAuth
+          "ready=$shouldRun" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          if (-not $shouldRun) {
+            "Steam Workshop upload skipped: set STEAM_USERNAME and STEAM_CONFIG_VDF (or STEAM_PASSWORD) secrets to upload automatically." | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          }
+
+      - name: Publish Game-Version Tracks to Steam Workshop
+        if: steps.steam_check.outputs.ready == 'true'
+        shell: pwsh
+        env:
+          STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
+          STEAM_PASSWORD: ${{ secrets.STEAM_PASSWORD }}
+          STEAM_CONFIG_VDF: ${{ secrets.STEAM_CONFIG_VDF }}
+        run: |
+          $steamDir = "$env:RUNNER_TEMP\steamcmd"
+          New-Item -ItemType Directory -Force -Path $steamDir | Out-Null
+          $zip = "$env:RUNNER_TEMP\steamcmd.zip"
+          Invoke-WebRequest -Uri "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip" -OutFile $zip
+          Expand-Archive -Path $zip -DestinationPath $steamDir -Force
+
+          & "$steamDir\steamcmd.exe" "+quit" | Out-Null
+
+          if (-not [string]::IsNullOrWhiteSpace($env:STEAM_CONFIG_VDF)) {
+            $cfgDir = Join-Path $steamDir "config"
+            New-Item -ItemType Directory -Force -Path $cfgDir | Out-Null
+            [System.IO.File]::WriteAllBytes((Join-Path $cfgDir "config.vdf"), [System.Convert]::FromBase64String($env:STEAM_CONFIG_VDF))
+          }
+
+          $vdfs = Get-ChildItem "release\${{ steps.meta.outputs.mod }}_v${{ steps.meta.outputs.version }}_wrsr-*\workshop_item.vdf"
+          foreach ($vdf in $vdfs) {
+            Write-Host "Uploading $($vdf.FullName)..."
+            if (-not [string]::IsNullOrWhiteSpace($env:STEAM_CONFIG_VDF)) {
+              & "$steamDir\steamcmd.exe" "+login" $env:STEAM_USERNAME "+workshop_build_item" $vdf.FullName "+quit"
+            } else {
+              & "$steamDir\steamcmd.exe" "+login" $env:STEAM_USERNAME $env:STEAM_PASSWORD "+workshop_build_item" $vdf.FullName "+quit"
+            }
+            if ($LASTEXITCODE -ne 0) {
+              throw "SteamCMD upload failed for $($vdf.FullName) with exit code $LASTEXITCODE"
+            }
+          }

@@ -1,0 +1,57 @@
+# Build outputs
+build/
+out/
+*.dll
+*.pdb
+*.exp
+*.lib
+*.ilk
+*.obj
+
+# Local environment, paths, secrets, and Steam accounts
+.env
+.env.*
+!.env.example
+*.secret
+*.key
+*.pem
+steam_login*
+
+# Reference clones & game binary backups (never commit)
+references/
+port/
+
+# Release / Workshop staging
+release/
+*.vdf.bak
+
+# Visual Studio & IDE caches
+.vs/
+.vscode/
+*.user
+*.suo
+CMakeSettings.json
+CMakeUserPresets.json
+.cache/
+
+# CMake & Ninja artifacts
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+.ninja_deps
+.ninja_log
+
+# Logs & runtime sidecars
+*.log
+imgui.ini
+trade_price_limits.ini
+
+# Python caches
+__pycache__/
+*.py[cod]
+
+# OS metadata
+Thumbs.db
+desktop.ini
+.DS_Store

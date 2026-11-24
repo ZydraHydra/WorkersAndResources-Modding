@@ -1,0 +1,29 @@
+* text=auto
+
+# C/C++ & CMake
+*.c     text eol=lf
+*.cpp   text eol=lf
+*.h     text eol=lf
+*.hpp   text eol=lf
+CMakeLists.txt text eol=lf
+
+# Docs, Config & CI
+*.md    text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.json  text eol=lf
+*.py    text eol=lf
+*.vdf   text eol=lf
+*.ini   text eol=lf
+
+# Windows scripts
+*.ps1   text eol=crlf
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+
+# Binary assets
+*.png   binary
+*.jpg   binary
+*.ico   binary
+*.dll   binary
+*.exe   binary
