@@ -59,25 +59,51 @@ std::wstring extractSaveDir(std::wstring_view rawPath) noexcept
             c = L'\\';
         }
     }
+    if (normalized.size() >= 2 && normalized[0] == L'.' && normalized[1] == L'\\') {
+        normalized.erase(0, 2);
+    }
 
     std::wstring lower = normalized;
     for (auto& c : lower) {
         c = static_cast<wchar_t>(std::towlower(c));
     }
 
-    constexpr std::wstring_view kNeedle = L"\\media_soviet\\save\\";
-    const size_t pos = lower.find(kNeedle);
-    if (pos == std::wstring::npos) {
+    constexpr std::wstring_view kNeedles[] = {
+        L"\\media_soviet\\save\\",
+        L"\\media_soviet\\save_cloud\\",
+        L"media_soviet\\save\\",
+        L"media_soviet\\save_cloud\\",
+    };
+
+    size_t nameStart = std::wstring::npos;
+    for (const auto needle : kNeedles) {
+        const size_t pos = lower.find(needle);
+        if (pos == std::wstring::npos) {
+            continue;
+        }
+        // Relative needles (no leading '\') must match at index 0 to avoid false positives.
+        if (needle.front() != L'\\' && pos != 0) {
+            continue;
+        }
+        nameStart = pos + needle.size();
+        break;
+    }
+    if (nameStart == std::wstring::npos) {
         return {};
     }
 
-    const size_t nameStart = pos + kNeedle.size();
     const size_t nextSlash = lower.find(L'\\', nameStart);
     if (nextSlash == std::wstring::npos || nextSlash == nameStart) {
         return {};
     }
 
-    return normalized.substr(0, nextSlash);
+    std::wstring relOrFull = normalized.substr(0, nextSlash);
+    wchar_t      fullBuf[MAX_PATH * 4]{};
+    const DWORD  fullLen = GetFullPathNameW(relOrFull.c_str(), _countof(fullBuf), fullBuf, nullptr);
+    if (fullLen > 0 && fullLen < _countof(fullBuf)) {
+        return std::wstring(fullBuf, fullLen);
+    }
+    return relOrFull;
 }
 
 HANDLE WINAPI detourCreateFileW(LPCWSTR               lpFileName,
@@ -98,7 +124,7 @@ HANDLE WINAPI detourCreateFileW(LPCWSTR               lpFileName,
     }
 
     const std::wstring_view pathView(lpFileName);
-    const bool              isWrite = (dwDesiredAccess & GENERIC_WRITE) != 0;
+    const bool              isWrite = (dwDesiredAccess & (GENERIC_WRITE | FILE_WRITE_DATA | FILE_APPEND_DATA)) != 0;
 
     // Trigger saves on header.bin writes; trigger loads only on buildings.bin reads
     // so browsing the Load Game menu (which reads header.bin across all saves)
@@ -133,6 +159,7 @@ HANDLE WINAPI detourCreateFileW(LPCWSTR               lpFileName,
     if (isWrite) {
         engine.setActiveSaveDir(saveDir);
         engine.saveToSave(saveDir);
+        tpl::game::resetBlockedStats();
         tpl::overlay::setActiveSavePath(saveDir.c_str());
         wrsr::log::info("save_tracker: saved sidecar INI in active save dir");
     } else if (dirChanged) {

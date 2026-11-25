@@ -43,7 +43,7 @@ Both **TesmioLoader (`v0.4.5`)** and **Republic Mod Loader (`v1.0.1`)** automati
   - **Base % (Inflation-Resilient):** Scales limits as a `%` of captured **Baseline** Buy and Sell prices (`Max Buy %` relative to Baseline Buy, `Min Sell %` relative to Baseline Sell). Click **Rebase** (or `Ctrl+R`) to snapshot today's market prices as `100%`.
 - **Negative Prices (Trash / Waste):** Signed limits work directly — e.g., `Max Buy RUB = -300` on toxic waste only allows imports when Customs pays you at least `300 RUB/t`.
 - **Emergency Bypass (`Enforce Limits`):** Uncheck in the overlay header to pause all blocking immediately without losing your settings.
-- **60s Simulation-Linked Counter:** Fixed ring buffer counting blocked customs dispatches over the last 60 seconds of active (unpaused) simulation time.
+- **Blocked Checks Readout:** Live counter in the overlay header showing blocked Distribution Office task evaluations since the last Save / Autosave / Load.
 - **Save-Safe Sidecar (`trade_price_limits.ini`):** Auto-loads when opening a save and auto-saves on Save / Autosave / `Ctrl+S` inside the save folder without modifying WRSR's binary save files.
 
 ## Controls & Rebinding

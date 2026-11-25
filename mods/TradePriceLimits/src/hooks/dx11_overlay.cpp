@@ -329,8 +329,6 @@ void drawLimitCell(int colIdx, const char* id, bool isBaseline,
 
 void renderUI()
 {
-    tpl::game::tickBlockedWindow();
-
     const bool visible = g_visible.load(std::memory_order_relaxed);
     if (!visible) {
         ImGui::GetIO().MouseDrawCursor = false;
@@ -414,12 +412,12 @@ void renderUI()
         } else if (!enforceEnabled) {
             ImGui::TextColored(ImVec4(0.90f, 0.68f, 0.28f, 1.f), " | Enforcement: PAUSED");
         } else {
-            const uint32_t blocked = tpl::game::getBlockedLast60s();
+            const uint64_t blocked = tpl::game::getBlockedCount();
             ImGui::TextColored(ImVec4(0.65f, 0.85f, 0.45f, 1.f),
-                               " | Enforcement: ACTIVE (60s Blocked: %u)",
-                               blocked);
+                               " | Enforcement: ACTIVE (Blocked Checks: %llu)",
+                               static_cast<unsigned long long>(blocked));
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
-                ImGui::SetTooltip("Customs dispatches blocked during the last 60s of unpaused simulation time.");
+                ImGui::SetTooltip("Distribution Office customs checks blocked since last Save/Autosave/Load (counts planner re-checks, not individual trucks).");
             }
         }
 

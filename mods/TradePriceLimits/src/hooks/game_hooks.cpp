@@ -6,8 +6,7 @@
 #include <windows.h>
 #include <MinHook.h>
 
-#include <array>
-#include <chrono>
+#include <atomic>
 #include <cmath>
 #include <cstring>
 #include <string>
@@ -26,15 +25,10 @@ constexpr int32_t kBuildingTypeCustoms = 20;   // BUILDINGTYPE_CUSTOMHOUSE (0x14
 constexpr int32_t kFactionUsd          = 3;    // NATO / Western border (USD)
 constexpr int32_t kFactionRub          = 4;    // Soviet border (RUB)
 
-// Rolling 60-second ring buffer of blocked dispatches, advanced only while
-// the simulation is actively running (paused when the game is paused).
-std::array<std::atomic<uint32_t>, kBlockedWindowSeconds> g_blockedBuckets{};
-std::atomic<uint32_t>                                    g_currentBucket{0};
-std::atomic<void*>                                       g_lastGameObj{nullptr};
-std::atomic<bool>                                        g_simTickObserved{false};
-std::atomic<bool>                                        g_resetClockState{false};
-std::atomic<const uint8_t*>                              g_syncedVecBegin{nullptr};
-std::atomic<size_t>                                      g_syncedVecCount{0};
+// Blocked planner check counter, reset on Save / Autosave / Load.
+std::atomic<uint64_t>       g_blockedCount{0};
+std::atomic<const uint8_t*> g_syncedVecBegin{nullptr};
+std::atomic<size_t>         g_syncedVecCount{0};
 
 using PFN_EvaluateDistTask = void(__fastcall*)(void* gameObj, uint8_t* task);
 PFN_EvaluateDistTask g_origEvaluateDistTask = nullptr;
@@ -140,9 +134,11 @@ bool tryProbeTask(uint8_t* task, TaskTradeProbe& out) noexcept
         const uint8_t* srcBld = *reinterpret_cast<const uint8_t* const*>(task + 0x10);
         const uint8_t* dstBld = *reinterpret_cast<const uint8_t* const*>(task + 0x48);
 
+        const uint32_t typeOff = g_addrs.buildingTypeOffset;
+
         if (srcBld) {
             const uint8_t* desc = *reinterpret_cast<const uint8_t* const*>(srcBld + 0x318);
-            if (desc && *reinterpret_cast<const int32_t*>(desc + 0x360) == kBuildingTypeCustoms) {
+            if (desc && *reinterpret_cast<const int32_t*>(desc + typeOff) == kBuildingTypeCustoms) {
                 out.srcIsCustoms = true;
                 out.srcFaction   = *reinterpret_cast<const int32_t*>(srcBld + 0x9EC);
             }
@@ -150,7 +146,7 @@ bool tryProbeTask(uint8_t* task, TaskTradeProbe& out) noexcept
 
         if (dstBld) {
             const uint8_t* desc = *reinterpret_cast<const uint8_t* const*>(dstBld + 0x318);
-            if (desc && *reinterpret_cast<const int32_t*>(desc + 0x360) == kBuildingTypeCustoms) {
+            if (desc && *reinterpret_cast<const int32_t*>(desc + typeOff) == kBuildingTypeCustoms) {
                 out.dstIsCustoms = true;
                 out.dstFaction   = *reinterpret_cast<const int32_t*>(dstBld + 0x9EC);
             }
@@ -221,35 +217,8 @@ void zeroTaskDispatchScores(uint8_t* task) noexcept
     }
 }
 
-bool tryReadSimClock(void* gameObj, int32_t& outDay, float& outTimer) noexcept
-{
-    __try {
-        if (!gameObj) {
-            return false;
-        }
-        const auto* base = reinterpret_cast<const uint8_t*>(gameObj);
-        const int32_t day   = *reinterpret_cast<const int32_t*>(base + 0x590);
-        const float   timer = *reinterpret_cast<const float*>(base + 0x59C);
-        if (day < 0 || day > 366 || !std::isfinite(timer) || timer < 0.f || timer > 120.f) {
-            return false;
-        }
-        outDay   = day;
-        outTimer = timer;
-        return true;
-    } __except (EXCEPTION_EXECUTE_HANDLER) {
-        return false;
-    }
-}
-
 void __fastcall detourEvaluateDistTask(void* gameObj, uint8_t* task)
 {
-    if (!g_lastGameObj.load(std::memory_order_relaxed) && gameObj) {
-        g_lastGameObj.store(gameObj, std::memory_order_relaxed);
-    }
-    if (!g_simTickObserved.load(std::memory_order_relaxed)) {
-        g_simTickObserved.store(true, std::memory_order_relaxed);
-    }
-
     auto& engine = tpl::RuleEngine::get();
     if (engine.isEnforcementEnabled() && engine.hasAnyActiveLimit()) {
         TaskTradeProbe probe{};
@@ -288,8 +257,7 @@ void __fastcall detourEvaluateDistTask(void* gameObj, uint8_t* task)
 
             if (block) {
                 zeroTaskDispatchScores(task);
-                const uint32_t slot = g_currentBucket.load(std::memory_order_relaxed) % kBlockedWindowSeconds;
-                g_blockedBuckets[slot].fetch_add(1, std::memory_order_relaxed);
+                g_blockedCount.fetch_add(1, std::memory_order_relaxed);
                 return;
             }
         }
@@ -302,81 +270,13 @@ void __fastcall detourEvaluateDistTask(void* gameObj, uint8_t* task)
 
 void resetBlockedStats() noexcept
 {
-    for (auto& bucket : g_blockedBuckets) {
-        bucket.store(0, std::memory_order_relaxed);
-    }
-    g_currentBucket.store(0, std::memory_order_relaxed);
-    g_simTickObserved.store(false, std::memory_order_relaxed);
-    g_resetClockState.store(true, std::memory_order_relaxed);
+    g_blockedCount.store(0, std::memory_order_relaxed);
     g_syncedVecCount.store(0, std::memory_order_relaxed);
 }
 
-void tickBlockedWindow() noexcept
+uint64_t getBlockedCount() noexcept
 {
-    // Called from Present() on the render thread; self-throttled to ~100 ms.
-    using clock = std::chrono::steady_clock;
-    static clock::time_point s_lastCheck{};
-    static int64_t           s_activeMsAccum = 0;
-    static bool              s_hasPrevClock  = false;
-    static int32_t           s_prevDay       = 0;
-    static float             s_prevTimer     = 0.f;
-
-    if (g_resetClockState.exchange(false, std::memory_order_relaxed)) {
-        s_activeMsAccum = 0;
-        s_hasPrevClock  = false;
-        s_prevDay       = 0;
-        s_prevTimer     = 0.f;
-    }
-
-    const auto now = clock::now();
-    if (s_lastCheck.time_since_epoch().count() == 0) {
-        s_lastCheck = now;
-        return;
-    }
-
-    const auto elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(now - s_lastCheck).count();
-    if (elapsedMs < 100) {
-        return;
-    }
-    s_lastCheck = now;
-
-    bool    simRunning = false;
-    int32_t day        = 0;
-    float   timer      = 0.f;
-    void*   gameObj    = g_lastGameObj.load(std::memory_order_relaxed);
-    if (tryReadSimClock(gameObj, day, timer)) {
-        simRunning     = s_hasPrevClock && (day != s_prevDay || timer != s_prevTimer);
-        s_prevDay      = day;
-        s_prevTimer    = timer;
-        s_hasPrevClock = true;
-        g_simTickObserved.store(false, std::memory_order_relaxed);
-    } else {
-        simRunning = g_simTickObserved.exchange(false, std::memory_order_relaxed);
-    }
-
-    if (!simRunning) {
-        return;
-    }
-
-    const int64_t clampedMs = (elapsedMs > 5000) ? 5000 : elapsedMs;
-    s_activeMsAccum += clampedMs;
-
-    while (s_activeMsAccum >= 1000) {
-        s_activeMsAccum -= 1000;
-        const uint32_t cur  = g_currentBucket.load(std::memory_order_relaxed);
-        const uint32_t next = (cur + 1u) % static_cast<uint32_t>(kBlockedWindowSeconds);
-        g_blockedBuckets[next].store(0, std::memory_order_relaxed);
-        g_currentBucket.store(next, std::memory_order_relaxed);
-    }
-}
-
-uint32_t getBlockedLast60s() noexcept
-{
-    uint32_t total = 0;
-    for (const auto& bucket : g_blockedBuckets) {
-        total += bucket.load(std::memory_order_relaxed);
-    }
-    return total;
+    return g_blockedCount.load(std::memory_order_relaxed);
 }
 
 std::optional<LivePrice> readLivePrice(uint32_t resourceIndex) noexcept
@@ -468,13 +368,31 @@ bool install(uint8_t* exeBase, size_t exeSize)
 
     // 2. Distribution Office / border-logistics dispatch validation
     if (uint8_t* dispatchSite = wrsr::pe::aobScanStr(scanBase, scanSize, SIG_DISPATCH_CHECK)) {
+        // Resolve BuildingDescriptor::buildingType offset dynamically before patching prologue:
+        // 0x360 on WRSR <= 1.1.1.13, 0x368 on WRSR 1.2.0.8+
+        uint32_t detectedTypeOff = 0x360;
+        for (size_t i = 0; i + 7 <= 0x280; ++i) {
+            if (dispatchSite[i] == 0x83 &&
+                dispatchSite[i + 1] >= 0xB8 && dispatchSite[i + 1] <= 0xBF &&
+                dispatchSite[i + 6] == static_cast<uint8_t>(kBuildingTypeCustoms)) {
+                uint32_t disp = 0;
+                std::memcpy(&disp, dispatchSite + i + 2, sizeof(disp));
+                if (disp >= 0x300 && disp <= 0x450) {
+                    detectedTypeOff = disp;
+                    break;
+                }
+            }
+        }
+        g_addrs.buildingTypeOffset = detectedTypeOff;
+
         if (MH_CreateHook(dispatchSite,
                           reinterpret_cast<void*>(detourEvaluateDistTask),
                           reinterpret_cast<void**>(&g_origEvaluateDistTask)) == MH_OK &&
             MH_EnableHook(dispatchSite) == MH_OK) {
             g_addrs.dispatchCheckSite = dispatchSite;
-            wrsr::log::info("SIG_DISPATCH_CHECK hooked @ RVA 0x%zX (EvaluateDistTask)",
-                            static_cast<size_t>(dispatchSite - exeBase));
+            wrsr::log::info("SIG_DISPATCH_CHECK hooked @ RVA 0x%zX (EvaluateDistTask, buildingTypeOff=0x%X)",
+                            static_cast<size_t>(dispatchSite - exeBase),
+                            g_addrs.buildingTypeOffset);
         } else {
             wrsr::log::error("SIG_DISPATCH_CHECK MinHook install failed @ RVA 0x%zX",
                              static_cast<size_t>(dispatchSite - exeBase));

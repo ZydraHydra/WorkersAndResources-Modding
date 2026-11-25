@@ -59,18 +59,16 @@ static_assert(sizeof(ResourceRecordHeader) == 0x80, "ResourceRecordHeader layout
 struct GameAddresses {
     ResourceVector* resourceVector{nullptr};
     uint32_t        recordStride{0x340};
+    uint32_t        buildingTypeOffset{0x360};
     uint8_t*        dispatchCheckSite{nullptr};
 };
-
-inline constexpr size_t kBlockedWindowSeconds = 60;
 
 extern GameAddresses g_addrs;
 
 bool     install(uint8_t* exeBase, size_t exeSize);
 void     syncLivePricesToRules() noexcept;
 void     resetBlockedStats() noexcept;
-void     tickBlockedWindow() noexcept;
-uint32_t getBlockedLast60s() noexcept;
+uint64_t getBlockedCount() noexcept;
 
 struct LivePrice {
     float buyRub{0.f};
