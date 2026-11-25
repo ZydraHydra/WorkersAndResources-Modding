@@ -1,0 +1,67 @@
+"workshopitem"
+{
+    "appid"           "784150"
+    "publishedfileid" "{PUBLISHED_FILE_ID}"
+    "contentfolder"   "{CONTENT_DIR}"
+    "previewfile"     "{PREVIEW_FILE}"
+    "visibility"      "{VISIBILITY}"
+    "title"           "{WORKSHOP_TITLE}"
+    "description"     "[h1]Comrade, Stop Wasting Diesel![/h1]Do your glorious Distribution Offices keep dispatching trucks barely a quarter full, burning precious fuel to haul a wheelbarrow's worth of bricks across the whole republic? Does a single crate of cement trigger a 40-tonne convoy? The Ministry of Logistics says: [b]No more![/b]
+
+By decree of the [b]Supreme Soviet Efficiency Commissariat (Gosplan Logistics Division)[/b], every Distribution Office can now be ordered to wait until a vehicle is [b]worthwhile to send[/b]. If only a trickle of cargo is ready, our loyal drivers keep their engines parked and let the stockpile grow — then dispatch a [i]real[/i] load. [i]Diesel is a resource of the Republic, not a plaything for half-empty runs.[/i]
+
+{EDITION_HEADER}
+Source code & releases: [url=https://github.com/ZydraHydra/WorkersAndResources-Modding]ZydraHydra GitHub[/url]
+
+[b]Alpha Field Dispatch:[/b] Treat this mod as an early [b]Alpha[/b] release. It has only been inspected on modest republics so far and needs far more field testing on massive late-game maps with many DOs and rail hubs. Back up your glorious republic's saves first and report any saboteurs (bugs) or slowdowns on GitHub!
+
+[h1]Wait - What is a DLL Mod? (Step-by-Step Setup)[/h1]Ordinary Steam Workshop mods only add buildings or vehicles. Because [b]SmartDOBatching[/b] adds an in-game [b]F9[/b] overlay tab and hooks into dispatch logic, it needs a [b]Mod Loader[/b] alongside the game. Simply clicking Play in Steam will [b]not[/b] load DLL mods on its own.
+
+Both [b]TesmioLoader (v0.4.5+)[/b] and [b]Republic Mod Loader (v1.0.1)[/b] automatically find subscribed Steam Workshop DLL mods - [b]no manual file copying required[/b]:
+
+[b]Option A - TesmioLoader (Recommended - Mature & Updated for WRSR 1.2.0.9):[/b]
+[list=1]
+[*] Subscribe to this mod ([b]SmartDOBatching[/b]) - Workshop ID [i]{PUBLISHED_FILE_ID}[/i].
+[*] Download & extract [url=https://github.com/MaxLegend/TesmioLoader/releases]TesmioLoader (v0.4.5+)[/url] into your WRSR game directory ([url=https://maxlegend.github.io/TesmioLoaderDocs/#/getting-started]Docs[/url]).
+[*] Run [b]tesmiolauncher.exe[/b]. Since v0.4, TesmioLoader automatically scans your Steam Workshop folder and lists subscribed DLL plugins (if your Workshop is in a separate Steam library, set it in the launcher / [i]workshop_path[/i]).
+[*] Tick [b]SmartDOBatching[/b], launch WRSR, and press [b]F9[/b] in-game to open the DO Batching tab!
+[/list]
+[b]Option B - Republic Mod Loader (RML - All-on-Steam Alternative):[/b]
+[list=1]
+[*] Subscribe to this mod ([b]SmartDOBatching[/b]) - Workshop ID [i]{PUBLISHED_FILE_ID}[/i].
+[*] Also subscribe to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3787969749]Republic Mod Loader (RML)[/url] ([url=https://github.com/Ultimate-Universe/WRSR-RepublicModLoader]GitHub[/url]).
+[*] Open RML from Steam Workshop:
+[code]<Your Steam Library>\steamapps\workshop\content\784150\3787969749\RepublicModLoader.exe[/code]
+(Tip: create a Desktop shortcut or add it to Steam as a Non-Steam Game.)
+[*] Tick [b]SmartDOBatching[/b] in RML and click [b]Launch WRSR[/b], then press [b]F9[/b] in-game!
+[/list]
+(Manual/Non-Steam only: this Workshop item's DLL lives at [code]<Your Steam Library>\steamapps\workshop\content\784150\{PUBLISHED_FILE_ID}\plugins\SmartDOBatching.dll[/code] -> copy into [code]<Game Dir>\plugins\[/code] if you aren't using Steam Workshop scanning.)
+
+[h1]Operating the Dispatch Efficiency Terminal (In-Game)[/h1][list]
+[*] Press [b]F9[/b] anytime in-game to open the overlay, then click the [b]DO Batching[/b] tab.
+[*] [b]Min Truck Fill %[/b] (default 50%): A road truck must be able to carry at least this fraction of its capacity worth of cargo before the DO dispatches it. Set 0% to restore vanilla behaviour for road vehicles.
+[*] [b]Min Train Fill %[/b] (default 60%): Same as above but for rail wagons. Trains are expensive to run; hold them for bigger batches.
+[*] [b]Exempt Essential Goods[/b] (default ON): Food, Meat, Alcohol, Medicine, Chemicals, Coal, Water, and Fuel bypass the fill check entirely - towns will never starve or freeze waiting for a full batch.
+[*] [b]Prevent Small-Building Deadlock[/b] (default ON): If the destination building's storage is smaller than the required batch (e.g. a 4t grocery store vs a 12t truck), the required cargo is capped at 85% of the destination's capacity so the DO never deadlocks permanently.
+[*] [b]Quick Presets:[/b] [i]Vanilla 0%[/i], [i]50%[/i], [i]75%[/i], [i]90%[/i] buttons set both truck and train thresholds at once.
+[*] [b]Save Config:[/b] Writes settings to [i]SmartDOBatching.ini[/i] alongside the DLL so they persist across restarts.
+[/list]
+[h1]Recommended Settings by Play-Style[/h1][list]
+[*] [b]Efficiency-first (long supply lines):[/b] Truck 60%, Train 70%, both checkboxes ON. Vehicles wait for a proper batch; your fuel bill drops noticeably.
+[*] [b]Balanced (default):[/b] Truck 50%, Train 60%, both checkboxes ON. Good trade-off between efficiency and delivery speed.
+[*] [b]Responsive (small republic, short hauls):[/b] Truck 25%, Train 40%. Cargo moves quickly but vehicles still avoid one-crate runs.
+[*] [b]Vanilla:[/b] Press the [i]Vanilla 0%[/i] preset. All gating is disabled; behaviour is identical to unmodded WRSR.
+[/list]
+[h1]Five-Year Plan Guarantees (Save-Safe & Performance)[/h1][list]
+[*] [b]Convoys already rolling stay rolling:[/b] The batch check only gates [b]new dispatches[/b]. Trucks and trains already out on the road finish their current trip safely.
+[*] [b]100% Save-Safe:[/b] Settings live in [i]SmartDOBatching.ini[/i] alongside the plugin DLL. WRSR binary saves are never altered.
+[*] [b]Zero overhead at Vanilla 0%:[/b] When both thresholds are 0%, the detour calls the original function immediately with no additional logic.
+[*] [b]Rejected Dispatch Counter:[/b] The overlay tab shows how many near-empty dispatches have been suppressed since the last load, so you can tune your thresholds to taste.
+[/list]
+[h1]Companion Mods (Logistics Suite)[/h1][list]
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3845944617][b]CustomsSpeedControl[/b][/url] - Scale Customs House cargo Load & Unload speeds (0.25x - 100.0x, Road & Rail toggle) live via the same [b]F9[/b] overlay. Works cleanly alongside SmartDOBatching!
+[*] [b]TradePriceLimits[/b] - Set min-sell / max-buy price limits on Distribution Office border transfers (RUB & USD). Pairs perfectly for a fully automated, efficient logistics network.
+[/list]{CHANGELOG_SECTION}"
+    "language"        "english"
+    "changenote"      "{CHANGENOTE}"
+}
