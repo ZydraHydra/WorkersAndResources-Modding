@@ -3,7 +3,7 @@
   "gameVersions": [
     {
       "id": "latest",
-      "label": "Latest (WRSR 1.2.0.8, 1.1.1.9 & 1.1.1.7)",
+      "label": "Unified (WRSR 1.2.0.8, 1.1.1.9 & 1.1.1.7)",
       "isPrimary": true,
       "supportedGameVersions": [
         "1.2.0.8",
@@ -12,15 +12,6 @@
       ],
       "publishWorkshop": true,
       "publishedFileId": "3845533384"
-    },
-    {
-      "id": "1.1.1.7",
-      "label": "Legacy: WRSR 1.1.1.7",
-      "isPrimary": false,
-      "supportedGameVersions": [
-        "1.1.1.7"
-      ],
-      "publishWorkshop": false
     }
   ]
 }

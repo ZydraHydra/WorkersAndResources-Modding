@@ -2,6 +2,9 @@
 
 All notable changes to **TradePriceLimits** are documented here. The topmost section is automatically included in Steam Workshop release notes and the Workshop page description.
 
+## [1.0.13]
+- **Single Unified GitHub & Steam Release:** Removed the duplicate `1.1.1.7` ZIP variant from GitHub Releases so both GitHub Releases and Steam Workshop (`3845533384`) distribute one universal DLL supporting WRSR `1.2.0.8`, `1.1.1.9`, and `1.1.1.7`, with supported game versions clearly listed in the release description.
+
 ## [1.0.12]
 - **WRSR `1.1.1.9` Profile Support:** Added exact PE fingerprint (`TimeDateStamp = 0x6A3EB6AD`, `SizeOfImage = 0xA9D000`) and verified offsets (`res_stride = 0x340`, `desc_type_off = 0x360`) for WRSR `1.1.1.9` in `offsets.ini`, and added `1.1.1.9` to `supportedGameVersions`.
 

@@ -114,6 +114,18 @@ jobs:
             throw "Mod directory mods/$mod does not exist"
           }
 
+          $modMeta = .\scripts\get_mod_version.ps1 -Mod $mod -AsObject
+          $supportedSet = [System.Collections.Generic.List[string]]::new()
+          foreach ($t in $modMeta.gameVersions) {
+            foreach ($sv in @($t.supportedGameVersions)) {
+              if ($sv -and -not $supportedSet.Contains([string]$sv)) {
+                $supportedSet.Add([string]$sv)
+              }
+            }
+          }
+          $supportedText = if ($supportedSet.Count -gt 0) { $supportedSet -join ", " } else { "Latest" }
+          $releaseBody   = "**Supported WRSR Versions:** $supportedText`n`n$changenote"
+
           "mod=$mod"                  | Out-File -FilePath $env:GITHUB_OUTPUT -Append
           "game_version=$gameVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
           "version=$version"          | Out-File -FilePath $env:GITHUB_OUTPUT -Append
@@ -124,6 +136,11 @@ jobs:
             "changenote<<WRSR_CHANGELOG_EOF"
             $changenote
             "WRSR_CHANGELOG_EOF"
+          ) | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          @(
+            "release_body<<WRSR_BODY_EOF"
+            $releaseBody
+            "WRSR_BODY_EOF"
           ) | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
       - name: Install Ninja
@@ -147,8 +164,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.meta.outputs.tag }}
-          name: "${{ steps.meta.outputs.mod }} v${{ steps.meta.outputs.version }} (WRSR: ${{ steps.meta.outputs.game_version }})"
-          body: "${{ steps.meta.outputs.changenote }}"
+          name: "${{ steps.meta.outputs.mod }} v${{ steps.meta.outputs.version }}"
+          body: "${{ steps.meta.outputs.release_body }}"
           generate_release_notes: true
           files: |
             release/${{ steps.meta.outputs.mod }}_v${{ steps.meta.outputs.version }}_wrsr-*/*.zip
