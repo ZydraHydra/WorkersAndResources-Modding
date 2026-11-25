@@ -8,7 +8,7 @@ Follow these steps to create a new x64 C++ plugin under `mods/`:
    ├── CMakeLists.txt
    ├── MyNewMod.rml.json
    ├── VERSION                 # Base MAJOR.MINOR (e.g. "1.0"); patch auto-derived from git
-   ├── game_versions.json      # Separate release tracks & Workshop IDs per WRSR version
+   ├── game_versions.json      # Primary "latest" ID + separate legacy WRSR game-version IDs
    ├── README.md
    ├── src/
    │   └── main.cpp

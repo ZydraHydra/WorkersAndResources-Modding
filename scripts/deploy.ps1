@@ -13,9 +13,26 @@ param(
 $ErrorActionPreference = "Stop"
 $Root = Split-Path $PSScriptRoot -Parent
 
+$envFile       = Join-Path $Root ".env.local"
+$rmlPluginsDir = $null
+$envGameVer    = $null
+if (Test-Path $envFile) {
+    Get-Content $envFile | ForEach-Object {
+        if ($_ -match "^RML_PLUGINS_DIR=(.+)$") {
+            $rmlPluginsDir = $Matches[1].Trim() -replace '/', '\'
+        } elseif ($_ -match "^WRSR_GAME_VERSION=(.+)$") {
+            $envGameVer = $Matches[1].Trim()
+        }
+    }
+}
+
 if (-not $GameVersion) {
-    $info = & (Join-Path $PSScriptRoot "get_mod_version.ps1") -Mod $Mod -AsObject
-    $GameVersion = $info.defaultGameVersion
+    if ($envGameVer) {
+        $GameVersion = $envGameVer
+    } else {
+        $info = & (Join-Path $PSScriptRoot "get_mod_version.ps1") -Mod $Mod -AsObject
+        $GameVersion = $info.defaultGameVersion
+    }
 }
 
 $BuildDir = Join-Path $Root "build\$($Config.ToLower())\$GameVersion\mods\$Mod"
@@ -27,16 +44,6 @@ if (-not (Test-Path $ManSrc)) {
 
 if (-not (Test-Path $DllSrc)) {
     throw "Built DLL not found at $DllSrc — run .\scripts\build.ps1 -Mod $Mod -GameVersion $GameVersion first"
-}
-
-$envFile       = Join-Path $Root ".env.local"
-$rmlPluginsDir = $null
-if (Test-Path $envFile) {
-    Get-Content $envFile | ForEach-Object {
-        if ($_ -match "^RML_PLUGINS_DIR=(.+)$") {
-            $rmlPluginsDir = $Matches[1].Trim() -replace '/', '\'
-        }
-    }
 }
 
 if (-not $rmlPluginsDir) {

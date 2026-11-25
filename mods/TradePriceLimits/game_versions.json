@@ -1,19 +1,21 @@
 {
-  "defaultGameVersion": "1.1.1.7",
+  "defaultGameVersion": "latest",
   "gameVersions": [
     {
+      "id": "latest",
+      "label": "Latest",
+      "isPrimary": true,
+      "supportedGameVersions": [],
+      "publishedFileId": "3845533384"
+    },
+    {
       "id": "1.1.1.7",
-      "label": "WRSR 1.1.1.7",
+      "label": "Legacy: WRSR 1.1.1.7",
+      "isPrimary": false,
       "supportedGameVersions": [
         "1.1.1.7"
       ],
       "publishedFileId": "3845533316"
-    },
-    {
-      "id": "latest",
-      "label": "WRSR Latest",
-      "supportedGameVersions": [],
-      "publishedFileId": "3845533384"
     }
   ]
 }

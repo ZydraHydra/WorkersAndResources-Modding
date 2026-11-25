@@ -106,9 +106,17 @@ if ($GameVersion -eq "all") {
     }
 } else {
     if (-not $GameVersion) {
-        # Use first selected mod's defaultGameVersion (fallback "latest")
-        $firstInfo = & (Join-Path $PSScriptRoot "get_mod_version.ps1") -Mod ($modNames[0]) -VersionOverride $VersionOverride -AsObject
-        $GameVersion = $firstInfo.defaultGameVersion
+        # Allow local .env.local WRSR_GAME_VERSION override; otherwise use mod's defaultGameVersion
+        $envFile = Join-Path $Root ".env.local"
+        if (Test-Path $envFile) {
+            Get-Content $envFile | ForEach-Object {
+                if ($_ -match "^WRSR_GAME_VERSION=(.+)$") { $GameVersion = $Matches[1].Trim() }
+            }
+        }
+        if (-not $GameVersion) {
+            $firstInfo = & (Join-Path $PSScriptRoot "get_mod_version.ps1") -Mod ($modNames[0]) -VersionOverride $VersionOverride -AsObject
+            $GameVersion = $firstInfo.defaultGameVersion
+        }
     }
 
     if ($Mod -eq "all") {

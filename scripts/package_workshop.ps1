@@ -172,12 +172,40 @@ foreach ($track in $targetTracks) {
     }
 
     # 6. Render clean workshop_item.vdf OUTSIDE content/
-    $note = if ($Changenote) { $Changenote } else { "Release v$ResolvedVer for $gvLabel" }
+    $isPrimaryTrack = ($null -ne $track.isPrimary -and [bool]$track.isPrimary) -or ($gvId -eq "latest")
+    $workshopTitle  = if ($isPrimaryTrack) { "$Mod" } else { "$Mod [$gvLabel]" }
+
+    $primaryTrack = $info.gameVersions | Where-Object { ($null -ne $_.isPrimary -and [bool]$_.isPrimary) -or $_.id -eq "latest" } | Select-Object -First 1
+    $primaryId    = if ($primaryTrack -and $primaryTrack.publishedFileId) { [string]$primaryTrack.publishedFileId } else { "" }
+
+    $otherLinks = @()
+    foreach ($other in $info.gameVersions) {
+        if ($other.id -ne $gvId -and $other.publishedFileId -and $other.publishedFileId -ne "0") {
+            $otherLabel = if ($other.label) { [string]$other.label } else { "WRSR $($other.id)" }
+            $otherLinks += "[url=https://steamcommunity.com/sharedfiles/filedetails/?id=$($other.publishedFileId)]$otherLabel[/url]"
+        }
+    }
+
+    if ($isPrimaryTrack) {
+        $editionHeader = "[b]Main Edition (Mod v$ResolvedVer - Alpha):[/b] Tracks the latest WRSR & mod updates under this permanent Workshop ID (safe for Steam Collections)."
+        if ($otherLinks.Count -gt 0) {
+            $editionHeader += "`nOlder pinned game versions: " + ($otherLinks -join " | ")
+        }
+    } else {
+        $editionHeader = "[b]Legacy Pinned Edition:[/b] Built for [b]$gvLabel[/b] (Mod v$ResolvedVer - Alpha)."
+        if ($primaryId -and $primaryId -ne "0") {
+            $editionHeader += "`nLooking for the main auto-updating Workshop item? [url=https://steamcommunity.com/sharedfiles/filedetails/?id=$primaryId]$Mod (Latest)[/url]"
+        }
+    }
+
+    $note = if ($Changenote) { $Changenote } else { "Release v$ResolvedVer ($gvLabel)" }
     $VdfSrc = Join-Path $ModDir "steamcmd\workshop_item.vdf"
     if (Test-Path $VdfSrc) {
         $contentSlash = $ContentDir -replace '\\', '/'
         $previewSlash = $PreviewStage -replace '\\', '/'
         $vdf = Get-Content $VdfSrc -Raw -Encoding UTF8
+        $vdf = $vdf -replace '\{WORKSHOP_TITLE\}', $workshopTitle
+        $vdf = $vdf -replace '\{EDITION_HEADER\}', $editionHeader
         $vdf = $vdf -replace '\{VERSION\}', $ResolvedVer
         $vdf = $vdf -replace '\{GAME_VERSION\}', $gvId
         $vdf = $vdf -replace '\{GAME_LABEL\}', $gvLabel
