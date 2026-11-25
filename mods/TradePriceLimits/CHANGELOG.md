@@ -2,8 +2,9 @@
 
 All notable changes to **TradePriceLimits** are documented here. The topmost section is automatically included in Steam Workshop release notes and the Workshop page description.
 
-## [1.0.15]
+## [1.0.15 - 1.0.16]
 - **Documentation & Workshop Examples:** Added practical gameplay examples to `README.md` and the Steam Workshop description covering price-dip/peak gating, negative-price waste imports, RUB/USD arbitrage, cross-border margins, staggered fallback exports, and `Base %` inflation protection.
+- **Steam Workshop Description Guard:** Automatically fits recent changelog sections within Steam's 8,000-character description limit during packaging.
 
 ## [1.0.14]
 - **Hover-Scoped Overlay Input Locking:** Hooked DirectInput8 `GetDeviceState`, `C3D_INPUT` mouse/key exports, and `WndProc` so clicks and scroll-wheel zoom are blocked when hovering or interacting inside the `F8` overlay while map panning/zooming outside the window continues working normally, and keyboard shortcuts lock while typing.

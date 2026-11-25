@@ -157,6 +157,7 @@ function Get-ModChangelogData {
     return [pscustomobject]@{
         changenote = $plainBlock
         bbSection  = $bbBlock
+        bbSections = $bbSections
     }
 }
 
@@ -322,7 +323,6 @@ foreach ($track in $targetTracks) {
         $vdf = Get-Content $VdfSrc -Raw -Encoding UTF8
         $vdf = $vdf -replace '\{WORKSHOP_TITLE\}', $workshopTitle
         $vdf = $vdf -replace '\{EDITION_HEADER\}', $editionHeader
-        $vdf = $vdf -replace '\{CHANGELOG_SECTION\}', ($changelogData.bbSection -replace '"', "'")
         $vdf = $vdf -replace '\{VERSION\}', $ResolvedVer
         $vdf = $vdf -replace '\{GAME_VERSION\}', $gvId
         $vdf = $vdf -replace '\{GAME_LABEL\}', $gvLabel
@@ -331,6 +331,44 @@ foreach ($track in $targetTracks) {
         $vdf = $vdf -replace '\{PREVIEW_FILE\}', $previewSlash
         $vdf = $vdf -replace '\{VISIBILITY\}', $Visibility
         $vdf = $vdf -replace '\{CHANGENOTE\}', ($note -replace '"', "'")
+
+        # Steam Workshop caps ISteamUGC::SetItemDescription at 8,000 characters.
+        # Fit as many recent changelog sections cleanly within 7,900 chars.
+        $maxDescChars = 7900
+        $baseDescLen = 0
+        if ($vdf -match '(?s)"description"\s+"(.*?)"\s+"language"') {
+            $baseDescLen = ($Matches[1] -replace '\{CHANGELOG_SECTION\}', '').Length
+        }
+        $fittedChangelog = ""
+        $sectionsList = @($changelogData.bbSections)
+        if ($sectionsList.Count -gt 0 -and $baseDescLen -gt 0) {
+            $header = "`n`n[h1]Recent Changelog[/h1]"
+            $candidate = $header
+            $added = 0
+            foreach ($secBb in $sectionsList) {
+                $cleanSec = $secBb -replace '"', "'"
+                $next = if ($added -eq 0) { $candidate + $cleanSec } else { $candidate + "`n" + $cleanSec }
+                if (($baseDescLen + $next.Length) -le $maxDescChars) {
+                    $candidate = $next
+                    $added++
+                } else {
+                    break
+                }
+            }
+            if ($added -gt 0) {
+                $fittedChangelog = $candidate
+            }
+        }
+        $vdf = $vdf -replace '\{CHANGELOG_SECTION\}', $fittedChangelog
+
+        if ($vdf -match '(?s)"description"\s+"(.*?)"\s+"language"') {
+            $finalLen = $Matches[1].Length
+            if ($finalLen -gt 8000) {
+                throw "Steam Workshop description exceeds 8,000-char limit ($finalLen chars)"
+            }
+            Write-Host "  Description : $finalLen / 8000 chars"
+        }
+
         [System.IO.File]::WriteAllText((Join-Path $StageDir "workshop_item.vdf"), $vdf, (New-Object System.Text.UTF8Encoding $false))
     }
 
