@@ -1,0 +1,32 @@
+name: Feature Request
+description: Suggest an improvement, quality-of-life tweak, or new mod idea.
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: mod
+    attributes:
+      label: Target Mod
+      options:
+        - TradePriceLimits
+        - CustomsSpeedControl
+        - Shared F9 Overlay / Common
+        - New Mod Idea
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Gameplay Problem / Use Case
+      description: What are you trying to achieve in WRSR, and what limitation are you hitting today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Solution
+      description: Describe how you'd expect it to behave (UI controls, INI options, shortcuts, etc.).
+    validations:
+      required: true

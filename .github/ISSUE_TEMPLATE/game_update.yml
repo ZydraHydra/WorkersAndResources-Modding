@@ -1,0 +1,38 @@
+name: New WRSR Game Update / Broken Offsets
+description: Report a new Workers & Resources game patch where signatures or offsets need verification.
+title: "[Game Update] WRSR "
+labels: ["game-update"]
+body:
+  - type: input
+    id: wrsr_version
+    attributes:
+      label: New WRSR Game Version
+      placeholder: "e.g. 1.2.1.0 (Steam / GOG / Beta branch)"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: mods
+    attributes:
+      label: Affected Mod(s)
+      options:
+        - label: TradePriceLimits
+        - label: CustomsSpeedControl
+
+  - type: dropdown
+    id: behavior
+    attributes:
+      label: What Happened on Launch / In-Game?
+      options:
+        - Mod failed to initialize / AOB signature not found
+        - Mod loaded via fallback profile, but hooks behave incorrectly
+        - Game crashed on load or during simulation
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Startup Log (`TradePriceLimits.log` / `CustomsSpeedControl.log`)
+      description: Please paste the startup section showing `TimeDateStamp`, `SizeOfImage`, and AOB scan lines.
+      render: log
+    validations:
+      required: true

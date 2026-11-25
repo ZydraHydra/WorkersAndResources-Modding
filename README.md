@@ -9,7 +9,7 @@ Native x64 C++20 plugin workspace for **Workers & Resources: Soviet Republic** (
 
 | Mod | Status | Description |
 |---|---|---|
-| [`TradePriceLimits`](mods/TradePriceLimits) | v1.0.19+ (Alpha) | Per-resource Max Buy / Min Sell price thresholds for **new** Customs House dispatches (`RUB` & `USD`; vehicles already en route finish their trip), `F8` WRSR-themed ImGui overlay, `Enforce Limits` bypass, Blocked Checks readout, and per-save `trade_price_limits.ini` sidecar. ([Workshop Main](https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384) · [Legacy 1.1.1.7](https://steamcommunity.com/sharedfiles/filedetails/?id=3845533316) · [Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases)) |
+| [`TradePriceLimits`](mods/TradePriceLimits) | v1.0.19+ (Alpha) | Per-resource Max Buy / Min Sell price thresholds for **new** Customs House dispatches (`RUB` & `USD`; vehicles already en route finish their trip), `F8` WRSR-themed ImGui overlay, `Enforce Limits` bypass, Blocked Checks readout, and per-save `trade_price_limits.ini` sidecar. ([Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384) · [Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases)) |
 | [`CustomsSpeedControl`](mods/CustomsSpeedControl) | v1.0.9+ (Alpha) | Independent Customs House (`$TYPE_CUSTOMHOUSE`) cargo **Load** & **Unload** speed multipliers (`0.25x`–`100.0x`) with quick presets (`1x`–`100x`), **Affect Rail** toggle, and shared `F9` multi-mod overlay (`WRSR Tweaks [F9]`), leaving domestic stations and warehouses at vanilla speeds. ([Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3845944617) · [Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases)) |
 
 ## Repository Layout
@@ -46,7 +46,7 @@ WorkersAndResources-Modding/
 ## Versioning & Game-Version Releases
 
 - **Automatic Per-Mod Versioning:** Each mod defines its `MAJOR.MINOR` base in `mods/<Mod>/VERSION` (e.g. `1.0`). The patch number is derived automatically from Git commits touching `mods/<Mod>/` or `common/` (so changes to one mod never bump another mod's version), or overridden by release tags (`<Mod>-v<SemVer>` / `<Mod>-wrsr<GameVer>-v<SemVer>`). CMake embeds the version into the compiled Windows PE `VS_VERSION_INFO` resource, `RmlPluginQuery`/`TsmPluginInit`, and the output `<Mod>.rml.json`.
-- **Main Item Stays on `latest` (Collection-Safe):** The primary Steam Workshop item (`latest`, `isPrimary: true`) permanently keeps one Workshop ID so Steam Collections and subscribers automatically receive both mod and game updates without changing subscriptions. Older pinned game builds (such as `1.1.1.7`) are published as separate `[Legacy: WRSR ...]` Workshop items with their own `publishedFileId`.
+- **Unified Multi-Version DLL (`latest`, Collection-Safe):** Each mod publishes a single primary Steam Workshop item (`latest`, `isPrimary: true`) that permanently keeps one Workshop ID (`3845533384` for `TradePriceLimits`, `3845944617` for `CustomsSpeedControl`) and detects supported WRSR builds (`1.2.0.9`, `1.2.0.8`, `1.1.1.13`, `1.1.1.9`, `1.1.1.7`, plus AOB fallback) at runtime so subscribers stay on one item across updates. Separate per-version tracks remain supported in `game_versions.json` if a breaking game update ever requires a pinned legacy item.
 
 ## Building
 

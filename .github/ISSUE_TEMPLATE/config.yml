@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Mod Releases & Downloads
+    url: https://github.com/ZydraHydra/WorkersAndResources-Modding/releases
+    about: Download unified release ZIPs for TradePriceLimits and CustomsSpeedControl.
+  - name: Steam Workshop — TradePriceLimits
+    url: https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384
+    about: Steam Workshop page for TradePriceLimits.
+  - name: Steam Workshop — CustomsSpeedControl
+    url: https://steamcommunity.com/sharedfiles/filedetails/?id=3845944617
+    about: Steam Workshop page for CustomsSpeedControl.

@@ -1,0 +1,105 @@
+name: Bug Report
+description: Report a crash, wrong in-game behavior, or overlay issue in one of the mods.
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting an issue! Because these mods use native `SOVIET64.exe` memory hooks, version, log, and savegame details make debugging much faster.
+
+  - type: dropdown
+    id: mod
+    attributes:
+      label: Affected Mod / Area
+      options:
+        - TradePriceLimits
+        - CustomsSpeedControl
+        - Shared F9 Overlay / Common
+        - Build / Scripts / CI
+    validations:
+      required: true
+
+  - type: input
+    id: mod_version
+    attributes:
+      label: Mod Version & Source
+      description: e.g. `v1.0.19 (Steam Workshop)`, `v1.0.9 (GitHub Release)`, or `self-built from main`
+      placeholder: "v1.0.x (Steam Workshop / GitHub Release)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: wrsr_version
+    attributes:
+      label: WRSR Game Version
+      options:
+        - 1.2.0.9
+        - 1.2.0.8
+        - 1.1.1.13
+        - 1.1.1.9
+        - 1.1.1.7
+        - Newer / Unlisted WRSR version
+    validations:
+      required: true
+
+  - type: dropdown
+    id: loader
+    attributes:
+      label: Mod Loader
+      options:
+        - TesmioLoader
+        - Republic Mod Loader (RML)
+        - Manual DLL install
+        - Not applicable (build/CI issue)
+    validations:
+      required: true
+
+  - type: input
+    id: other_mods
+    attributes:
+      label: Other Active DLL Mods
+      description: List any other native `.dll` plugins enabled alongside this mod (or `None`).
+      placeholder: "None / CustomsSpeedControl / ..."
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What Happened?
+      description: Clear description of the bug, plus what you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to Reproduce
+      placeholder: |
+        1. Load save with ...
+        2. Open F8 / F9 overlay and set ...
+        3. Observe ...
+
+  - type: textarea
+    id: savegame
+    attributes:
+      label: Savegame (Optional, Strongly Recommended for Gameplay Bugs)
+      description: |
+        If the issue happens in a specific republic/setup, zip your save folder from `<WRSR Dir>\media_soviet\save\<SaveName>\` (including `trade_price_limits.ini` if using TradePriceLimits) and drag-and-drop the `.zip` into this box (or paste a download link if the `.zip` exceeds GitHub's attachment limit).
+      placeholder: "Drag and drop a zipped save folder here, or paste a link (optional)..."
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log Output (`TradePriceLimits.log` / `CustomsSpeedControl.log`)
+      description: Found next to `SOVIET64.exe` in your WRSR game directory. Paste relevant lines or drag-and-drop the `.log` file (feel free to redact any personal Windows username paths).
+      render: log
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submission Checks
+      options:
+        - label: I checked existing issues and the mod's README.
+          required: true
+        - label: My save is backed up before testing alpha/native hook changes.
+          required: false
