@@ -6,7 +6,41 @@
     "previewfile"     "{PREVIEW_FILE}"
     "visibility"      "{VISIBILITY}"
     "title"           "TradePriceLimits v{VERSION} [{GAME_LABEL}]"
-    "description"     "Target game version: {GAME_LABEL} (Mod v{VERSION} - Alpha)\n\nStop Distribution Offices from buying imports when border prices spike or dumping exports when prices crash.\n\n[b]Alpha Notice:[/b] Treat this mod as an early [b]Alpha[/b] release. It has only been tested on smaller setups so far and needs a lot more testing on larger, late-game republics with many Distribution Offices and trains. Back up your saves before trying it and report any bugs or performance issues!\n\n[h1]Wait - What is a DLL Mod? (Step-by-Step Setup)[/h1]\nNormal WRSR mods only add buildings or vehicles. Because this mod adds live price rules and an in-game menu, it needs a [b]Mod Loader[/b] to run alongside the game. Simply clicking Play in Steam will [b]not[/b] load DLL mods on its own.\n\n[b]Recommended Setup (Republic Mod Loader - No manual file copying):[/b]\n[list=1]\n[*] Subscribe to this mod ([b]TradePriceLimits[/b]).\n[*] Also subscribe to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3787969749]Republic Mod Loader (RML)[/url] on the Steam Workshop (RML links: [url=https://github.com/Ultimate-Universe/WRSR-RepublicModLoader]GitHub[/url]).\n[*] Open the RML folder on your PC:\n[code]<Your Steam Library>\\steamapps\\workshop\\content\\784150\\3787969749\\[/code]\n[*] Run [b]RepublicModLoader.exe[/b] (Tip: right-click it and create a Desktop shortcut, or add it to Steam as a Non-Steam Game).\n[*] In RML, make sure [b]TradePriceLimits[/b] is ticked/enabled, then click [b]Launch WRSR[/b].\n[*] Load or start a savegame, then press [b]F8[/b] to open the TradePriceLimits menu!\n[/list]\n\n[b]Alternative Loader (TesmioLoader):[/b]\nAlso compatible with [url=https://maxlegend.github.io/TesmioLoaderDocs/#/getting-started]TesmioLoader[/url]. Copy [i]TradePriceLimits.dll[/i] from this item's [i]plugins/[/i] folder into [i]tesmioloader/build/plugins/[/i] and start the game via [i]tesmiolauncher.exe[/i] (or install via TLMM).\n\n[h1]How to Use In-Game[/h1]\n[list]\n[*] Press [b]F8[/b] anytime in-game to open or close the window (or press [b]Esc[/b] to close).\n[*] [b]Fixed Mode (exact prices):[/b] Set a [b]Max Buy[/b] cap (stops importing above this price) or a [b]Min Sell[/b] floor (stops exporting below this price). Set [b]0[/b] to leave a resource unrestricted. Example: setting [i]Max Buy RUB = 45[/i] on Fuel stops Soviet Customs imports whenever fuel goes over 45 RUB/t.\n[*] [b]Base % Mode (auto-scales with inflation):[/b] Click [b]Fixed[/b] on a row to switch to [b]Base %[/b]. It snapshots today's market prices as 100%, so e.g. [i]115% Max Buy[/i] allows prices up to +15% above baseline and [i]85% Min Sell[/i] pauses exports if prices drop >15%.\n[*] [b]Trash & Waste (negative prices):[/b] Customs pays you to import waste (shown as negative numbers). Negative limits work directly — e.g. [i]Max Buy = -300[/i] means only import waste if Customs pays at least 300/t.\n[*] [b]Emergency Bypass:[/b] Need supplies immediately during a shortage? Uncheck [b]Enforce Limits[/b] at the top to pause all blocking in one click without losing your setup.\n[/list]\n\n[h1]Good to Know (Save-Safe & Performance)[/h1]\n[list]\n[*] [b]Vehicles already on the road:[/b] Blocking applies [b]only to new dispatches[/b]. Trucks and trains already on their way will never be cancelled mid-trip.\n[*] [b]100% Save-Safe & Rebindable Key:[/b] Your rules are stored in a small [i]trade_price_limits.ini[/i] file inside your save folder (you can change [i]toggle_key=F8[/i] under [i][__settings][/i] to F1-F12, Home, Insert, etc.). Original WRSR save files are never modified, so you can remove the mod safely anytime.\n[*] [b]Separate RUB & USD limits:[/b] Configure Soviet Customs (RUB) and Western Customs (USD) independently.\n[*] [b]60s Blocked Counter:[/b] Live indicator in the header shows how many border dispatches were blocked during the last 60 seconds of active simulation time.\n[/list]"
+    "description"     "Target game version: {GAME_LABEL} (Mod v{VERSION} - Alpha)
+Source & releases: [url=https://github.com/tuefekci/WorkersAndResources-Modding]GitHub[/url]
+
+Stop Distribution Offices from buying imports when border prices spike or dumping exports when prices crash.
+
+[b]Alpha Notice:[/b] Treat this mod as an early [b]Alpha[/b] release. It has only been tested on smaller setups so far and needs a lot more testing on larger, late-game republics with many Distribution Offices and trains. Back up your saves before trying it and report any bugs or performance issues on GitHub!
+
+[h1]Wait - What is a DLL Mod? (Step-by-Step Setup)[/h1]Normal WRSR mods only add buildings or vehicles. Because this mod adds live price rules and an in-game menu, it needs a [b]Mod Loader[/b] to run alongside the game. Simply clicking Play in Steam will [b]not[/b] load DLL mods on its own.
+
+[b]Recommended Setup (Republic Mod Loader - No manual file copying):[/b]
+[list=1]
+[*] Subscribe to this mod ([b]TradePriceLimits[/b]).
+[*] Also subscribe to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3787969749]Republic Mod Loader (RML)[/url] on the Steam Workshop ([url=https://github.com/Ultimate-Universe/WRSR-RepublicModLoader]RML GitHub[/url]).
+[*] Open the RML folder on your PC:
+[code]<Your Steam Library>\steamapps\workshop\content\784150\3787969749\[/code]
+[*] Run [b]RepublicModLoader.exe[/b] (Tip: right-click it and create a Desktop shortcut, or add it to Steam as a Non-Steam Game).
+[*] In RML, make sure [b]TradePriceLimits[/b] is ticked/enabled, then click [b]Launch WRSR[/b].
+[*] Load or start a savegame, then press [b]F8[/b] to open the TradePriceLimits menu!
+[/list]
+[b]Alternative Loader (TesmioLoader):[/b]
+Also compatible with [url=https://maxlegend.github.io/TesmioLoaderDocs/#/getting-started]TesmioLoader[/url]. Copy [i]TradePriceLimits.dll[/i] from this item's [i]plugins/[/i] folder into [i]tesmioloader/build/plugins/[/i] and start the game via [i]tesmiolauncher.exe[/i] (or install via TLMM).
+
+[h1]How to Use In-Game[/h1][list]
+[*] Press [b]F8[/b] anytime in-game to open or close the window (or press [b]Esc[/b] to close).
+[*] [b]Fixed Mode (exact prices):[/b] Set a [b]Max Buy[/b] cap (stops importing above this price) or a [b]Min Sell[/b] floor (stops exporting below this price). Set [b]0[/b] to leave a resource unrestricted. Example: setting [i]Max Buy RUB = 45[/i] on Fuel stops Soviet Customs imports whenever fuel goes over 45 RUB/t.
+[*] [b]Base % Mode (auto-scales with inflation):[/b] Click [b]Fixed[/b] on a row to switch to [b]Base %[/b]. It snapshots today's market prices as 100%, so e.g. [i]115% Max Buy[/i] allows prices up to +15% above baseline and [i]85% Min Sell[/i] pauses exports if prices drop >15%.
+[*] [b]Trash & Waste (negative prices):[/b] Customs pays you to import waste (shown as negative numbers). Negative limits work directly - e.g. [i]Max Buy = -300[/i] means only import waste if Customs pays at least 300/t.
+[*] [b]Emergency Bypass:[/b] Need supplies immediately during a shortage? Uncheck [b]Enforce Limits[/b] at the top to pause all blocking in one click without losing your setup.
+[/list]
+[h1]Good to Know (Save-Safe & Performance)[/h1][list]
+[*] [b]Vehicles already on the road:[/b] Blocking applies [b]only to new dispatches[/b]. Trucks and trains already on their way will never be cancelled mid-trip.
+[*] [b]100% Save-Safe & Rebindable Key:[/b] Your rules are stored in a small [i]trade_price_limits.ini[/i] file inside your save folder (you can change [i]toggle_key=F8[/i] under [i][__settings][/i] to F1-F12, Home, Insert, etc.). Original WRSR save files are never modified, so you can remove the mod safely anytime.
+[*] [b]Separate RUB & USD limits:[/b] Configure Soviet Customs (RUB) and Western Customs (USD) independently.
+[*] [b]60s Blocked Counter:[/b] Live indicator in the header shows how many border dispatches were blocked during the last 60 seconds of active simulation time.
+[/list]"
     "language"        "english"
     "changenote"      "{CHANGENOTE}"
 }

@@ -4,14 +4,16 @@
     {
       "id": "1.1.1.7",
       "label": "WRSR 1.1.1.7",
-      "supportedGameVersions": ["1.1.1.7"],
-      "publishedFileId": "0"
+      "supportedGameVersions": [
+        "1.1.1.7"
+      ],
+      "publishedFileId": "3845533316"
     },
     {
       "id": "latest",
       "label": "WRSR Latest",
       "supportedGameVersions": [],
-      "publishedFileId": "0"
+      "publishedFileId": "3845533384"
     }
   ]
 }

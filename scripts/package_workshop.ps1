@@ -118,7 +118,7 @@ foreach ($track in $targetTracks) {
     $ManBuilt = Join-Path $BuildDir "$Mod.rml.json"
     $ManSrc   = if (Test-Path $ManBuilt) { $ManBuilt } else { Join-Path $ModDir "$Mod.rml.json" }
     if (Test-Path $ManSrc) {
-        $manifestObj = Get-Content $ManSrc -Raw | ConvertFrom-Json
+        $manifestObj = Get-Content $ManSrc -Raw -Encoding UTF8 | ConvertFrom-Json
         $manifestObj.version = $ResolvedVer
         if ($null -ne $track.supportedGameVersions) {
             $manifestObj.supportedGameVersions = @($track.supportedGameVersions)
@@ -162,7 +162,7 @@ foreach ($track in $targetTracks) {
     # 5. Copy workshopconfig.ini into content/
     $CfgSrc = Join-Path $ModDir "steamcmd\workshopconfig.ini"
     if (Test-Path $CfgSrc) {
-        $cfgText = Get-Content $CfgSrc -Raw
+        $cfgText = Get-Content $CfgSrc -Raw -Encoding UTF8
         if ($resolvedId -and $resolvedId -ne "0") {
             $cfgText = $cfgText -replace '(?m)^\$ITEM_ID\s+\S+', "`$ITEM_ID $resolvedId"
         }
@@ -177,7 +177,7 @@ foreach ($track in $targetTracks) {
     if (Test-Path $VdfSrc) {
         $contentSlash = $ContentDir -replace '\\', '/'
         $previewSlash = $PreviewStage -replace '\\', '/'
-        $vdf = Get-Content $VdfSrc -Raw
+        $vdf = Get-Content $VdfSrc -Raw -Encoding UTF8
         $vdf = $vdf -replace '\{VERSION\}', $ResolvedVer
         $vdf = $vdf -replace '\{GAME_VERSION\}', $gvId
         $vdf = $vdf -replace '\{GAME_LABEL\}', $gvLabel

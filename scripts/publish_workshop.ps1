@@ -42,7 +42,14 @@ if (-not $steamCmd) {
     if ($cmd) {
         $steamCmd = $cmd.Source
     } else {
-        foreach ($c in @("C:\steamcmd\steamcmd.exe", "D:\steamcmd\steamcmd.exe", "C:\Tools\steamcmd\steamcmd.exe")) {
+        $candidates = @("C:\steamcmd\steamcmd.exe", "D:\steamcmd\steamcmd.exe", "C:\Tools\steamcmd\steamcmd.exe")
+        $wingetPkg  = "$env:LOCALAPPDATA\Microsoft\WinGet\Packages"
+        if (Test-Path $wingetPkg) {
+            $found = Get-ChildItem $wingetPkg -Recurse -Filter "steamcmd.exe" -ErrorAction SilentlyContinue |
+                     Select-Object -First 1 -ExpandProperty FullName
+            if ($found) { $candidates = @($found) + $candidates }
+        }
+        foreach ($c in $candidates) {
             if (Test-Path $c) { $steamCmd = $c; break }
         }
     }
