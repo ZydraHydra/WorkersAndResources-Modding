@@ -46,6 +46,24 @@ Both **TesmioLoader (`v0.4.5`)** and **Republic Mod Loader (`v1.0.1`)** automati
 - **Blocked Checks Readout:** Live counter in the overlay header showing blocked Distribution Office task evaluations since the last Save / Autosave / Load.
 - **Save-Safe Sidecar (`trade_price_limits.ini`):** Auto-loads when opening a save and auto-saves on Save / Autosave / `Ctrl+S` inside the save folder without modifying WRSR's binary save files.
 
+## Practical Examples
+
+- **Buy the Dip, Sell the Peak (Price Guard):**
+  - **Fuel:** Set `Max Buy RUB = 45` so your import DO only buys Soviet fuel when it is `45 RUB/t` or cheaper.
+  - **Steel:** Set `Min Sell USD = 140` so your export DO only sells steel to NATO when they pay `140 USD/t` or more, holding stock until prices recover.
+- **Get Paid to Take Waste (Negative Prices):**
+  - Customs pays you to import waste (shown as negative prices). Set `Max Buy USD = -280` on `waste_toxic` so your DO **only** imports toxic waste when NATO pays at least `280 USD/t` (e.g. `-290` is allowed; `-200` is blocked). Combine with local waste processing or incineration to profit on both the import payout and recycled materials.
+- **Controlled `RUB ↔ USD` Currency Exchange (Arbitrage):**
+  - Need `USD` when you have plenty of `RUB` (or vice versa)? Use two DOs with a buffer warehouse between them: **DO 1** imports a good with a strong `USD/RUB` spread (e.g. `clothes` at `Max Buy RUB = 500`), and **DO 2** exports it to NATO (`Min Sell USD = 640`). If market drift or your own volume closes the gap, both DOs pause automatically so you never convert currency at a bad rate.
+- **Cross-Border Factory Margin:**
+  - Source inputs on the cheaper market and export finished goods to the stronger one—for example, `Max Buy RUB = 135` on `fabric` (buy from Soviets) and `Min Sell USD = 650` on `clothes` (sell to NATO).
+- **Priority / Fallback Export Switching (Preferred vs. Backup Border):**
+  - `TradePriceLimits` evaluates `RUB` and `USD` independently (it does not compare `RUB` vs. `USD` against each other automatically), but you can still switch export borders automatically using **staggered DO storage thresholds**:
+  - Set **DO 1 (Preferred, e.g. NATO)** to export when your warehouse is **> 20% full** with `Min Sell USD = 145`, and **DO 2 (Fallback, e.g. Soviet)** to export when the same warehouse is **> 60% full** with `Min Sell RUB = 115`.
+  - While NATO pays `>= 145 USD`, DO 1 keeps the warehouse below 60% so DO 2 stays idle. If NATO prices drop, DO 1 pauses, stock builds to 60%, and DO 2 automatically takes over selling to the Soviets (or both pause if both markets crash).
+- **Set-and-Forget with `Base %` (Inflation-Proof):**
+  - Press `Ctrl+R` (or click **Rebase**) to snapshot current prices as `100%`, switch a resource to **Base %**, and set e.g. `Max Buy = 95%` / `Min Sell = 105%`. Your limits automatically scale as prices inflate over the decades.
+
 ## Controls & Rebinding
 
 | Shortcut / Control | Action |

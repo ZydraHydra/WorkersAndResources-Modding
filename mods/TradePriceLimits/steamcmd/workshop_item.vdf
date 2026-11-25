@@ -44,6 +44,14 @@ Both [b]TesmioLoader (v0.4.5+)[/b] and [b]Republic Mod Loader (v1.0.1)[/b] autom
 [*] [b]Trash & Waste (negative prices):[/b] Customs pays you to import waste (shown as negative prices). Signed limits work directly - e.g. [i]Max Buy = -300[/i] means only import waste if the border pays at least 300/t.
 [*] [b]Emergency Override:[/b] Citizens freezing and you need an urgent delivery at any cost? Uncheck [b]Enforce Limits[/b] at the top to suspend all rules in one click without wiping your table.
 [/list]
+[h1]Practical Examples (Comrade's Playbook)[/h1][list]
+[*] [b]Buy the Dip, Sell the Peak (Price Guard):[/b] Set [i]Max Buy RUB = 45[/i] on Fuel so your DO only buys Soviet fuel at 45 RUB/t or less, or [i]Min Sell USD = 140[/i] on Steel so exports hold in storage until NATO pays at least 140 USD/t.
+[*] [b]Get Paid to Take Waste (Negative Prices):[/b] Set [i]Max Buy USD = -280[/i] on Toxic Waste so your DO only imports it when NATO pays you at least 280 USD/t (-290 is allowed; -200 is blocked). Process or incinerate it locally to profit twice.
+[*] [b]Controlled RUB <-> USD Currency Exchange (Arbitrage):[/b] Short on Dollars with Rubles to spare (or vice versa)? Pair two DOs with a buffer warehouse: DO 1 imports a high-spread good like Clothes ([i]Max Buy RUB = 500[/i]) and DO 2 exports it to NATO ([i]Min Sell USD = 640[/i]). If the spread closes, both DOs pause automatically.
+[*] [b]Cross-Border Factory Margin:[/b] Buy cheap inputs on one border ([i]Max Buy RUB = 135[/i] on Fabric) and sell finished goods on the stronger border ([i]Min Sell USD = 650[/i] on Clothes).
+[*] [b]Priority / Fallback Export Switching:[/b] While the mod checks RUB and USD independently (no live cross-currency comparison), you can still auto-switch borders using staggered DO storage thresholds: set DO 1 (Preferred, e.g. NATO) to export at >20% warehouse full with [i]Min Sell USD = 145[/i], and DO 2 (Backup, e.g. Soviet) at >60% full with [i]Min Sell RUB = 115[/i]. When NATO's price drops, DO 1 pauses, stock fills to 60%, and DO 2 automatically takes over!
+[*] [b]Inflation-Proof with Base %:[/b] Press [b]Ctrl+R[/b] (Rebase) to snapshot today's prices as 100%, switch to [b]Base %[/b], and set e.g. [i]Max Buy = 95%[/i] / [i]Min Sell = 105%[/i] so your rules scale across the decades.
+[/list]
 [h1]Five-Year Plan Guarantees (Save-Safe & Performance)[/h1][list]
 [*] [b]Convoys already rolling stay rolling:[/b] Blocking checks [b]new dispatches only[/b]. Trucks and trains already out on the road will finish their current trip safely.
 [*] [b]100% Save-Safe & Rebindable Key:[/b] Rules stay inside a tiny [i]trade_price_limits.ini[/i] file per save folder (binary WRSR saves are never altered). To change the hotkey before launching, edit [i]toggle_key=F8[/i] under [i][settings][/i] in [i]TradePriceLimits.ini[/i] beside the plugin DLL (directly editable via RML's [i]Open plugin INI[/i]).
