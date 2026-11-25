@@ -1,9 +1,10 @@
 ﻿# ============================================================================
 # deploy.ps1 — Deploy a built mod DLL + .rml.json into local RML plugins dir
 # ============================================================================
-# Usage: .\scripts\deploy.ps1 [-Mod TradePriceLimits] [-Config Release] [-GameVersion 1.1.1.7]
+# Usage: .\scripts\deploy.ps1 [-Mod TradePriceLimits | -Target CustomsSpeedControl] [-Config Release] [-GameVersion 1.1.1.7]
 # ============================================================================
 param(
+    [Alias("Target")]
     [string]$Mod = "TradePriceLimits",
     [ValidateSet("Release", "Debug")]
     [string]$Config = "Release",
@@ -15,15 +16,33 @@ $Root = Split-Path $PSScriptRoot -Parent
 
 $envFile       = Join-Path $Root ".env.local"
 $rmlPluginsDir = $null
+$rmlDir        = $null
+$workshopDir   = $null
 $envGameVer    = $null
 if (Test-Path $envFile) {
     Get-Content $envFile | ForEach-Object {
         if ($_ -match "^RML_PLUGINS_DIR=(.+)$") {
             $rmlPluginsDir = $Matches[1].Trim() -replace '/', '\'
+        } elseif ($_ -match "^RML_DIR=(.+)$") {
+            $rmlDir = $Matches[1].Trim() -replace '/', '\'
+        } elseif ($_ -match "^WORKSHOP_DIR=(.+)$") {
+            $workshopDir = $Matches[1].Trim() -replace '/', '\'
         } elseif ($_ -match "^WRSR_GAME_VERSION=(.+)$") {
             $envGameVer = $Matches[1].Trim()
         }
     }
+}
+
+if (-not $rmlPluginsDir -and $rmlDir) {
+    foreach ($sub in @("rml\plugins", "rml\plugin", "plugins", "plugin")) {
+        $cand = Join-Path $rmlDir $sub
+        if (Test-Path $cand) { $rmlPluginsDir = $cand; break }
+    }
+    if (-not $rmlPluginsDir) { $rmlPluginsDir = Join-Path $rmlDir "rml\plugins" }
+}
+if (-not $rmlPluginsDir -and $workshopDir) {
+    $candRml = Join-Path $workshopDir "3787969749\rml\plugins"
+    if (Test-Path (Join-Path $workshopDir "3787969749")) { $rmlPluginsDir = $candRml }
 }
 
 if (-not $GameVersion) {

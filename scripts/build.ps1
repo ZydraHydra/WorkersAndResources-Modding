@@ -4,10 +4,12 @@
 # Usage:
 #   .\scripts\build.ps1                                   # All mods, default/all game versions
 #   .\scripts\build.ps1 -Mod TradePriceLimits
+#   .\scripts\build.ps1 -Target CustomsSpeedControl
 #   .\scripts\build.ps1 -Mod TradePriceLimits -GameVersion 1.1.1.7
 #   .\scripts\build.ps1 -Mod TradePriceLimits -GameVersion all
 # ============================================================================
 param(
+    [Alias("Target")]
     [string]$Mod = "all",
     [ValidateSet("Release", "Debug")]
     [string]$Config = "Release",
@@ -53,8 +55,8 @@ $ninjaDir  = Split-Path $ninja -Parent
 $depsDir   = (Join-Path $Root "build\_deps") -replace '\\', '/'
 
 # Resolve target mod list and game version matrix
-$modNames = if ($Mod -eq "all") {
-    Get-ChildItem (Join-Path $Root "mods") -Directory | Select-Object -ExpandProperty Name
+[string[]]$modNames = if ($Mod -eq "all") {
+    @(Get-ChildItem (Join-Path $Root "mods") -Directory | Select-Object -ExpandProperty Name)
 } else {
     @($Mod)
 }

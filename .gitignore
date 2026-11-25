@@ -19,6 +19,7 @@ steam_login*
 
 # Reference clones & game binary backups (never commit)
 references/
+tools/
 port/
 
 # Release / Workshop staging

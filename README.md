@@ -9,7 +9,8 @@ Native x64 C++20 plugin workspace for **Workers & Resources: Soviet Republic** (
 
 | Mod | Status | Description |
 |---|---|---|
-| [`TradePriceLimits`](mods/TradePriceLimits) | v1.0.5 (Alpha) | Per-resource Max Buy / Min Sell price thresholds for **new** Customs House dispatches (`RUB` & `USD`; vehicles already en route finish their trip), `F8` WRSR-themed ImGui overlay, `Enforce Limits` bypass, 60s sim-linked counter, and per-save `trade_price_limits.ini` sidecar. ([Workshop Main](https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384) · [Legacy 1.1.1.7](https://steamcommunity.com/sharedfiles/filedetails/?id=3845533316) · [Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases)) |
+| [`TradePriceLimits`](mods/TradePriceLimits) | v1.0.17+ (Alpha) | Per-resource Max Buy / Min Sell price thresholds for **new** Customs House dispatches (`RUB` & `USD`; vehicles already en route finish their trip), `F8` WRSR-themed ImGui overlay, `Enforce Limits` bypass, Blocked Checks readout, and per-save `trade_price_limits.ini` sidecar. ([Workshop Main](https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384) · [Legacy 1.1.1.7](https://steamcommunity.com/sharedfiles/filedetails/?id=3845533316) · [Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases)) |
+| [`CustomsSpeedControl`](mods/CustomsSpeedControl) | v1.0.5+ (Alpha) | Independent Customs House (`$TYPE_CUSTOMHOUSE`) cargo **Load** & **Unload** speed multipliers (`0.25x`–`100.0x`) with quick presets (`1x`–`100x`), **Affect Rail** toggle, and shared `F9` multi-mod overlay (`WRSR Tweaks [F9]`), leaving domestic stations and warehouses at vanilla speeds. |
 
 ## Repository Layout
 
@@ -18,8 +19,10 @@ WorkersAndResources-Modding/
 ├── .github/workflows/       # CI build + automated GitHub Release / Steam Workshop publish
 ├── CMakeLists.txt           # Monorepo CMake (shared FetchContent + common + mods/*)
 ├── common/                  # Shared static library (clean-room ABI, logger, AOB/IAT helpers)
+├── src/overlay/             # Shared F9 multi-mod ImGui overlay hub (Local\WRSR_ModOverlay_<PID>)
 ├── mods/
-│   └── TradePriceLimits/    # Self-contained mod sources, RML manifest, Workshop VDF, README
+│   ├── TradePriceLimits/    # Trade price threshold mod, RML manifest, Workshop VDF, README
+│   └── CustomsSpeedControl/ # Customs House load/unload speed mod, RML manifest, Workshop VDF, README
 ├── scripts/
 │   ├── build.ps1            # Build one or all mods (Release x64, static /MT CRT)
 │   ├── deploy.ps1           # Deploy a built mod into local RML plugins directory
@@ -28,6 +31,7 @@ WorkersAndResources-Modding/
 ├── docs/
 │   ├── ARCHITECTURE.md
 │   ├── REVERSE_ENGINEERING.md
+│   ├── CUSTOMS_REVERSE_ENGINEERING.md
 │   └── ADDING_A_MOD.md
 └── references/              # Gitignored local reference clones (RML, TesmioLoader, etc.)
 ```

@@ -19,6 +19,7 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # ── Mod toggles (add new mods here) ───────────────────────────────────────────
 option(WRSR_BUILD_TRADE_PRICE_LIMITS "Build TradePriceLimits plugin" ON)
+option(WRSR_BUILD_CUSTOMS_SPEED_CONTROL "Build CustomsSpeedControl plugin" ON)
 
 # ── Shared third-party dependencies (fetched once into build/_deps) ───────────
 include(FetchContent)
@@ -89,4 +90,7 @@ add_subdirectory(common)
 # ── Mods ──────────────────────────────────────────────────────────────────────
 if(WRSR_BUILD_TRADE_PRICE_LIMITS)
     add_subdirectory(mods/TradePriceLimits)
+endif()
+if(WRSR_BUILD_CUSTOMS_SPEED_CONTROL)
+    add_subdirectory(mods/CustomsSpeedControl)
 endif()
