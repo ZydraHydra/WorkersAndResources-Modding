@@ -304,7 +304,7 @@ foreach ($track in $targetTracks) {
     $changelogData = Get-ModChangelogData -RootDir $Root -ModName $Mod -ResolvedVer $ResolvedVer
     $note = if ($Changenote) { $Changenote } else { $changelogData.changenote }
     $VdfSrc = Join-Path $ModDir "steamcmd\workshop_item.vdf"
-    $emitVdf = $publishWorkshop -or ($GameVersion -ne "all")
+    $emitVdf = $publishWorkshop
     if ($emitVdf -and (Test-Path $VdfSrc)) {
         $contentSlash = $ContentDir -replace '\\', '/'
         $previewSlash = $PreviewStage -replace '\\', '/'
