@@ -14,7 +14,7 @@ Regular Steam Workshop mods only add buildings, maps, or vehicles. Because **Tra
 
 ### Option A — Republic Mod Loader (RML, Recommended)
 
-1. Subscribe to **TradePriceLimits** on the Steam Workshop (or download a release zip from GitHub).
+1. Subscribe to **TradePriceLimits** on the Steam Workshop ([WRSR 1.1.1.7](https://steamcommunity.com/sharedfiles/filedetails/?id=3845533316) | [WRSR Latest](https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384)) or download a release zip from [GitHub Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases).
 2. Subscribe to [**Republic Mod Loader (RML)**](https://steamcommunity.com/sharedfiles/filedetails/?id=3787969749) ([GitHub](https://github.com/Ultimate-Universe/WRSR-RepublicModLoader)).
 3. Open RML's Workshop folder:
    ```text

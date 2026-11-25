@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "tuefekci.trade_price_limits",
+  "id": "zydrahydra.trade_price_limits",
   "name": "TradePriceLimits",
   "version": "1.0.0",
-  "author": "tuefekci",
+  "author": "ZydraHydra",
   "description": "Per-resource Max Buy and Min Sell price thresholds for Customs House border logistics with an external F8 ImGui overlay and per-save INI sidecar.",
   "dll": "TradePriceLimits.dll",
   "loaderApi": {

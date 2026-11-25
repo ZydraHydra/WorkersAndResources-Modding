@@ -7,7 +7,7 @@
     "visibility"      "{VISIBILITY}"
     "title"           "TradePriceLimits v{VERSION} [{GAME_LABEL}]"
     "description"     "Target game version: {GAME_LABEL} (Mod v{VERSION} - Alpha)
-Source & releases: [url=https://github.com/tuefekci/WorkersAndResources-Modding]GitHub[/url]
+Source & releases: [url=https://github.com/ZydraHydra/WorkersAndResources-Modding]GitHub[/url]
 
 Stop Distribution Offices from buying imports when border prices spike or dumping exports when prices crash.
 

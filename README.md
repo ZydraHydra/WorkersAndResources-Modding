@@ -9,7 +9,7 @@ Native x64 C++20 plugin workspace for **Workers & Resources: Soviet Republic** (
 
 | Mod | Status | Description |
 |---|---|---|
-| [`TradePriceLimits`](mods/TradePriceLimits) | v1.0.0 (Alpha) | Per-resource Max Buy / Min Sell price thresholds for **new** Customs House dispatches (`RUB` & `USD`; vehicles already en route finish their trip), `F8` WRSR-themed ImGui overlay, `Enforce Limits` bypass, 60s sim-linked counter, and per-save `trade_price_limits.ini` sidecar. |
+| [`TradePriceLimits`](mods/TradePriceLimits) | v1.0.4 (Alpha) | Per-resource Max Buy / Min Sell price thresholds for **new** Customs House dispatches (`RUB` & `USD`; vehicles already en route finish their trip), `F8` WRSR-themed ImGui overlay, `Enforce Limits` bypass, 60s sim-linked counter, and per-save `trade_price_limits.ini` sidecar. ([Workshop 1.1.1.7](https://steamcommunity.com/sharedfiles/filedetails/?id=3845533316) · [Workshop Latest](https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384) · [Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases)) |
 
 ## Repository Layout
 

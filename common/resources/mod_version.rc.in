@@ -17,7 +17,7 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "CompanyName",      "WorkersAndResources-Modding"
+            VALUE "CompanyName",      "ZydraHydra"
             VALUE "FileDescription",  "@WRSR_TARGET_NAME@ (WRSR @WRSR_GAME_VERSION@)"
             VALUE "FileVersion",      "@WRSR_MOD_VERSION@"
             VALUE "InternalName",     "@WRSR_TARGET_NAME@.dll"

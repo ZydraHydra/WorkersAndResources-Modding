@@ -112,10 +112,10 @@ WRSR_ABI_EXPORT int WRSR_ABI_CALL RmlPluginQuery(
     out->descriptor_version = wrsr::abi::kRmlPluginDescriptorVersion;
     out->api_min            = 1;
     out->api_max            = wrsr::abi::kRmlApiVersion;
-    out->id                 = "tuefekci.trade_price_limits";
+    out->id                 = "zydrahydra.trade_price_limits";
     out->name               = "TradePriceLimits";
     out->version            = WRSR_MOD_VERSION;
-    out->author             = "tuefekci";
+    out->author             = "ZydraHydra";
     return (hostApiVersion >= 1) ? 1 : 0;
 }
 
