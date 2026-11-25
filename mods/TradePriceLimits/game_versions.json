@@ -3,9 +3,11 @@
   "gameVersions": [
     {
       "id": "latest",
-      "label": "Latest",
+      "label": "Latest (WRSR 1.2.0.8)",
       "isPrimary": true,
-      "supportedGameVersions": [],
+      "supportedGameVersions": [
+        "1.2.0.8"
+      ],
       "publishedFileId": "3845533384"
     },
     {
