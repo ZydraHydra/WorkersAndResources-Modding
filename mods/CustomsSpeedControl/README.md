@@ -16,7 +16,7 @@ Both **TesmioLoader (`v0.4.5+`)** and **Republic Mod Loader (`v1.0.1`)** automat
 
 ### Option A — TesmioLoader (Recommended, `v0.4.0+` Auto Workshop Discovery, tested vs `v0.4.5`)
 
-1. Subscribe to **CustomsSpeedControl** on the [Steam Workshop](https://steamcommunity.com/app/784150/workshop/) or download the unified release zip from [GitHub Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases) (automatically detects `1.2.0.9`, `1.2.0.8`, `1.1.1.13`, `1.1.1.9`, and `1.1.1.7` at runtime).
+1. Subscribe to **CustomsSpeedControl** on the [Steam Workshop (`WRSR 1.2.0.9, 1.2.0.8, 1.1.1.13, 1.1.1.9 & 1.1.1.7`)](https://steamcommunity.com/sharedfiles/filedetails/?id=3845944617) or download the unified release zip from [GitHub Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases) (automatically detects `1.2.0.9`, `1.2.0.8`, `1.1.1.13`, `1.1.1.9`, and `1.1.1.7` at runtime).
 2. Download and extract [**TesmioLoader**](https://github.com/MaxLegend/TesmioLoader/releases) ([Docs](https://maxlegend.github.io/TesmioLoaderDocs/#/getting-started)) into your WRSR game directory.
 3. Run **`tesmiolauncher.exe`** — since **v0.4.0**, TesmioLoader automatically scans `steamapps\workshop\content\784150\` for compatible plugins (use `workshop_path` or the launcher selector if your Workshop lives in another Steam library).
 4. Tick **CustomsSpeedControl**, launch the game, and press **`F9`** in-game!
