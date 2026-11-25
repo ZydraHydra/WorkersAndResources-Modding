@@ -94,9 +94,10 @@ struct RmlHostApi {
 };
 
 // ---------------------------------------------------------------------------
-// TesmioLoader — Host API v4
+// TesmioLoader — Host API v4 (0.4.5+)
 // ---------------------------------------------------------------------------
-inline constexpr unsigned kTsmApiVersion = 4u;
+inline constexpr unsigned    kTsmApiVersion    = 4u;
+inline constexpr const char* kTsmTargetVersion = "0.4.5";
 
 struct TsmHost {
     unsigned       apiVersion;

@@ -12,20 +12,27 @@ Native x64 C++20 plugin for **Workers & Resources: Soviet Republic** (`SOVIET64.
 
 Regular Steam Workshop mods only add buildings, maps, or vehicles. Because **TradePriceLimits** adds an in-game `F8` menu and custom trade logic, it runs through a **Mod Loader**. Launching WRSR through Steam's normal **Play** button alone will **not** load `.dll` mods.
 
-### Option A — Republic Mod Loader (RML, Recommended)
+Both **TesmioLoader (`v0.4.5`)** and **Republic Mod Loader (`v1.0.1`)** automatically scan your Steam Workshop folder — **no manual DLL copying needed**.
 
-1. Subscribe to **TradePriceLimits** on the Steam Workshop ([Main / Latest](https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384) · [Legacy: WRSR 1.1.1.7](https://steamcommunity.com/sharedfiles/filedetails/?id=3845533316)) or download a release zip from [GitHub Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases).
+### Option A — TesmioLoader (Recommended, `v0.4.0+` Auto Workshop Discovery, tested vs `v0.4.5`)
+
+1. Subscribe to **TradePriceLimits** on the Steam Workshop ([Main / Latest (WRSR 1.2.0.8)](https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384) · [Legacy: WRSR 1.1.1.7](https://steamcommunity.com/sharedfiles/filedetails/?id=3845533316)) or download a release zip from [GitHub Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases).
+2. Download and extract [**TesmioLoader**](https://github.com/MaxLegend/TesmioLoader/releases) ([Docs](https://maxlegend.github.io/TesmioLoaderDocs/#/getting-started)) into your WRSR game directory.
+3. Run **`tesmiolauncher.exe`** — since **v0.4.0**, TesmioLoader automatically scans `steamapps\workshop\content\784150\` for compatible plugins (use `workshop_path` or the launcher selector if your Workshop lives in another Steam library).
+4. Tick **TradePriceLimits**, launch the game, and press **`F8`** in-game!
+
+### Option B — Republic Mod Loader (RML `v1.0.1`, All-on-Steam Alternative)
+
+1. Subscribe to **TradePriceLimits** on the Steam Workshop (links above).
 2. Subscribe to [**Republic Mod Loader (RML)**](https://steamcommunity.com/sharedfiles/filedetails/?id=3787969749) ([GitHub](https://github.com/Ultimate-Universe/WRSR-RepublicModLoader)).
-3. Open RML's Workshop folder:
+3. Run **`RepublicModLoader.exe`** from:
    ```text
-   <Your Steam Library>\steamapps\workshop\content\784150\3787969749\
+   <Your Steam Library>\steamapps\workshop\content\784150\3787969749\RepublicModLoader.exe
    ```
-4. Run **`RepublicModLoader.exe`** (you can create a Desktop shortcut to it or add it to Steam as a Non-Steam Game).
-5. Ensure **TradePriceLimits** is enabled in RML, click **Launch**, and press **`F8`** once loaded into your savegame.
+   *(You can create a Desktop shortcut or add it to Steam as a Non-Steam Game.)*
+4. Tick **TradePriceLimits** in RML, click **Launch**, and press **`F8`** once loaded into your savegame.
 
-### Option B — TesmioLoader
-
-Also compatible with [**TesmioLoader**](https://maxlegend.github.io/TesmioLoaderDocs/#/getting-started). Copy `TradePriceLimits.dll` into `tesmioloader\build\plugins\` (or install via TLMM) and launch via `tesmiolauncher.exe`.
+*(Manual / Non-Steam installs only: copy `plugins\TradePriceLimits.dll` from `<Steam Library>\steamapps\workshop\content\784150\<ID>\plugins\` or a GitHub Release zip into `<Game Dir>\plugins\`.)*
 
 ## Features & In-Game Usage
 

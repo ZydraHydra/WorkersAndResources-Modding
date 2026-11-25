@@ -29,8 +29,8 @@ WorkersAndResources-Modding/
 ```text
 TradePriceLimits.dll
 ├── main.cpp
-│   ├── Exports: RmlPluginQuery / RmlPluginLoad (RML v1)
-│   ├── Exports: TsmPluginApiVersion / TsmPluginInit / TsmPluginStart (Tesmio v4)
+│   ├── Exports: RmlPluginQuery / RmlPluginLoad (RML v1 — tested vs RML v1.0.1)
+│   ├── Exports: TsmPluginApiVersion / TsmPluginInit / TsmPluginStart / TsmPluginTargetVersion (Tesmio API v4, 0.4.5)
 │   └── Idempotent worker thread → installs hooks after process init
 ├── core/rules.{hpp,cpp}
 │   ├── RuleEngine singleton (std::mutex for config + lock-free atomic FastThresholdSlot[256] for simulation hot path)
@@ -48,6 +48,6 @@ TradePriceLimits.dll
 │   └── Triggers load on game load, save on Save / Autosave / Save As
 └── hooks/game_hooks.{hpp,cpp}
     ├── Text-section AOB scanner via wrsr::pe::aobScanStr (cross-version signature resolution)
-    ├── SIG_PRICE_TABLE: ResourceVector + dynamic record stride (0x340 on v1.1.1.7, 0x380 on latest)
+    ├── SIG_PRICE_TABLE: ResourceVector + dynamic record stride (0x340 on v1.1.1.7, 0x380 on v1.2.0.8)
     └── SIG_DISPATCH_CHECK: EvaluateDistTask hook gating Customs (building type 20) dispatches + 60s sim-linked ring buffer
 ```
