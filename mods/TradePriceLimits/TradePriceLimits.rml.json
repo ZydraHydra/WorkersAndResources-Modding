@@ -4,7 +4,7 @@
   "name": "TradePriceLimits",
   "version": "1.0.0",
   "author": "ZydraHydra",
-  "description": "Per-resource Max Buy and Min Sell price thresholds for Customs House border logistics with an external F8 ImGui overlay and per-save INI sidecar.",
+  "description": "Per-resource Max Buy and Min Sell price limits for Customs House border logistics with an F8 in-game overlay and per-save settings.",
   "dll": "TradePriceLimits.dll",
   "loaderApi": {
     "min": 1,

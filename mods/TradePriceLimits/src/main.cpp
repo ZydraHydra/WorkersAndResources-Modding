@@ -12,11 +12,13 @@
 #include <windows.h>
 
 #include <atomic>
+#include <string>
 
 #include "wrsr/loader_abi.hpp"
 #include "wrsr/logger.hpp"
 #include "wrsr/pe_utils.hpp"
 
+#include "core/rules.hpp"
 #include "hooks/dx11_overlay.hpp"
 #include "hooks/game_hooks.hpp"
 #include "hooks/save_tracker.hpp"
@@ -35,12 +37,38 @@ std::atomic<bool>          g_workerStarted{false};
 const wrsr::abi::RmlHostApi* g_rmlHost = nullptr;
 const wrsr::abi::TsmHost*    g_tsmHost = nullptr;
 
+std::wstring getSelfModuleDir()
+{
+    HMODULE hMod = nullptr;
+    if (!GetModuleHandleExW(
+            GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+            reinterpret_cast<LPCWSTR>(&getSelfModuleDir),
+            &hMod) || !hMod) {
+        return {};
+    }
+    std::wstring path(MAX_PATH * 4, L'\0');
+    const DWORD len = GetModuleFileNameW(hMod, path.data(), static_cast<DWORD>(path.size()));
+    if (len == 0 || len >= path.size()) {
+        return {};
+    }
+    path.resize(len);
+    const size_t slash = path.find_last_of(L"\\/");
+    return (slash != std::wstring::npos) ? path.substr(0, slash) : std::wstring{};
+}
+
 DWORD WINAPI workerThread(LPVOID)
 {
     Sleep(500);
 
     wrsr::log::info("TradePriceLimits v%s (WRSR target: %s) — worker thread started",
                     WRSR_MOD_VERSION, WRSR_GAME_VERSION);
+
+    const std::wstring dllDir = getSelfModuleDir();
+    if (!dllDir.empty()) {
+        tpl::RuleEngine::get().loadGlobalConfig(dllDir);
+        wrsr::log::info("Global config loaded (toggle_key=%s)",
+                        tpl::RuleEngine::get().toggleKeyName().c_str());
+    }
 
     const auto exe = wrsr::pe::getMainModuleRange();
     if (!exe.base || exe.size == 0) {

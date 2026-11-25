@@ -2,6 +2,12 @@
 
 All notable changes to **TradePriceLimits** are documented here. The topmost section is automatically included in Steam Workshop release notes and the Workshop page description.
 
+## [1.0.14]
+- **Hover-Scoped Overlay Input Locking:** Hooked DirectInput8 `GetDeviceState`, `C3D_INPUT` mouse/key exports, and `WndProc` so clicks and scroll-wheel zoom are blocked when hovering or interacting inside the `F8` overlay while map panning/zooming outside the window continues working normally, and keyboard shortcuts lock while typing.
+- **Strict Numeric Fields:** Restricted price limit and `Base %` input boxes to digits (`0`-`9`) and `.` only.
+- **Global Hotkey Config (`TradePriceLimits.ini`):** Moved `toggle_key` out of per-save sidecar files into `TradePriceLimits.ini` next to `TradePriceLimits.dll` so players and mod managers (e.g. RML `Open plugin INI`) can edit the hotkey before launching the game.
+- **Square Workshop Thumbnail & Versioned Descriptions:** Switched `previewimage.png` to `700x700` square format (`WRSR 1.2.0.8`) and included the mod version in `.rml.json` and `workshopconfig.ini` descriptions.
+
 ## [1.0.13]
 - **Single Unified GitHub & Steam Release:** Removed the duplicate `1.1.1.7` ZIP variant from GitHub Releases so both GitHub Releases and Steam Workshop (`3845533384`) distribute one universal DLL supporting WRSR `1.2.0.8`, `1.1.1.9`, and `1.1.1.7`, with supported game versions clearly listed in the release description.
 

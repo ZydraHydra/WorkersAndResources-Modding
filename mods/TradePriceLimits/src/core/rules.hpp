@@ -78,6 +78,7 @@ class RuleEngine {
 public:
     static RuleEngine& get() noexcept;
 
+    void loadGlobalConfig(const std::wstring& dllDir);
     void loadFromSave(const std::wstring& saveDir);
     void saveToSave(const std::wstring& saveDir) const;
 

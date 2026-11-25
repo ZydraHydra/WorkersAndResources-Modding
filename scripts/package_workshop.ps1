@@ -219,11 +219,21 @@ foreach ($track in $targetTracks) {
     if (Test-Path $ManSrc) {
         $manifestObj = Get-Content $ManSrc -Raw -Encoding UTF8 | ConvertFrom-Json
         $manifestObj.version = $ResolvedVer
+        if ($manifestObj.description) {
+            $descBase = ([string]$manifestObj.description) -replace '\s*\(v[0-9]+\.[0-9]+\.[0-9]+\)$', ''
+            $manifestObj.description = "$descBase (v$ResolvedVer)"
+        }
         if ($null -ne $track.supportedGameVersions) {
             $manifestObj.supportedGameVersions = @($track.supportedGameVersions)
         }
         $manifestJson = $manifestObj | ConvertTo-Json -Depth 10
         [System.IO.File]::WriteAllText((Join-Path $PluginDir "$Mod.rml.json"), $manifestJson + "`n", (New-Object System.Text.UTF8Encoding $false))
+    }
+
+    # 2b. Copy default global plugin INI beside the DLL (if present) so mod managers expose it
+    $IniSrc = Join-Path $ModDir "$Mod.ini"
+    if (Test-Path $IniSrc) {
+        Copy-Item $IniSrc $PluginDir -Force
     }
 
     # 3. Resolve PublishedFileId (param -> env WORKSHOP_ID_<MOD>_<GV> -> game_versions.json -> 0)
@@ -267,6 +277,7 @@ foreach ($track in $targetTracks) {
         }
         $cfgText = $cfgText -replace '(?m)^\$VISIBILITY\s+\S+', "`$VISIBILITY $Visibility"
         $cfgText = $cfgText -replace '(?m)^\$ITEM_NAME\s+".*"', "`$ITEM_NAME `"$Mod [$gvLabel]`""
+        $cfgText = $cfgText -replace '\{VERSION\}', $ResolvedVer
         [System.IO.File]::WriteAllText((Join-Path $ContentDir "workshopconfig.ini"), $cfgText, (New-Object System.Text.UTF8Encoding $false))
     }
 

@@ -480,6 +480,41 @@ bool RuleEngine::shouldBlockSellUsd(std::string_view name, float priceUsd) const
     return r ? r->shouldBlockSellUsd(priceUsd) : false;
 }
 
+void RuleEngine::loadGlobalConfig(const std::wstring& dllDir)
+{
+    if (dllDir.empty()) {
+        return;
+    }
+    const std::wstring iniPathW  = dllDir + L"\\TradePriceLimits.ini";
+    const std::string  iniPathU8 = wToU8(iniPathW);
+    if (iniPathU8.empty()) {
+        return;
+    }
+
+    mINI::INIFile      file(iniPathU8);
+    mINI::INIStructure ini;
+    if (!file.read(ini)) {
+        m_toggleKey.store(VK_F8, std::memory_order_relaxed);
+        if (FILE* f = _wfopen(iniPathW.c_str(), L"wb")) {
+            static constexpr char kDefaultIni[] =
+                "; TradePriceLimits Global Configuration\n"
+                "; Editable before launching WRSR (e.g. via Republic Mod Loader -> Open plugin INI).\n\n"
+                "[settings]\n"
+                "; Overlay toggle key (default: F8). Esc always closes when open.\n"
+                "toggle_key=F8\n";
+            std::fwrite(kDefaultIni, 1, sizeof(kDefaultIni) - 1, f);
+            std::fclose(f);
+        }
+        return;
+    }
+
+    if (ini.has("settings") && ini["settings"].has("toggle_key")) {
+        m_toggleKey.store(parseVirtualKey(ini["settings"]["toggle_key"]), std::memory_order_relaxed);
+    } else if (ini.has("__settings") && ini["__settings"].has("toggle_key")) {
+        m_toggleKey.store(parseVirtualKey(ini["__settings"]["toggle_key"]), std::memory_order_relaxed);
+    }
+}
+
 void RuleEngine::loadFromSave(const std::wstring& saveDir)
 {
     const std::string iniPathU8 = wToU8(saveDir + L"\\trade_price_limits.ini");
@@ -491,7 +526,6 @@ void RuleEngine::loadFromSave(const std::wstring& saveDir)
     mINI::INIStructure ini;
     if (!file.read(ini)) {
         m_enforcementEnabled.store(true, std::memory_order_relaxed);
-        m_toggleKey.store(VK_F8, std::memory_order_relaxed);
         return;
     }
 
@@ -500,12 +534,6 @@ void RuleEngine::loadFromSave(const std::wstring& saveDir)
         m_enforcementEnabled.store(val != "0" && val != "false", std::memory_order_relaxed);
     } else {
         m_enforcementEnabled.store(true, std::memory_order_relaxed);
-    }
-
-    if (ini.has("__settings") && ini["__settings"].has("toggle_key")) {
-        m_toggleKey.store(parseVirtualKey(ini["__settings"]["toggle_key"]), std::memory_order_relaxed);
-    } else {
-        m_toggleKey.store(VK_F8, std::memory_order_relaxed);
     }
 
     std::lock_guard lock(m_mutex);
@@ -567,7 +595,6 @@ void RuleEngine::saveToSave(const std::wstring& saveDir) const
 
     ini["__settings"]["enforcement_enabled"] =
         m_enforcementEnabled.load(std::memory_order_relaxed) ? "1" : "0";
-    ini["__settings"]["toggle_key"] = toggleKeyName();
 
     std::lock_guard lock(m_mutex);
     for (const auto& r : m_rules) {

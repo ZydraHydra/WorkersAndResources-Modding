@@ -3,8 +3,10 @@
 // ============================================================================
 #include "dx11_overlay.hpp"
 
+#define DIRECTINPUT_VERSION 0x0800
 #include <windows.h>
 #include <d3d11.h>
+#include <dinput.h>
 #include <dxgi.h>
 #include <MinHook.h>
 #include <imgui.h>
@@ -15,7 +17,9 @@
 #include <atomic>
 #include <cctype>
 #include <chrono>
+#include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <mutex>
 #include <string>
@@ -32,9 +36,18 @@ namespace tpl::overlay {
 
 namespace {
 
-std::atomic<bool> g_initialized{false};
-std::atomic<bool> g_visible{false};
-std::mutex        g_d3dMutex;
+std::atomic<bool>    g_initialized{false};
+std::atomic<bool>    g_visible{false};
+std::atomic<bool>    g_wantCaptureMouse{false};
+std::atomic<bool>    g_wantCaptureKeyboard{false};
+std::atomic<bool>    g_rectValid{false};
+std::atomic<int32_t> g_rectL{0};
+std::atomic<int32_t> g_rectT{0};
+std::atomic<int32_t> g_rectR{0};
+std::atomic<int32_t> g_rectB{0};
+std::atomic<uint8_t> g_externalMouseButtons{0};
+std::atomic<uint8_t> g_imguiMouseButtons{0};
+std::mutex           g_d3dMutex;
 
 ID3D11Device*           g_device      = nullptr;
 ID3D11DeviceContext*    g_ctx         = nullptr;
@@ -48,32 +61,232 @@ std::mutex   g_savePathMutex;
 
 std::chrono::steady_clock::time_point g_lastPriceSync{};
 
-using PFN_Present       = HRESULT(WINAPI*)(IDXGISwapChain*, UINT, UINT);
-using PFN_ResizeBuffers = HRESULT(WINAPI*)(IDXGISwapChain*, UINT, UINT, UINT, DXGI_FORMAT, UINT);
-using PFN_C3dMouseBool  = bool(__fastcall*)(void*);
+struct C3dVec3 {
+    float x{0.f};
+    float y{0.f};
+    float z{0.f};
+};
 
-PFN_Present       g_origPresent            = nullptr;
-PFN_ResizeBuffers g_origResizeBuffers      = nullptr;
-PFN_C3dMouseBool  g_origGetMouseLeftPress  = nullptr;
-PFN_C3dMouseBool  g_origGetMouseLeftDown   = nullptr;
-PFN_C3dMouseBool  g_origGetMouseRightPress = nullptr;
-PFN_C3dMouseBool  g_origGetMouseRightDown  = nullptr;
+using PFN_Present          = HRESULT(WINAPI*)(IDXGISwapChain*, UINT, UINT);
+using PFN_ResizeBuffers    = HRESULT(WINAPI*)(IDXGISwapChain*, UINT, UINT, UINT, DXGI_FORMAT, UINT);
+using PFN_DiGetDeviceState = HRESULT(STDMETHODCALLTYPE*)(IDirectInputDevice8W*, DWORD, LPVOID);
+using PFN_C3dMouseBool     = bool(__fastcall*)(void*);
+using PFN_C3dKeyBool       = bool(__fastcall*)(void*, int);
+using PFN_C3dMouseRel      = C3dVec3*(__fastcall*)(void*, C3dVec3*);
+
+PFN_Present          g_origPresent              = nullptr;
+PFN_ResizeBuffers    g_origResizeBuffers        = nullptr;
+PFN_DiGetDeviceState g_origDiGetDeviceState     = nullptr;
+PFN_C3dMouseBool     g_origGetMouseLeftPress    = nullptr;
+PFN_C3dMouseBool     g_origGetMouseLeftPressOff = nullptr;
+PFN_C3dMouseBool     g_origGetMouseLeftDown     = nullptr;
+PFN_C3dMouseBool     g_origGetMouseRightPress   = nullptr;
+PFN_C3dMouseBool     g_origGetMouseRightPressOff= nullptr;
+PFN_C3dMouseBool     g_origGetMouseRightDown    = nullptr;
+PFN_C3dMouseBool     g_origGetMouseMiddlePress  = nullptr;
+PFN_C3dMouseBool     g_origGetMouseMiddlePressOff=nullptr;
+PFN_C3dMouseBool     g_origGetMouseMiddleDown   = nullptr;
+PFN_C3dMouseRel      g_origGetMouseRelative     = nullptr;
+PFN_C3dKeyBool       g_origGetKeyDown           = nullptr;
+PFN_C3dKeyBool       g_origGetKeyPress          = nullptr;
+
+bool isCursorOverOverlayRect() noexcept
+{
+    if (!g_visible.load(std::memory_order_relaxed) ||
+        !g_rectValid.load(std::memory_order_acquire) ||
+        !g_hwnd) {
+        return false;
+    }
+    POINT pt{};
+    if (!GetCursorPos(&pt) || !ScreenToClient(g_hwnd, &pt)) {
+        return false;
+    }
+    const int32_t l = g_rectL.load(std::memory_order_relaxed);
+    const int32_t t = g_rectT.load(std::memory_order_relaxed);
+    const int32_t r = g_rectR.load(std::memory_order_relaxed);
+    const int32_t b = g_rectB.load(std::memory_order_relaxed);
+    return pt.x >= l && pt.x < r && pt.y >= t && pt.y < b;
+}
+
+bool isMouseLockedForGame() noexcept
+{
+    if (!g_visible.load(std::memory_order_relaxed)) {
+        return false;
+    }
+    // Keep camera pans/drags started outside the overlay intact until released.
+    if (g_externalMouseButtons.load(std::memory_order_relaxed) != 0) {
+        return false;
+    }
+    if (g_imguiMouseButtons.load(std::memory_order_relaxed) != 0) {
+        return true;
+    }
+    return g_wantCaptureMouse.load(std::memory_order_relaxed) || isCursorOverOverlayRect();
+}
+
+bool isKeyboardLockedForGame() noexcept
+{
+    return g_visible.load(std::memory_order_relaxed) &&
+           g_wantCaptureKeyboard.load(std::memory_order_relaxed);
+}
+
+HRESULT STDMETHODCALLTYPE detourDiGetDeviceState(IDirectInputDevice8W* self, DWORD cbData, LPVOID lpvData)
+{
+    const HRESULT hr = g_origDiGetDeviceState(self, cbData, lpvData);
+    if (FAILED(hr) || !lpvData) {
+        return hr;
+    }
+
+    if (cbData == sizeof(DIMOUSESTATE) || cbData == sizeof(DIMOUSESTATE2)) {
+        const size_t btnCount = (cbData == sizeof(DIMOUSESTATE2)) ? 8 : 4;
+        const auto*  btns     = static_cast<const BYTE*>(lpvData) + offsetof(DIMOUSESTATE, rgbButtons);
+        uint8_t curMask = 0;
+        for (size_t i = 0; i < btnCount; ++i) {
+            if (btns[i] & 0x80) {
+                curMask |= static_cast<uint8_t>(1u << i);
+            }
+        }
+
+        if (!g_visible.load(std::memory_order_relaxed)) {
+            g_externalMouseButtons.store(curMask, std::memory_order_relaxed);
+            g_imguiMouseButtons.store(0, std::memory_order_relaxed);
+            return hr;
+        }
+
+        uint8_t extMask = g_externalMouseButtons.load(std::memory_order_relaxed) & curMask;
+        uint8_t imgMask = g_imguiMouseButtons.load(std::memory_order_relaxed) & curMask;
+        const uint8_t newlyPressed = curMask & static_cast<uint8_t>(~(extMask | imgMask));
+        if (newlyPressed != 0) {
+            const bool overUi = (extMask == 0) &&
+                (imgMask != 0 ||
+                 g_wantCaptureMouse.load(std::memory_order_relaxed) ||
+                 isCursorOverOverlayRect());
+            if (overUi) {
+                imgMask |= newlyPressed;
+            } else {
+                extMask |= newlyPressed;
+            }
+        }
+        g_externalMouseButtons.store(extMask, std::memory_order_relaxed);
+        g_imguiMouseButtons.store(imgMask, std::memory_order_relaxed);
+
+        if (isMouseLockedForGame()) {
+            std::memset(lpvData, 0, cbData);
+        }
+    } else if (cbData == 256) {
+        if (isKeyboardLockedForGame()) {
+            std::memset(lpvData, 0, cbData);
+        }
+    }
+
+    return hr;
+}
 
 bool __fastcall detourMouseLeftPress(void* self)
 {
-    return g_visible.load() ? false : g_origGetMouseLeftPress(self);
+    return isMouseLockedForGame() ? false : g_origGetMouseLeftPress(self);
+}
+bool __fastcall detourMouseLeftPressOff(void* self)
+{
+    return isMouseLockedForGame() ? false : g_origGetMouseLeftPressOff(self);
 }
 bool __fastcall detourMouseLeftDown(void* self)
 {
-    return g_visible.load() ? false : g_origGetMouseLeftDown(self);
+    return isMouseLockedForGame() ? false : g_origGetMouseLeftDown(self);
 }
 bool __fastcall detourMouseRightPress(void* self)
 {
-    return g_visible.load() ? false : g_origGetMouseRightPress(self);
+    return isMouseLockedForGame() ? false : g_origGetMouseRightPress(self);
+}
+bool __fastcall detourMouseRightPressOff(void* self)
+{
+    return isMouseLockedForGame() ? false : g_origGetMouseRightPressOff(self);
 }
 bool __fastcall detourMouseRightDown(void* self)
 {
-    return g_visible.load() ? false : g_origGetMouseRightDown(self);
+    return isMouseLockedForGame() ? false : g_origGetMouseRightDown(self);
+}
+bool __fastcall detourMouseMiddlePress(void* self)
+{
+    return isMouseLockedForGame() ? false : g_origGetMouseMiddlePress(self);
+}
+bool __fastcall detourMouseMiddlePressOff(void* self)
+{
+    return isMouseLockedForGame() ? false : g_origGetMouseMiddlePressOff(self);
+}
+bool __fastcall detourMouseMiddleDown(void* self)
+{
+    return isMouseLockedForGame() ? false : g_origGetMouseMiddleDown(self);
+}
+C3dVec3* __fastcall detourMouseRelative(void* self, C3dVec3* out)
+{
+    C3dVec3* res = g_origGetMouseRelative(self, out);
+    if (res && isMouseLockedForGame()) {
+        res->x = 0.f;
+        res->y = 0.f;
+        res->z = 0.f;
+    }
+    return res;
+}
+bool __fastcall detourKeyDown(void* self, int key)
+{
+    return isKeyboardLockedForGame() ? false : g_origGetKeyDown(self, key);
+}
+bool __fastcall detourKeyPress(void* self, int key)
+{
+    return isKeyboardLockedForGame() ? false : g_origGetKeyPress(self, key);
+}
+
+void installDirectInputGuard()
+{
+    using PFN_DirectInput8Create = HRESULT(WINAPI*)(HINSTANCE, DWORD, REFIID, LPVOID*, LPUNKNOWN);
+    HMODULE hDi = GetModuleHandleW(L"dinput8.dll");
+    if (!hDi) {
+        hDi = LoadLibraryW(L"dinput8.dll");
+    }
+    if (!hDi) {
+        wrsr::log::warn("overlay: dinput8.dll not loaded; skipping GetDeviceState guard");
+        return;
+    }
+
+    auto pfnCreate = reinterpret_cast<PFN_DirectInput8Create>(
+        GetProcAddress(hDi, "DirectInput8Create"));
+    if (!pfnCreate) {
+        wrsr::log::warn("overlay: DirectInput8Create export not found");
+        return;
+    }
+
+    static constexpr GUID kIidDirectInput8W = {
+        0xBF798031, 0x483A, 0x4DA2, { 0xAA, 0x99, 0x5D, 0x64, 0xED, 0x36, 0x97, 0x00 }
+    };
+    static constexpr GUID kGuidSysMouse = {
+        0x6F1D2B60, 0xD5A0, 0x11CF, { 0xBF, 0xC7, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00 }
+    };
+
+    IDirectInput8W*       di  = nullptr;
+    IDirectInputDevice8W* dev = nullptr;
+    if (FAILED(pfnCreate(GetModuleHandleW(nullptr), DIRECTINPUT_VERSION,
+                         kIidDirectInput8W, reinterpret_cast<void**>(&di), nullptr)) || !di) {
+        wrsr::log::warn("overlay: DirectInput8Create probe failed");
+        return;
+    }
+    if (FAILED(di->CreateDevice(kGuidSysMouse, &dev, nullptr)) || !dev) {
+        di->Release();
+        wrsr::log::warn("overlay: IDirectInput8::CreateDevice(SysMouse) probe failed");
+        return;
+    }
+
+    void** vtable = *reinterpret_cast<void***>(dev);
+    void*  target = vtable[9]; // IDirectInputDevice8W::GetDeviceState
+    dev->Release();
+    di->Release();
+
+    if (MH_CreateHook(target, reinterpret_cast<void*>(detourDiGetDeviceState),
+                      reinterpret_cast<void**>(&g_origDiGetDeviceState)) == MH_OK &&
+        MH_EnableHook(target) == MH_OK) {
+        wrsr::log::info("overlay: installed DirectInput8 GetDeviceState guard (slot 9)");
+    } else {
+        wrsr::log::warn("overlay: failed to hook DirectInput8 GetDeviceState");
+    }
 }
 
 void installC3dInputGuards()
@@ -82,28 +295,35 @@ void installC3dInputGuards()
     if (!hExe) {
         return;
     }
+
+    struct IatHookEntry {
+        const char* sym;
+        void*       detour;
+        void**      orig;
+    };
+    const IatHookEntry entries[] = {
+        { "?GetMouseLeftPress@C3D_INPUT@@QEAA_NXZ",      reinterpret_cast<void*>(detourMouseLeftPress),      reinterpret_cast<void**>(&g_origGetMouseLeftPress) },
+        { "?GetMouseLeftPressAOff@C3D_INPUT@@QEAA_NXZ",  reinterpret_cast<void*>(detourMouseLeftPressOff),   reinterpret_cast<void**>(&g_origGetMouseLeftPressOff) },
+        { "?GetMouseLeftDown@C3D_INPUT@@QEAA_NXZ",       reinterpret_cast<void*>(detourMouseLeftDown),       reinterpret_cast<void**>(&g_origGetMouseLeftDown) },
+        { "?GetMouseRightPress@C3D_INPUT@@QEAA_NXZ",     reinterpret_cast<void*>(detourMouseRightPress),     reinterpret_cast<void**>(&g_origGetMouseRightPress) },
+        { "?GetMouseRightPressAOff@C3D_INPUT@@QEAA_NXZ", reinterpret_cast<void*>(detourMouseRightPressOff),  reinterpret_cast<void**>(&g_origGetMouseRightPressOff) },
+        { "?GetMouseRightDown@C3D_INPUT@@QEAA_NXZ",      reinterpret_cast<void*>(detourMouseRightDown),      reinterpret_cast<void**>(&g_origGetMouseRightDown) },
+        { "?GetMouseMiddlePress@C3D_INPUT@@QEAA_NXZ",    reinterpret_cast<void*>(detourMouseMiddlePress),    reinterpret_cast<void**>(&g_origGetMouseMiddlePress) },
+        { "?GetMouseMiddlePressAOff@C3D_INPUT@@QEAA_NXZ",reinterpret_cast<void*>(detourMouseMiddlePressOff), reinterpret_cast<void**>(&g_origGetMouseMiddlePressOff) },
+        { "?GetMouseMiddleDown@C3D_INPUT@@QEAA_NXZ",     reinterpret_cast<void*>(detourMouseMiddleDown),     reinterpret_cast<void**>(&g_origGetMouseMiddleDown) },
+        { "?GetMouseRelative@C3D_INPUT@@QEAA?AVC3DVECTOR3@@XZ", reinterpret_cast<void*>(detourMouseRelative), reinterpret_cast<void**>(&g_origGetMouseRelative) },
+        { "?GetKeyDown@C3D_INPUT@@QEAA_NH@Z",            reinterpret_cast<void*>(detourKeyDown),             reinterpret_cast<void**>(&g_origGetKeyDown) },
+        { "?GetKeyPress@C3D_INPUT@@QEAA_NH@Z",           reinterpret_cast<void*>(detourKeyPress),            reinterpret_cast<void**>(&g_origGetKeyPress) },
+    };
+
     int hooked = 0;
-    if (wrsr::pe::patchIat(hExe, "C3DDLL64.dll", "?GetMouseLeftPress@C3D_INPUT@@QEAA_NXZ",
-                           reinterpret_cast<void*>(detourMouseLeftPress),
-                           reinterpret_cast<void**>(&g_origGetMouseLeftPress))) {
-        ++hooked;
+    for (const auto& e : entries) {
+        if (wrsr::pe::patchIat(hExe, "C3DDLL64.dll", e.sym, e.detour, e.orig)) {
+            ++hooked;
+        }
     }
-    if (wrsr::pe::patchIat(hExe, "C3DDLL64.dll", "?GetMouseLeftDown@C3D_INPUT@@QEAA_NXZ",
-                           reinterpret_cast<void*>(detourMouseLeftDown),
-                           reinterpret_cast<void**>(&g_origGetMouseLeftDown))) {
-        ++hooked;
-    }
-    if (wrsr::pe::patchIat(hExe, "C3DDLL64.dll", "?GetMouseRightPress@C3D_INPUT@@QEAA_NXZ",
-                           reinterpret_cast<void*>(detourMouseRightPress),
-                           reinterpret_cast<void**>(&g_origGetMouseRightPress))) {
-        ++hooked;
-    }
-    if (wrsr::pe::patchIat(hExe, "C3DDLL64.dll", "?GetMouseRightDown@C3D_INPUT@@QEAA_NXZ",
-                           reinterpret_cast<void*>(detourMouseRightDown),
-                           reinterpret_cast<void**>(&g_origGetMouseRightDown))) {
-        ++hooked;
-    }
-    wrsr::log::info("overlay: installed %d/4 C3D_INPUT mouse guard hooks", hooked);
+    wrsr::log::info("overlay: installed %d/%zu C3D_INPUT IAT guard hooks",
+                    hooked, sizeof(entries) / sizeof(entries[0]));
 }
 
 // ---------------------------------------------------------------------------
@@ -194,6 +414,11 @@ void toggleOverlay(bool show)
     g_visible = show;
     if (show) {
         ClipCursor(nullptr);
+    } else {
+        g_wantCaptureMouse.store(false, std::memory_order_relaxed);
+        g_wantCaptureKeyboard.store(false, std::memory_order_relaxed);
+        g_imguiMouseButtons.store(0, std::memory_order_relaxed);
+        g_rectValid.store(false, std::memory_order_relaxed);
     }
 }
 
@@ -211,16 +436,24 @@ LRESULT CALLBACK hookedWndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
             return 0;
         }
 
-        ImGui_ImplWin32_WndProcHandler(hWnd, msg, wp, lp);
+        const bool isMouseMsg = (msg >= WM_MOUSEFIRST && msg <= WM_MOUSELAST) || msg == WM_INPUT;
+        const bool isKeyMsg   = (msg >= WM_KEYFIRST && msg <= WM_KEYLAST);
+        const bool extDrag    = (g_externalMouseButtons.load(std::memory_order_relaxed) != 0);
 
-        if (msg == WM_SETCURSOR) {
+        if (!isMouseMsg || !extDrag) {
+            ImGui_ImplWin32_WndProcHandler(hWnd, msg, wp, lp);
+        }
+
+        const bool lockMouse = isMouseLockedForGame();
+        if (msg == WM_SETCURSOR && lockMouse) {
             SetCursor(LoadCursorW(nullptr, IDC_ARROW));
             return 1;
         }
 
-        if ((msg >= WM_MOUSEFIRST && msg <= WM_MOUSELAST) ||
-            (msg >= WM_KEYFIRST && msg <= WM_KEYLAST) ||
-            msg == WM_INPUT) {
+        if (isMouseMsg && lockMouse) {
+            return 0;
+        }
+        if (isKeyMsg && isKeyboardLockedForGame()) {
             return 0;
         }
     }
@@ -305,6 +538,39 @@ void drawLivePriceCell(int colIdx, float price, bool blocked)
     }
 }
 
+int filterNumericChar(ImGuiInputTextCallbackData* data)
+{
+    const ImWchar ch = data->EventChar;
+    if ((ch >= '0' && ch <= '9') || ch == '.') {
+        return 0;
+    }
+    return 1;
+}
+
+void drawNumericFloatInput(const char* id, float* value, const char* fmt, bool& outDirty)
+{
+    char buf[32]{};
+    std::snprintf(buf, sizeof(buf), fmt, *value);
+
+    ImGui::SetNextItemWidth(-FLT_MIN);
+    const ImGuiInputTextFlags flags =
+        ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_CallbackCharFilter;
+    if (ImGui::InputText(id, buf, sizeof(buf), flags, filterNumericChar)) {
+        if (buf[0] == '\0') {
+            *value = 0.f;
+        } else {
+            char* end = nullptr;
+            const float parsed = std::strtof(buf, &end);
+            if (end != buf && std::isfinite(parsed)) {
+                *value = parsed;
+            }
+        }
+    }
+    if (ImGui::IsItemDeactivatedAfterEdit()) {
+        outDirty = true;
+    }
+}
+
 void drawLimitCell(int colIdx, const char* id, bool isBaseline,
                    float* fixedValue, float computedLimit, float pctValue, bool& outDirty)
 {
@@ -319,11 +585,7 @@ void drawLimitCell(int colIdx, const char* id, bool isBaseline,
             }
         }
     } else {
-        ImGui::SetNextItemWidth(-FLT_MIN);
-        ImGui::InputFloat(id, fixedValue, 0.f, 0.f, "%.2f");
-        if (ImGui::IsItemDeactivatedAfterEdit()) {
-            outDirty = true;
-        }
+        drawNumericFloatInput(id, fixedValue, "%.2f", outDirty);
     }
 }
 
@@ -331,6 +593,9 @@ void renderUI()
 {
     const bool visible = g_visible.load(std::memory_order_relaxed);
     if (!visible) {
+        g_wantCaptureMouse.store(false, std::memory_order_relaxed);
+        g_wantCaptureKeyboard.store(false, std::memory_order_relaxed);
+        g_rectValid.store(false, std::memory_order_relaxed);
         ImGui::GetIO().MouseDrawCursor = false;
         return;
     }
@@ -346,7 +611,7 @@ void renderUI()
     }
 
     ImGuiIO& io        = ImGui::GetIO();
-    io.MouseDrawCursor = true;
+    io.MouseDrawCursor = isMouseLockedForGame();
 
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
@@ -371,7 +636,17 @@ void renderUI()
     char titleBuf[96]{};
     std::snprintf(titleBuf, sizeof(titleBuf), "TradePriceLimits  [%s / Esc]###TradePriceLimits", keyName.c_str());
     bool open = true;
-    if (ImGui::Begin(titleBuf, &open, ImGuiWindowFlags_NoCollapse)) {
+    const bool windowOpen = ImGui::Begin(titleBuf, &open, ImGuiWindowFlags_NoCollapse);
+    {
+        const ImVec2 pos  = ImGui::GetWindowPos();
+        const ImVec2 size = ImGui::GetWindowSize();
+        g_rectL.store(static_cast<LONG>(pos.x), std::memory_order_relaxed);
+        g_rectT.store(static_cast<LONG>(pos.y), std::memory_order_relaxed);
+        g_rectR.store(static_cast<LONG>(pos.x + size.x), std::memory_order_relaxed);
+        g_rectB.store(static_cast<LONG>(pos.y + size.y), std::memory_order_relaxed);
+        g_rectValid.store(true, std::memory_order_relaxed);
+    }
+    if (windowOpen) {
         // ── Header status bar ─────────────────────────────────────────────
         {
             std::lock_guard lock(g_savePathMutex);
@@ -448,7 +723,7 @@ void renderUI()
             ImGui::BulletText("Fixed mode: Set exact currency limits. Max Buy stops imports above your cap; Min Sell stops exports below your floor (RUB = Soviet Customs, USD = Western Customs).");
             ImGui::BulletText("Negative prices (waste/trash): Signed limits work directly (e.g. Max Buy -300 stops importing trash if Customs pays less than 300/t; Min Sell -400 stops exporting if disposal costs > 400/t).");
             ImGui::BulletText("Base %% mode: Scales with inflation! Max Buy %% is a %% of Baseline Buy (e.g. 115%% = +15%% cap; for negative waste use e.g. 90%% so payout cannot drop >10%%). Min Sell %% is a %% of Baseline Sell.");
-            ImGui::BulletText("Baseline, Save & Hotkey: Click Rebase (or Rebase All) to snapshot live prices as 100%%. Auto-saves on Save/Autosave (or Ctrl+S); rebind open key via toggle_key in trade_price_limits.ini.");
+            ImGui::BulletText("Baseline, Save & Hotkey: Click Rebase (or Rebase All) to snapshot live prices as 100%%. Auto-saves on Save/Autosave (or Ctrl+S); rebind open key via toggle_key in TradePriceLimits.ini (next to the DLL).");
             ImGui::EndChild();
         }
 
@@ -544,18 +819,10 @@ void renderUI()
 
                 if (isBaseline) {
                     ImGui::TableSetColumnIndex(10);
-                    ImGui::SetNextItemWidth(-FLT_MIN);
-                    ImGui::InputFloat("##bpct", &r.max_buy_pct, 0.f, 0.f, "%.0f%%");
-                    if (ImGui::IsItemDeactivatedAfterEdit()) {
-                        dirty = true;
-                    }
+                    drawNumericFloatInput("##bpct", &r.max_buy_pct, "%.0f", dirty);
 
                     ImGui::TableSetColumnIndex(11);
-                    ImGui::SetNextItemWidth(-FLT_MIN);
-                    ImGui::InputFloat("##spct", &r.min_sell_pct, 0.f, 0.f, "%.0f%%");
-                    if (ImGui::IsItemDeactivatedAfterEdit()) {
-                        dirty = true;
-                    }
+                    drawNumericFloatInput("##spct", &r.min_sell_pct, "%.0f", dirty);
 
                     ImGui::TableSetColumnIndex(12);
                     if (ImGui::SmallButton("Rebase")) {
@@ -626,6 +893,17 @@ void renderUI()
     }
     ImGui::End();
 
+    const bool mouseCaptured =
+        io.WantCaptureMouse ||
+        ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow |
+                               ImGuiHoveredFlags_AllowWhenBlockedByPopup |
+                               ImGuiHoveredFlags_AllowWhenBlockedByActiveItem) ||
+        ImGui::IsAnyItemActive();
+    const bool keyboardCaptured = io.WantTextInput || io.WantCaptureKeyboard;
+    g_wantCaptureMouse.store(mouseCaptured, std::memory_order_relaxed);
+    g_wantCaptureKeyboard.store(keyboardCaptured, std::memory_order_relaxed);
+    io.MouseDrawCursor = isMouseLockedForGame();
+
     if (!open) {
         toggleOverlay(false);
     }
@@ -653,6 +931,7 @@ HRESULT WINAPI hookedPresent(IDXGISwapChain* sc, UINT syncInterval, UINT flags)
         g_origWndProc = reinterpret_cast<WNDPROC>(
             SetWindowLongPtrW(g_hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(hookedWndProc)));
 
+        installDirectInputGuard();
         installC3dInputGuards();
 
         IMGUI_CHECKVERSION();

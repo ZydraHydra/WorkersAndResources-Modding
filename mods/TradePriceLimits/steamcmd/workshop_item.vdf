@@ -46,7 +46,7 @@ Both [b]TesmioLoader (v0.4.5+)[/b] and [b]Republic Mod Loader (v1.0.1)[/b] autom
 [/list]
 [h1]Five-Year Plan Guarantees (Save-Safe & Performance)[/h1][list]
 [*] [b]Convoys already rolling stay rolling:[/b] Blocking checks [b]new dispatches only[/b]. Trucks and trains already out on the road will finish their current trip safely.
-[*] [b]100% Save-Safe & Rebindable Key:[/b] Rules are saved in a tiny [i]trade_price_limits.ini[/i] file inside your save folder (you can change [i]toggle_key=F8[/i] under [i][__settings][/i] to F1-F12, Home, Insert, etc.). Binary WRSR save files are never altered.
+[*] [b]100% Save-Safe & Rebindable Key:[/b] Rules stay inside a tiny [i]trade_price_limits.ini[/i] file per save folder (binary WRSR saves are never altered). To change the hotkey before launching, edit [i]toggle_key=F8[/i] under [i][settings][/i] in [i]TradePriceLimits.ini[/i] beside the plugin DLL (directly editable via RML's [i]Open plugin INI[/i]).
 [*] [b]Separate RUB & USD limits:[/b] Police Soviet border posts (RUB) and Western customs (USD) independently.
 [*] [b]Blocked Checks Readout:[/b] Live readout shows blocked Distribution Office customs evaluations since the last Save / Autosave / Load.
 [/list]{CHANGELOG_SECTION}"

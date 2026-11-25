@@ -55,11 +55,10 @@ Both **TesmioLoader (`v0.4.5`)** and **Republic Mod Loader (`v1.0.1`)** automati
 | `Ctrl+S` | Save rules to active save's `trade_price_limits.ini` |
 | `Ctrl+R` | Rebase all resources to current live market prices |
 
-To change the overlay toggle key, edit `[__settings]` in your save folder's `trade_price_limits.ini`:
+To change the overlay toggle key (including before starting the game via RML's **Open plugin INI**), edit `[settings]` in `TradePriceLimits.ini` next to `TradePriceLimits.dll`:
 
 ```ini
-[__settings]
-enforcement_enabled=1
+[settings]
 toggle_key=F8
 ```
 

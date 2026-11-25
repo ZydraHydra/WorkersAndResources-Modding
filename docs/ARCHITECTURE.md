@@ -36,6 +36,7 @@ TradePriceLimits.dll
 │   ├── RuleEngine singleton (std::mutex for config + lock-free atomic FastThresholdSlot[256] for simulation hot path)
 │   ├── Fixed Cap mode (independent max_buy_rub, min_sell_rub, max_buy_usd, min_sell_usd)
 │   ├── Base % mode (separate baseline_rub/baseline_sell_rub/baseline_usd/baseline_sell_usd + rebase)
+│   ├── Global hotkey loader (toggle_key under [settings]) ← <DllDir>\TradePriceLimits.ini
 │   ├── Enforce Limits toggle (persisted per save under [__settings])
 │   └── mINI serializer → <SaveDir>\trade_price_limits.ini
 ├── hooks/dx11_overlay.{hpp,cpp}

@@ -106,6 +106,15 @@ function(wrsr_configure_mod_version target_name mod_dir)
         file(READ "${_manifest_in}" _manifest_json)
         string(JSON _manifest_json SET "${_manifest_json}" "version" "\"${resolved_version}\"")
 
+        string(JSON _desc ERROR_VARIABLE _desc_err GET "${_manifest_json}" "description")
+        if(NOT _desc_err AND NOT "${_desc}" STREQUAL "")
+            string(REGEX REPLACE " \\(v[0-9]+\\.[0-9]+\\.[0-9]+\\)$" "" _desc_base "${_desc}")
+            set(_desc_stamped "${_desc_base} (v${resolved_version})")
+            string(REPLACE "\\" "\\\\" _desc_esc "${_desc_stamped}")
+            string(REPLACE "\"" "\\\"" _desc_esc "${_desc_esc}")
+            string(JSON _manifest_json SET "${_manifest_json}" "description" "\"${_desc_esc}\"")
+        endif()
+
         # Resolve supportedGameVersions from game_versions.json if available
         set(_gv_file "${mod_dir}/game_versions.json")
         if(EXISTS "${_gv_file}")
