@@ -2,6 +2,9 @@
 
 All notable changes to **TradePriceLimits** are documented here. The topmost section is automatically included in Steam Workshop release notes and the Workshop page description.
 
+## [1.0.12]
+- **WRSR `1.1.1.9` Profile Support:** Added exact PE fingerprint (`TimeDateStamp = 0x6A3EB6AD`, `SizeOfImage = 0xA9D000`) and verified offsets (`res_stride = 0x340`, `desc_type_off = 0x360`) for WRSR `1.1.1.9` in `offsets.ini`, and added `1.1.1.9` to `supportedGameVersions`.
+
 ## [1.0.10]
 - **Unified Single-File Offsets (`offsets.ini`):** Consolidated all AOB patterns, PE build fingerprints (`TimeDateStamp` + `SizeOfImage`), and game struct offsets into a single build-embedded configuration file with automatic hotfix operand fallback.
 - **Unified Steam Workshop Release:** Combined support for both WRSR `1.2.0.8` and `1.1.1.7` under one auto-updating Steam Workshop item (`3845533384`), while keeping per-version ZIPs on GitHub Releases.
