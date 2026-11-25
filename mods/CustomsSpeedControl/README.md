@@ -23,7 +23,7 @@ Both **TesmioLoader (`v0.4.5+`)** and **Republic Mod Loader (`v1.0.1`)** automat
 
 ### Option B — Republic Mod Loader (RML `v1.0.1`, All-on-Steam Alternative)
 
-1. Subscribe to **CustomsSpeedControl** on the Steam Workshop.
+1. Subscribe to **CustomsSpeedControl** on the Steam Workshop (link above).
 2. Subscribe to [**Republic Mod Loader (RML)**](https://steamcommunity.com/sharedfiles/filedetails/?id=3787969749) ([GitHub](https://github.com/Ultimate-Universe/WRSR-RepublicModLoader)).
 3. Run **`RepublicModLoader.exe`** from:
    ```text
@@ -32,7 +32,7 @@ Both **TesmioLoader (`v0.4.5+`)** and **Republic Mod Loader (`v1.0.1`)** automat
    *(You can create a Desktop shortcut or add it to Steam as a Non-Steam Game.)*
 4. Tick **CustomsSpeedControl** in RML, click **Launch**, and press **`F9`** once loaded into your savegame.
 
-*(Manual / Non-Steam installs only: copy `plugins\CustomsSpeedControl.dll` from `<Steam Library>\steamapps\workshop\content\784150\<ID>\plugins\` or a GitHub Release zip into `<Game Dir>\plugins\`.)*
+*(Manual / Non-Steam installs only: copy `plugins\CustomsSpeedControl.dll` from `<Steam Library>\steamapps\workshop\content\784150\3845944617\plugins\` or a GitHub Release zip into `<Game Dir>\plugins\`.)*
 
 ## Features & In-Game Usage
 

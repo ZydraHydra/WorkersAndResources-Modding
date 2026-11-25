@@ -2,6 +2,9 @@
 
 All notable changes to **CustomsSpeedControl** are documented here. The topmost section is automatically included in Steam Workshop release notes and the Workshop page description.
 
+## [1.0.8]
+- **Steam Workshop ID (`3845944617`):** Recorded the published Steam Workshop item ID (`3845944617`) in `game_versions.json`, `README.md`, and the Workshop description.
+
 ## [1.0.6]
 - **Live Customs House Transfer Hook (`VehicleCargoTransferTick` + `PowerTime`):** Captured and verified unique AOB signature (`cargo_transfer_tick_aob`) across WRSR `1.2.0.9`, `1.2.0.8`, and `1.1.1.13`, hooking `VehicleCargoTransferTick` alongside a `.pdata`-scoped `C3D_TIMER::PowerTime` IAT filter that scales pre-clamp cargo rates (`veh+0x594`: `1` = Unload, `2` = Load) strictly for `$TYPE_CUSTOMHOUSE` (`20`) buildings.
 - **WRSR `1.2.0.9` Profile Support:** Added verified `1.2.0.9` fingerprint (`TimeDateStamp = 0x6B05A574`, `SizeOfImage = 0xAE9000`) and versioned `Vehicle` struct offsets (`1.1.1.x` vs `1.2.0.8–1.2.0.9`) to `offsets.ini` and `game_versions.json`.
