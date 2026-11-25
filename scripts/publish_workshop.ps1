@@ -81,7 +81,12 @@ $tracks = if ($GameVersion -eq "all") {
 }
 
 foreach ($track in $tracks) {
-    $gvId    = [string]$track.id
+    $gvId            = [string]$track.id
+    $publishWorkshop = if ($null -ne $track.PSObject.Properties['publishWorkshop']) { [bool]$track.publishWorkshop } else { $true }
+    if ($GameVersion -eq "all" -and -not $publishWorkshop) {
+        Write-Host "`nSkipping Steam Workshop upload for WRSR $gvId (publishWorkshop=false; GitHub Release ZIP staged)." -ForegroundColor DarkGray
+        continue
+    }
     $VdfPath = Join-Path $Root "release\${Mod}_v${ResolvedVer}_wrsr-${gvId}\workshop_item.vdf"
     if (-not (Test-Path $VdfPath)) {
         throw "Staged VDF not found at $VdfPath"

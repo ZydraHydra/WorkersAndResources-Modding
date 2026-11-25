@@ -75,7 +75,7 @@ jobs:
               throw "Tag '${{ github.ref_name }}' must match '<Mod>-v<SemVer>' or '<Mod>-wrsr<GameVer>-v<SemVer>'"
             }
             $visibility = "0"
-            $changenote = "Release v$version"
+            $changenote = ""
             $publish    = "true"
             $tagName    = "${{ github.ref_name }}"
           } else {
@@ -84,9 +84,30 @@ jobs:
             $info        = .\scripts\get_mod_version.ps1 -Mod $mod -VersionOverride "${{ inputs.version }}" -AsObject
             $version     = $info.version
             $visibility  = "${{ inputs.visibility }}"
-            $changenote  = if ("${{ inputs.changenote }}") { "${{ inputs.changenote }}" } else { "Release v$version" }
+            $changenote  = "${{ inputs.changenote }}"
             $publish     = "${{ inputs.publish_to_workshop }}"
             $tagName     = if ($gameVersion -eq "all") { "${mod}-v${version}" } else { "${mod}-wrsr${gameVersion}-v${version}" }
+          }
+
+          if ([string]::IsNullOrWhiteSpace($changenote)) {
+            $changelogMd = "mods/$mod/CHANGELOG.md"
+            if (Test-Path $changelogMd) {
+              $items = @()
+              $inFirst = $false
+              foreach ($raw in (Get-Content $changelogMd -Encoding UTF8)) {
+                $line = $raw.Trim()
+                if ($line -match '^##\s+') {
+                  if ($inFirst) { break }
+                  $inFirst = $true
+                } elseif ($inFirst -and $line -match '^[-*]\s+(.+)$') {
+                  $clean = $Matches[1].Trim() -replace '\*\*([^*]+)\*\*', '$1' -replace '`([^`]+)`', '$1'
+                  $items += "- $clean"
+                }
+              }
+              $changenote = if ($items.Count -gt 0) { "Release v$version`n" + ($items -join "`n") } else { "Release v$version" }
+            } else {
+              $changenote = "Release v$version"
+            }
           }
 
           if (-not (Test-Path "mods/$mod")) {
@@ -97,9 +118,13 @@ jobs:
           "game_version=$gameVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
           "version=$version"          | Out-File -FilePath $env:GITHUB_OUTPUT -Append
           "visibility=$visibility"    | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-          "changenote=$changenote"    | Out-File -FilePath $env:GITHUB_OUTPUT -Append
           "publish=$publish"          | Out-File -FilePath $env:GITHUB_OUTPUT -Append
           "tag=$tagName"              | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          @(
+            "changenote<<WRSR_CHANGELOG_EOF"
+            $changenote
+            "WRSR_CHANGELOG_EOF"
+          ) | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
       - name: Install Ninja
         shell: pwsh
@@ -107,13 +132,15 @@ jobs:
 
       - name: Build & Stage Mod per Game Version
         shell: pwsh
+        env:
+          RELEASE_CHANGENOTE: ${{ steps.meta.outputs.changenote }}
         run: |
           .\scripts\package_workshop.ps1 `
             -Mod "${{ steps.meta.outputs.mod }}" `
             -Version "${{ steps.meta.outputs.version }}" `
             -GameVersion "${{ steps.meta.outputs.game_version }}" `
             -Visibility "${{ steps.meta.outputs.visibility }}" `
-            -Changenote "${{ steps.meta.outputs.changenote }}" `
+            -Changenote $env:RELEASE_CHANGENOTE `
             -Build
 
       - name: Publish GitHub Release

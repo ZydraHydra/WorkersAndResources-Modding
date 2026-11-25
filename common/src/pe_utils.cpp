@@ -61,6 +61,22 @@ ModuleRange getMainModuleRange() noexcept
     return { reinterpret_cast<uint8_t*>(hExe), nt->OptionalHeader.SizeOfImage };
 }
 
+ExecutableFingerprint getExecutableFingerprint(uint8_t* moduleBase) noexcept
+{
+    if (!moduleBase) {
+        return {};
+    }
+    auto* dos = reinterpret_cast<const IMAGE_DOS_HEADER*>(moduleBase);
+    if (dos->e_magic != IMAGE_DOS_SIGNATURE) {
+        return {};
+    }
+    auto* nt = reinterpret_cast<const IMAGE_NT_HEADERS64*>(moduleBase + dos->e_lfanew);
+    if (nt->Signature != IMAGE_NT_SIGNATURE) {
+        return {};
+    }
+    return { nt->FileHeader.TimeDateStamp, nt->OptionalHeader.SizeOfImage };
+}
+
 ModuleRange getSectionRange(uint8_t* moduleBase, const char* sectionName) noexcept
 {
     if (!moduleBase || !sectionName) {

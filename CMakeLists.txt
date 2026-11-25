@@ -7,6 +7,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(ModVersioning)
+include(EmbedOffsets)
 
 set(WRSR_GAME_VERSION "latest" CACHE STRING "Target WRSR game version track (e.g. 1.1.1.7, latest)")
 

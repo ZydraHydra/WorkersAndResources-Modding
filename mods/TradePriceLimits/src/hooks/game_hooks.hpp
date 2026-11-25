@@ -1,34 +1,13 @@
 #pragma once
 // ============================================================================
-// game_hooks.hpp — AOB scanner targets & SOVIET64.exe resource structures
+// game_hooks.hpp — Offset-profile driven AOB hooks & SOVIET64.exe structures
 // ============================================================================
 
-#include <atomic>
 #include <cstdint>
 #include <optional>
+#include <string>
 
 namespace tpl::game {
-
-// Cross-version verified AOB pattern (unique match on both v1.1.1.7 and latest Steam build):
-//   +11: 48 8D 0D <disp32>   LEA RCX, [ResourceVector]  (next IP at +18, disp at +14)
-//   +42: 49 69 C0 <imm32>    IMUL RAX, R8, <stride>     (stride at +45: 0x340 on v1.1.1.7, 0x380 on latest)
-inline constexpr const char* SIG_PRICE_TABLE =
-    "48 C7 86 94 07 00 00 03 00 00 00 "
-    "48 8D 0D ?? ?? ?? ?? "
-    "E8 ?? ?? ?? ?? "
-    "49 3B C6 "
-    "0F 84 ?? ?? ?? ?? "
-    "4C 63 86 98 07 00 00 "
-    "49 8B C8 "
-    "49 69 C0 ?? ?? 00 00 "
-    "48 8B 15 ?? ?? ?? ??";
-
-// Cross-version verified AOB pattern for EvaluateDistTask(GameObject*, Task0x80*)
-// Called by both RoadDistOffice (0x1C6B81) and RailDistOffice (0x1C7BE1) in v1.1.1.7.
-// 29-byte prologue with zero RIP-relative instructions.
-inline constexpr const char* SIG_DISPATCH_CHECK =
-    "48 8B C4 48 89 58 08 55 56 57 41 54 41 55 41 56 41 57 "
-    "48 8D 68 A1 48 81 EC 00 01 00 00";
 
 struct ResourceVector {
     uint8_t* begin{nullptr};
@@ -36,31 +15,46 @@ struct ResourceVector {
     uint8_t* cap{nullptr};
 };
 
-// Prefix layout of a ResourceRecord (stride is 0x340 on v1.1.1.7, 0x380 on latest)
-#pragma pack(push, 1)
-struct ResourceRecordHeader {
-    char    name[0x40];      // +0x00: inline NUL-terminated ASCII resource name
-    int32_t localisationId;  // +0x40
-    int32_t priceKind;       // +0x44: -1 workers, -2 eletric, -3 vehicles, -4 trains, -5 heat, 0..4 tradeable
-    void*   iconTexture;     // +0x48
-    float   _unk50;          // +0x50
-    float   _unk54;          // +0x54
-    float   buyPriceUsd;     // +0x58
-    float   buyPriceRub;     // +0x5C
-    float   sellPriceUsd;    // +0x60
-    float   sellPriceRub;    // +0x64
-    uint8_t _pad68[0x10];    // +0x68..+0x77
-    float   basePriceRub;    // +0x78
-    float   basePriceUsd;    // +0x7C
+// All version-sensitive struct offsets loaded per WRSR build from config/offsets.ini.
+struct GameLayout {
+    std::string profileName{"default"};
+    bool        exactProfileMatch{false};
+    uint32_t    peTimeDateStamp{0};
+    uint32_t    peSizeOfImage{0};
+
+    // ResourceRecord layout
+    uint32_t resStride{0};
+    uint32_t resMinHeaderSize{0};
+    uint32_t resNameOff{0};
+    uint32_t resKindOff{0};
+    uint32_t resBuyUsdOff{0};
+    uint32_t resBuyRubOff{0};
+    uint32_t resSellUsdOff{0};
+    uint32_t resSellRubOff{0};
+
+    // DistTask (0x80-byte) & Building / BuildingDescriptor layout
+    uint32_t taskResOff{0};
+    uint32_t taskSrcBldOff{0};
+    uint32_t taskDstBldOff{0};
+    uint32_t taskScoreSrcDoubleOff{0};
+    uint32_t taskScoreSrcFlag1Off{0};
+    uint32_t taskScoreSrcFlag2Off{0};
+    uint32_t taskScoreDstDoubleOff{0};
+    uint32_t taskScoreDstFlag1Off{0};
+    uint32_t taskScoreDstFlag2Off{0};
+    uint32_t bldDescOff{0};
+    uint32_t bldFactionOff{0};
+    uint32_t descTypeOff{0};
+
+    int32_t  customsBuildingType{20};
+    int32_t  factionUsd{3};
+    int32_t  factionRub{4};
 };
-#pragma pack(pop)
-static_assert(sizeof(ResourceRecordHeader) == 0x80, "ResourceRecordHeader layout check");
 
 struct GameAddresses {
     ResourceVector* resourceVector{nullptr};
-    uint32_t        recordStride{0x340};
-    uint32_t        buildingTypeOffset{0x360};
     uint8_t*        dispatchCheckSite{nullptr};
+    GameLayout      layout{};
 };
 
 extern GameAddresses g_addrs;

@@ -3,11 +3,13 @@
   "gameVersions": [
     {
       "id": "latest",
-      "label": "Latest (WRSR 1.2.0.8)",
+      "label": "Latest (WRSR 1.2.0.8 & 1.1.1.7)",
       "isPrimary": true,
       "supportedGameVersions": [
-        "1.2.0.8"
+        "1.2.0.8",
+        "1.1.1.7"
       ],
+      "publishWorkshop": true,
       "publishedFileId": "3845533384"
     },
     {
@@ -17,6 +19,7 @@
       "supportedGameVersions": [
         "1.1.1.7"
       ],
+      "publishWorkshop": false,
       "publishedFileId": "3845533316"
     }
   ]

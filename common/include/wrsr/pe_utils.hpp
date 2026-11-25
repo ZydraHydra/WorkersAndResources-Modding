@@ -13,8 +13,16 @@ struct ModuleRange {
     size_t   size{0};
 };
 
+struct ExecutableFingerprint {
+    uint32_t timeDateStamp{0};
+    uint32_t sizeOfImage{0};
+};
+
 // Returns image base and SizeOfImage for the main process executable (SOVIET64.exe)
 ModuleRange getMainModuleRange() noexcept;
+
+// Extracts PE TimeDateStamp and SizeOfImage from a loaded PE module
+ExecutableFingerprint getExecutableFingerprint(uint8_t* moduleBase) noexcept;
 
 // Returns virtual address and virtual size of a named PE section (e.g. ".text")
 ModuleRange getSectionRange(uint8_t* moduleBase, const char* sectionName) noexcept;

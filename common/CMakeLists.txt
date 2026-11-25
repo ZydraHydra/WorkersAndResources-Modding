@@ -1,5 +1,6 @@
 add_library(wrsr_common STATIC
     src/logger.cpp
+    src/offsets.cpp
     src/pe_utils.cpp
 )
 

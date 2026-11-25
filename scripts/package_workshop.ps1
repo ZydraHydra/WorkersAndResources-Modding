@@ -61,6 +61,105 @@ function New-FallbackPreviewPng {
     $bmp.Dispose()
 }
 
+function Convert-MarkdownToSteamBBCode {
+    param([string]$Text)
+    $t = $Text -replace '\*\*([^*]+)\*\*', '[b]$1[/b]'
+    $t = $t -replace '`([^`]+)`', '[i]$1[/i]'
+    $t = $t -replace '\[([^\]]+)\]\((https?://[^)]+)\)', '[url=$2]$1[/url]'
+    return $t
+}
+
+function Get-ModChangelogData {
+    param(
+        [string]$RootDir,
+        [string]$ModName,
+        [string]$ResolvedVer
+    )
+    $modDir       = Join-Path $RootDir "mods\$ModName"
+    $changelogMd  = Join-Path $modDir "CHANGELOG.md"
+    $latestPlain  = @()
+    $bbSections   = @()
+
+    if (Test-Path $changelogMd) {
+        $lines = Get-Content $changelogMd -Encoding UTF8
+        $sections = @()
+        $curTitle = $null
+        $curItems = @()
+        foreach ($raw in $lines) {
+            $line = $raw.Trim()
+            if ($line -match '^##\s+(.+)$') {
+                if ($curTitle) {
+                    $sections += [pscustomobject]@{ title = $curTitle; items = $curItems }
+                }
+                $curTitle = ($Matches[1] -replace '^\[|\]$', '').Trim()
+                $curItems = @()
+            } elseif ($curTitle -and $line -match '^[-*]\s+(.+)$') {
+                $curItems += $Matches[1].Trim()
+            }
+        }
+        if ($curTitle) {
+            $sections += [pscustomobject]@{ title = $curTitle; items = $curItems }
+        }
+
+        if ($sections.Count -gt 0) {
+            $top = $sections[0]
+            foreach ($item in $top.items) {
+                $plain = $item -replace '\*\*([^*]+)\*\*', '$1' -replace '`([^`]+)`', '$1'
+                $latestPlain += "- $plain"
+            }
+
+            $maxSections = [Math]::Min(3, $sections.Count)
+            for ($i = 0; $i -lt $maxSections; $i++) {
+                $sec = $sections[$i]
+                $bb  = "[b]v$($sec.title)[/b][list]"
+                foreach ($item in $sec.items) {
+                    $bb += "`n[*] $(Convert-MarkdownToSteamBBCode $item)"
+                }
+                $bb += "`n[/list]"
+                $bbSections += $bb
+            }
+        }
+    }
+
+    if ($latestPlain.Count -eq 0) {
+        $git = Get-Command git -ErrorAction SilentlyContinue
+        if ($git -and (Test-Path (Join-Path $RootDir ".git"))) {
+            Push-Location $RootDir
+            $prevEap = $ErrorActionPreference
+            $ErrorActionPreference = "Continue"
+            try {
+                $lastTag = (& git describe --tags --match "$ModName-*v*" --abbrev=0 2>$null | Select-Object -First 1)
+                $range   = if ($LASTEXITCODE -eq 0 -and $lastTag) { "$lastTag..HEAD" } else { "-n 8" }
+                $commits = & git log $range --no-merges --pretty=format:"- %s" -- "mods/$ModName" "common" 2>$null
+                if ($LASTEXITCODE -eq 0 -and $commits) {
+                    $latestPlain = @($commits)
+                }
+            } finally {
+                $global:LASTEXITCODE = 0
+                $ErrorActionPreference = $prevEap
+                Pop-Location
+            }
+        }
+    }
+
+    $plainBlock = if ($latestPlain.Count -gt 0) {
+        "Release v$ResolvedVer`n" + ($latestPlain -join "`n")
+    } else {
+        "Release v$ResolvedVer"
+    }
+
+    $bbBlock = if ($bbSections.Count -gt 0) {
+        "`n`n[h1]Recent Changelog[/h1]" + ($bbSections -join "`n")
+    } else {
+        ""
+    }
+
+    return [pscustomobject]@{
+        changenote = $plainBlock
+        bbSection  = $bbBlock
+    }
+}
+
 $Root   = Split-Path $PSScriptRoot -Parent
 $ModDir = Join-Path $Root "mods\$Mod"
 
@@ -172,40 +271,47 @@ foreach ($track in $targetTracks) {
     }
 
     # 6. Render clean workshop_item.vdf OUTSIDE content/
-    $isPrimaryTrack = ($null -ne $track.isPrimary -and [bool]$track.isPrimary) -or ($gvId -eq "latest")
-    $workshopTitle  = if ($isPrimaryTrack) { "$Mod" } else { "$Mod [$gvLabel]" }
+    $isPrimaryTrack  = ($null -ne $track.isPrimary -and [bool]$track.isPrimary) -or ($gvId -eq "latest")
+    $publishWorkshop = if ($null -ne $track.PSObject.Properties['publishWorkshop']) { [bool]$track.publishWorkshop } else { $true }
+    $workshopTitle   = if ($isPrimaryTrack) { "$Mod" } else { "$Mod [$gvLabel]" }
 
     $primaryTrack = $info.gameVersions | Where-Object { ($null -ne $_.isPrimary -and [bool]$_.isPrimary) -or $_.id -eq "latest" } | Select-Object -First 1
     $primaryId    = if ($primaryTrack -and $primaryTrack.publishedFileId) { [string]$primaryTrack.publishedFileId } else { "" }
 
     $otherLinks = @()
     foreach ($other in $info.gameVersions) {
-        if ($other.id -ne $gvId -and $other.publishedFileId -and $other.publishedFileId -ne "0") {
+        $otherPublish = if ($null -ne $other.PSObject.Properties['publishWorkshop']) { [bool]$other.publishWorkshop } else { $true }
+        if ($other.id -ne $gvId -and $otherPublish -and $other.publishedFileId -and $other.publishedFileId -ne "0") {
             $otherLabel = if ($other.label) { [string]$other.label } else { "WRSR $($other.id)" }
             $otherLinks += "[url=https://steamcommunity.com/sharedfiles/filedetails/?id=$($other.publishedFileId)]$otherLabel[/url]"
         }
     }
 
     if ($isPrimaryTrack) {
-        $editionHeader = "[b]Main Edition (Mod v$ResolvedVer - Alpha):[/b] Tracks the latest WRSR & mod updates under this permanent Workshop ID (safe for Steam Collections)."
+        $supportedList = @($track.supportedGameVersions) -join ", "
+        $verSuffix     = if ($supportedList) { " Supports WRSR $supportedList." } else { "" }
+        $editionHeader = "[b]Main Unified Edition (Mod v$ResolvedVer - Alpha):[/b] Automatically detects your WRSR build and loads matching offsets under this single Workshop ID.$verSuffix"
         if ($otherLinks.Count -gt 0) {
-            $editionHeader += "`nOlder pinned game versions: " + ($otherLinks -join " | ")
+            $editionHeader += "`nOther tracks: " + ($otherLinks -join " | ")
         }
     } else {
         $editionHeader = "[b]Legacy Pinned Edition:[/b] Built for [b]$gvLabel[/b] (Mod v$ResolvedVer - Alpha)."
         if ($primaryId -and $primaryId -ne "0") {
-            $editionHeader += "`nLooking for the main auto-updating Workshop item? [url=https://steamcommunity.com/sharedfiles/filedetails/?id=$primaryId]$Mod (Latest)[/url]"
+            $editionHeader += "`nLooking for the unified auto-updating Workshop item? [url=https://steamcommunity.com/sharedfiles/filedetails/?id=$primaryId]$Mod (Unified)[/url]"
         }
     }
 
-    $note = if ($Changenote) { $Changenote } else { "Release v$ResolvedVer ($gvLabel)" }
+    $changelogData = Get-ModChangelogData -RootDir $Root -ModName $Mod -ResolvedVer $ResolvedVer
+    $note = if ($Changenote) { $Changenote } else { $changelogData.changenote }
     $VdfSrc = Join-Path $ModDir "steamcmd\workshop_item.vdf"
-    if (Test-Path $VdfSrc) {
+    $emitVdf = $publishWorkshop -or ($GameVersion -ne "all")
+    if ($emitVdf -and (Test-Path $VdfSrc)) {
         $contentSlash = $ContentDir -replace '\\', '/'
         $previewSlash = $PreviewStage -replace '\\', '/'
         $vdf = Get-Content $VdfSrc -Raw -Encoding UTF8
         $vdf = $vdf -replace '\{WORKSHOP_TITLE\}', $workshopTitle
         $vdf = $vdf -replace '\{EDITION_HEADER\}', $editionHeader
+        $vdf = $vdf -replace '\{CHANGELOG_SECTION\}', ($changelogData.bbSection -replace '"', "'")
         $vdf = $vdf -replace '\{VERSION\}', $ResolvedVer
         $vdf = $vdf -replace '\{GAME_VERSION\}', $gvId
         $vdf = $vdf -replace '\{GAME_LABEL\}', $gvLabel
@@ -213,7 +319,7 @@ foreach ($track in $targetTracks) {
         $vdf = $vdf -replace '\{CONTENT_DIR\}', $contentSlash
         $vdf = $vdf -replace '\{PREVIEW_FILE\}', $previewSlash
         $vdf = $vdf -replace '\{VISIBILITY\}', $Visibility
-        $vdf = $vdf -replace '\{CHANGENOTE\}', ($note -replace '"', '\"')
+        $vdf = $vdf -replace '\{CHANGENOTE\}', ($note -replace '"', "'")
         [System.IO.File]::WriteAllText((Join-Path $StageDir "workshop_item.vdf"), $vdf, (New-Object System.Text.UTF8Encoding $false))
     }
 
@@ -222,7 +328,7 @@ foreach ($track in $targetTracks) {
     Compress-Archive -Path "$ContentDir\*" -DestinationPath $ZipPath -Force
 
     Write-Host "✓ Staged $Mod v$ResolvedVer [$gvLabel] -> $StageDir" -ForegroundColor Green
-    Write-Host "  Workshop ID : $resolvedId"
+    Write-Host "  Workshop ID : $resolvedId (Steam upload: $(if ($emitVdf) { 'enabled' } else { 'skipped / GitHub ZIP only' }))"
     Write-Host "  Visibility  : $Visibility (0=Public, 1=Friends, 2=Hidden)"
     Write-Host "  Archive zip : $ZipPath"
 }

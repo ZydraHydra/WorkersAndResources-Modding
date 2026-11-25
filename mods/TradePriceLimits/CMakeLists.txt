@@ -35,6 +35,7 @@ target_compile_definitions(TradePriceLimits PRIVATE
 )
 
 wrsr_configure_mod_version(TradePriceLimits "${CMAKE_CURRENT_SOURCE_DIR}")
+wrsr_embed_offsets(TradePriceLimits "${CMAKE_CURRENT_SOURCE_DIR}/config/offsets.ini")
 
 if(MSVC)
     target_compile_options(TradePriceLimits PRIVATE
