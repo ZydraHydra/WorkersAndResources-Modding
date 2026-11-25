@@ -49,6 +49,10 @@ Both **TesmioLoader (`v0.4.5+`)** and **Republic Mod Loader (`v1.0.1`)** automat
 - **Asymmetric Import vs. Export Realism:** Set `Load = 5x` for fast bulk imports (e.g., gravel/fuel/waste) while keeping `Unload = 2x` so export trains/trucks turn around faster without feeling instant.
 - **Road Boost Only, Vanilla Trains:** Uncheck **Affect Rail (Trains & Wagons)** if you want big freight trains to still take realistic loading time at rail border connections while small customs trucks clear quickly.
 
+## Companion Mod
+
+- [**TradePriceLimits**](https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384) ([GitHub](../../mods/TradePriceLimits)) — Stop Distribution Offices from dispatching imports above your **Max Buy** cap or exports below your **Min Sell** floor (`RUB` & `USD`, Fixed or `Base %` inflation-resilient) via the **`F8`** overlay.
+
 ## Controls & INI Configuration
 
 | Shortcut / Control | Action |

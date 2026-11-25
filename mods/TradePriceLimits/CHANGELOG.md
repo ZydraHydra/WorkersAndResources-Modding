@@ -2,6 +2,9 @@
 
 All notable changes to **TradePriceLimits** are documented here. The topmost section is automatically included in Steam Workshop release notes and the Workshop page description.
 
+## [1.0.19]
+- **Companion Mod Cross-Links:** Interlinked [`CustomsSpeedControl`](https://steamcommunity.com/sharedfiles/filedetails/?id=3845944617) across `README.md` and the Steam Workshop description.
+
 ## [1.0.18]
 - **WRSR `1.2.0.9` Support:** Verified `price_table_aob` (`0xEBA24`, `res_stride = 0x380`) and `dispatch_check_aob` (`0x1FE750`, `desc_type_off = 0x368`) on WRSR `1.2.0.9` and added its explicit PE fingerprint (`TimeDateStamp = 0x6B05A574`, `SizeOfImage = 0xAE9000`) in `common/config/offsets.ini`, bringing supported builds to `1.2.0.9`, `1.2.0.8`, `1.1.1.13`, `1.1.1.9`, and `1.1.1.7`.
 

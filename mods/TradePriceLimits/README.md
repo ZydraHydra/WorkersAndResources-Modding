@@ -64,6 +64,10 @@ Both **TesmioLoader (`v0.4.5`)** and **Republic Mod Loader (`v1.0.1`)** automati
 - **Set-and-Forget with `Base %` (Inflation-Proof):**
   - Press `Ctrl+R` (or click **Rebase**) to snapshot current prices as `100%`, switch a resource to **Base %**, and set e.g. `Max Buy = 95%` / `Min Sell = 105%`. Your limits automatically scale as prices inflate over the decades.
 
+## Companion Mod
+
+- [**CustomsSpeedControl**](https://steamcommunity.com/sharedfiles/filedetails/?id=3845944617) ([GitHub](../../mods/CustomsSpeedControl)) — Adjust **Customs House (`$TYPE_CUSTOMHOUSE`)** cargo Load and Unload transfer speeds (`0.25x`–`100.0x`, Road & Rail toggle) live via the **`F9`** overlay while keeping domestic logistics at vanilla speed.
+
 ## Controls & Rebinding
 
 | Shortcut / Control | Action |

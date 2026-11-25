@@ -2,6 +2,9 @@
 
 All notable changes to **CustomsSpeedControl** are documented here. The topmost section is automatically included in Steam Workshop release notes and the Workshop page description.
 
+## [1.0.9]
+- **Companion Mod Cross-Links:** Interlinked [`TradePriceLimits`](https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384) across `README.md` and the Steam Workshop description.
+
 ## [1.0.8]
 - **Steam Workshop ID (`3845944617`):** Recorded the published Steam Workshop item ID (`3845944617`) in `game_versions.json`, `README.md`, and the Workshop description.
 

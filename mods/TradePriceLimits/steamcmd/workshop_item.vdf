@@ -57,6 +57,9 @@ Both [b]TesmioLoader (v0.4.5+)[/b] and [b]Republic Mod Loader (v1.0.1)[/b] autom
 [*] [b]100% Save-Safe & Rebindable Key:[/b] Rules stay inside a tiny [i]trade_price_limits.ini[/i] file per save folder (binary WRSR saves are never altered). To change the hotkey before launching, edit [i]toggle_key=F8[/i] under [i][settings][/i] in [i]TradePriceLimits.ini[/i] beside the plugin DLL (directly editable via RML's [i]Open plugin INI[/i]).
 [*] [b]Separate RUB & USD limits:[/b] Police Soviet border posts (RUB) and Western customs (USD) independently.
 [*] [b]Blocked Checks Readout:[/b] Live readout shows blocked Distribution Office customs evaluations since the last Save / Autosave / Load.
+[/list]
+[h1]Companion Mod (Border Logistics Suite)[/h1][list]
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3845944617][b]CustomsSpeedControl[/b][/url] - Scale Customs House ([i]$TYPE_CUSTOMHOUSE[/i]) cargo [b]Load[/b] & [b]Unload[/b] speeds ([b]0.25x - 100.0x[/b], Road & Rail toggle) live via the [b]F9[/b] overlay while keeping domestic stations and warehouses at vanilla speeds. Works cleanly alongside TradePriceLimits!
 [/list]{CHANGELOG_SECTION}"
     "language"        "english"
     "changenote"      "{CHANGENOTE}"

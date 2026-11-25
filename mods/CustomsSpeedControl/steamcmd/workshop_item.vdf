@@ -53,6 +53,9 @@ Both [b]TesmioLoader (v0.4.5+)[/b] and [b]Republic Mod Loader (v1.0.1)[/b] autom
 [*] [b]Customs Houses ONLY:[/b] Strictly verifies target building type [i]$TYPE_CUSTOMHOUSE[/i] (20). Domestic stations, warehouses, silos, and factories remain untouched.
 [*] [b]Pre-Clamp Rate Scaling:[/b] Scales cargo transfer delta-time before building modifiers and capacity clamping, so vehicle/storage limits are never overflowed.
 [*] [b]100% Save-Safe:[/b] Settings live cleanly in [i]CustomsSpeedControl.ini[/i] next to the DLL (binary WRSR save files are never modified).
+[/list]
+[h1]Companion Mod (Border Logistics Suite)[/h1][list]
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384][b]TradePriceLimits[/b][/url] - Stop Distribution Offices from dispatching imports above your [b]Max Buy[/b] cap or exports below your [b]Min Sell[/b] floor ([b]RUB[/b] & [b]USD[/b], Fixed or Base % inflation-resilient) via the [b]F8[/b] overlay. Works cleanly alongside CustomsSpeedControl!
 [/list]{CHANGELOG_SECTION}"
     "language"        "english"
     "changenote"      "{CHANGENOTE}"
