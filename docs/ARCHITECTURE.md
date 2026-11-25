@@ -47,8 +47,6 @@ TradePriceLimits.dll
 │   ├── MinHook hook on KERNELBASE!CreateFileW (with KERNEL32 fallback)
 │   ├── Matches *\media_soviet\save\<SaveName>\buildings.bin (read) & header.bin (write)
 │   └── Triggers load on game load, save on Save / Autosave / Save As
-└── hooks/game_hooks.{hpp,cpp}
-    ├── Text-section AOB scanner via wrsr::pe::aobScanStr (cross-version signature resolution)
-    ├── SIG_PRICE_TABLE: ResourceVector + dynamic record stride (0x340 on v1.1.1.7, 0x380 on v1.2.0.8)
-    └── SIG_DISPATCH_CHECK: EvaluateDistTask hook gating Customs (building type 20) dispatches + 60s sim-linked ring buffer
+├── hooks/game_hooks.{hpp,cpp}
+│   └── Uses wrsr::game::GameContext (common/config/offsets.ini + AOB scanners) to gate Customs (building type 20) dispatches in EvaluateDistTask
 ```

@@ -45,6 +45,9 @@ public:
 
     static std::optional<OffsetDocument> parse(std::string_view iniText) noexcept;
 
+    // Merges sections/keys from an overlay INI (e.g., mod-specific overrides) on top.
+    bool merge(std::string_view iniText) noexcept;
+
     std::optional<std::string_view> getString(std::string_view section,
                                               std::string_view key) const noexcept;
     std::optional<uint32_t> getU32(std::string_view section,

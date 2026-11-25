@@ -58,6 +58,50 @@ bool parseBoolText(std::string_view text, bool fallback) noexcept
 
 constexpr std::string_view kProfilePrefix = "profile.";
 
+bool parseIniSections(std::string_view iniText, OffsetDocument::SectionMap& sections) noexcept
+{
+    std::string currentSection;
+    bool        parsedAnySection = false;
+
+    size_t pos = 0;
+    while (pos < iniText.size()) {
+        size_t eol = iniText.find('\n', pos);
+        if (eol == std::string_view::npos) {
+            eol = iniText.size();
+        }
+        std::string_view line = iniText.substr(pos, eol - pos);
+        pos = eol + 1;
+
+        if (!line.empty() && line.back() == '\r') {
+            line.remove_suffix(1);
+        }
+        line = trim(line);
+        if (line.empty() || line.front() == ';' || line.front() == '#') {
+            continue;
+        }
+
+        if (line.front() == '[' && line.back() == ']') {
+            currentSection   = std::string(trim(line.substr(1, line.size() - 2)));
+            parsedAnySection = true;
+            sections[currentSection]; // ensure even empty sections exist
+            continue;
+        }
+
+        const size_t eq = line.find('=');
+        if (eq == std::string_view::npos || currentSection.empty()) {
+            continue;
+        }
+
+        const std::string_view key = trim(line.substr(0, eq));
+        const std::string_view val = trim(line.substr(eq + 1));
+        if (!key.empty()) {
+            sections[currentSection][std::string(key)] = std::string(val);
+        }
+    }
+
+    return parsedAnySection;
+}
+
 } // namespace
 
 std::optional<uint32_t> parseU32(std::string_view text) noexcept
@@ -180,47 +224,16 @@ bool ResolvedProfile::getBool(std::string_view key, bool fallback) const noexcep
 std::optional<OffsetDocument> OffsetDocument::parse(std::string_view iniText) noexcept
 {
     OffsetDocument doc;
-    std::string    currentSection;
-
-    size_t pos = 0;
-    while (pos < iniText.size()) {
-        size_t eol = iniText.find('\n', pos);
-        if (eol == std::string_view::npos) {
-            eol = iniText.size();
-        }
-        std::string_view line = iniText.substr(pos, eol - pos);
-        pos = eol + 1;
-
-        if (!line.empty() && line.back() == '\r') {
-            line.remove_suffix(1);
-        }
-        line = trim(line);
-        if (line.empty() || line.front() == ';' || line.front() == '#') {
-            continue;
-        }
-
-        if (line.front() == '[' && line.back() == ']') {
-            currentSection = std::string(trim(line.substr(1, line.size() - 2)));
-            doc.m_sections[currentSection]; // ensure even empty sections exist
-            continue;
-        }
-
-        const size_t eq = line.find('=');
-        if (eq == std::string_view::npos || currentSection.empty()) {
-            continue;
-        }
-
-        const std::string_view key = trim(line.substr(0, eq));
-        const std::string_view val = trim(line.substr(eq + 1));
-        if (!key.empty()) {
-            doc.m_sections[currentSection][std::string(key)] = std::string(val);
-        }
-    }
-
+    parseIniSections(iniText, doc.m_sections);
     if (doc.m_sections.empty()) {
         return std::nullopt;
     }
     return doc;
+}
+
+bool OffsetDocument::merge(std::string_view iniText) noexcept
+{
+    return parseIniSections(iniText, m_sections);
 }
 
 std::optional<std::string_view> OffsetDocument::getString(

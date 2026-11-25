@@ -2,6 +2,10 @@
 
 All notable changes to **TradePriceLimits** are documented here. The topmost section is automatically included in Steam Workshop release notes and the Workshop page description.
 
+## [1.0.17]
+- **WRSR `1.1.1.13` Support:** Added verified PE fingerprint (`TimeDateStamp = 0x6A8D4087`, `SizeOfImage = 0xA9D000`) and offsets (`res_stride = 0x340`, `desc_type_off = 0x360`), bringing supported builds to `1.2.0.8`, `1.1.1.13`, `1.1.1.9`, and `1.1.1.7`.
+- **Shared Common Signature & Offset Architecture:** Consolidated shared WRSR PE profiles, AOB signatures, and struct helpers into `common/` (`wrsr::game::GameContext` + `common/config/offsets.ini`) with layered mod overrides.
+
 ## [1.0.15 - 1.0.16]
 - **Documentation & Workshop Examples:** Added practical gameplay examples to `README.md` and the Steam Workshop description covering price-dip/peak gating, negative-price waste imports, RUB/USD arbitrage, cross-border margins, staggered fallback exports, and `Base %` inflation protection.
 - **Steam Workshop Description Guard:** Automatically fits recent changelog sections within Steam's 8,000-character description limit during packaging.

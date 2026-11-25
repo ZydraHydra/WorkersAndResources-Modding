@@ -1,4 +1,5 @@
 add_library(wrsr_common STATIC
+    src/game_signatures.cpp
     src/logger.cpp
     src/offsets.cpp
     src/pe_utils.cpp
@@ -6,6 +7,11 @@ add_library(wrsr_common STATIC
 
 target_include_directories(wrsr_common PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+wrsr_embed_offsets(wrsr_common "${CMAKE_CURRENT_SOURCE_DIR}/config/offsets.ini"
+    HEADER_NAME "embedded_common_offsets.hpp"
+    SYMBOL_NAME "kCommonOffsetsIni"
 )
 
 target_compile_definitions(wrsr_common PRIVATE

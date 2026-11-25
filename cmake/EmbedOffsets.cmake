@@ -2,6 +2,14 @@
 # EmbedOffsets.cmake — Embed a mod's config/offsets.ini into its binary
 # ============================================================================
 function(wrsr_embed_offsets target_name ini_path)
+    cmake_parse_arguments(EMBED "" "HEADER_NAME;SYMBOL_NAME" "" ${ARGN})
+    if(NOT EMBED_HEADER_NAME)
+        set(EMBED_HEADER_NAME "embedded_offsets.hpp")
+    endif()
+    if(NOT EMBED_SYMBOL_NAME)
+        set(EMBED_SYMBOL_NAME "kEmbeddedOffsetsIni")
+    endif()
+
     if(NOT EXISTS "${ini_path}")
         message(FATAL_ERROR "wrsr_embed_offsets: offsets file not found: ${ini_path}")
     endif()
@@ -17,14 +25,14 @@ function(wrsr_embed_offsets target_name ini_path)
     endif()
 
     set(_gen_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
-    set(_out_hdr "${_gen_dir}/embedded_offsets.hpp")
+    set(_out_hdr "${_gen_dir}/${EMBED_HEADER_NAME}")
     file(MAKE_DIRECTORY "${_gen_dir}")
 
     set(_hdr_text
 "#pragma once
 // Auto-generated from ${ini_path} — do not edit manually.
 namespace wrsr::generated {
-inline constexpr const char* kEmbeddedOffsetsIni = R\"${_delim}(
+inline constexpr const char* ${EMBED_SYMBOL_NAME} = R\"${_delim}(
 ${_offsets_raw}
 )${_delim}\";
 } // namespace wrsr::generated
