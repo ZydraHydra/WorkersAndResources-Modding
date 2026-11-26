@@ -9,7 +9,7 @@
                       "mod":  "AdaptiveSimSpeed",
                       "workshopTitle":  "WRSR Tweaks: Adaptive Sim Speed (Smooth Fast-Forward)",
                       "publishedFileId":  "3846322975",
-                      "version":  "1.0.8",
+                      "version":  "1.0.9",
                       "workshopUrl":  "https://steamcommunity.com/sharedfiles/filedetails/?id=3846322975",
                       "summary":  "Native x64 C++20 plugin for **Workers \u0026 Resources: Soviet Republic** (`SOVIET64.exe`) that turns Fast Forward (`\u003e\u003e`) into a hardware-adaptive fast-forward (up to `15.0x`) via the shared **`F9`** multi-mod overlay (`WRSR Tweaks [F9]`), scaling simulation speed dynamically to your available CPU/GPU headroom without tanking FPS in late-game cities."
                   },
@@ -28,6 +28,14 @@
                       "version":  "1.0.14",
                       "workshopUrl":  "https://steamcommunity.com/sharedfiles/filedetails/?id=3845944617",
                       "summary":  "Native x64 C++20 plugin for **Workers \u0026 Resources: Soviet Republic** (`SOVIET64.exe`) that scales **Customs House (`$TYPE_CUSTOMHOUSE`)** cargo **Load** and **Unload** speeds at runtime (`0.25x` – `100.0x`) via the shared **`F9`** multi-mod overlay (`WRSR Tweaks [F9]`), while leaving domestic stations, warehouses, and factories untouched."
+                  },
+                  {
+                      "mod":  "MediaRedirector",
+                      "workshopTitle":  "WRSR Tweaks: Media Redirector (Non-Destructive VFS)",
+                      "publishedFileId":  "0",
+                      "version":  "1.0.6",
+                      "workshopUrl":  "",
+                      "summary":  "Non-destructive Virtual File System (VFS) path redirector for **Workers \u0026 Resources: Soviet Republic** (`SOVIET64.exe`) that transparently redirects read-only file opens and attribute checks targeting `media_soviet\\...` to override packs on disk—allowing players to stack local and Steam Workshop base-file replacement mods with priority ordering and conflict detection via the **`F9`** overlay, without ever overwriting original game files in `media_soviet\\`."
                   },
                   {
                       "mod":  "SmartBayAccess",

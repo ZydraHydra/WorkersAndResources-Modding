@@ -44,6 +44,9 @@ struct SharedOverlayHub {
     int32_t(WRSR_OVERLAY_CALL* addLabel)(int32_t, const ModLabelDesc*);
     int32_t(WRSR_OVERLAY_CALL* isVisible)(void);
     void(WRSR_OVERLAY_CALL* setVisible)(int32_t);
+    int32_t(WRSR_OVERLAY_CALL* addCollapsibleLabel)(int32_t, const ModCollapsibleLabelDesc*);
+    int32_t(WRSR_OVERLAY_CALL* setTabFrameCallback)(int32_t, ModOverlayButtonFn, void*);
+    int32_t(WRSR_OVERLAY_CALL* setTabMainMenuAvailable)(int32_t, uint8_t);
 };
 
 // ── Cross-DLL IPC mapping handles (intentionally kept for process lifetime) ──
@@ -58,6 +61,7 @@ enum class WidgetKind {
     Checkbox,
     Button,
     Label,
+    CollapsibleLabel,
 };
 
 struct StoredWidget {
@@ -73,6 +77,7 @@ struct StoredWidget {
     const char*        persistentText{nullptr};
     uint8_t            sameLine{0};
     uint8_t            separatorBefore{0};
+    uint8_t            defaultOpen{0};
     uint32_t           rgbaColor{0};
     ModOverlayChangeFn onChange{nullptr};
     ModOverlayButtonFn onClick{nullptr};
@@ -84,6 +89,9 @@ struct StoredTab {
     std::string               title;
     ModOverlaySaveFn          onSave{nullptr};
     void*                     userData{nullptr};
+    ModOverlayButtonFn        onFrame{nullptr};
+    void*                     frameUserData{nullptr};
+    uint8_t                   mainMenuAvailable{0};
     std::vector<StoredWidget> widgets;
 };
 
@@ -103,6 +111,71 @@ std::atomic<int32_t> g_rectB{0};
 std::atomic<uint8_t> g_externalMouseButtons{0};
 std::atomic<uint8_t> g_imguiMouseButtons{0};
 std::mutex           g_d3dMutex;
+const volatile uint8_t* g_inGameFlagPtr = nullptr;
+
+void initInGameFlagProbe() noexcept
+{
+    HMODULE hExe = GetModuleHandleW(nullptr);
+    if (!hExe) {
+        return;
+    }
+    auto* base = reinterpret_cast<const uint8_t*>(hExe);
+    auto* dos  = reinterpret_cast<const IMAGE_DOS_HEADER*>(base);
+    if (dos->e_magic != IMAGE_DOS_SIGNATURE) {
+        return;
+    }
+    auto* nt = reinterpret_cast<const IMAGE_NT_HEADERS64*>(base + dos->e_lfanew);
+    if (nt->Signature != IMAGE_NT_SIGNATURE) {
+        return;
+    }
+
+    const IMAGE_SECTION_HEADER* sec = IMAGE_FIRST_SECTION(nt);
+    const uint8_t* textBase = nullptr;
+    size_t         textSize = 0;
+    for (WORD i = 0; i < nt->FileHeader.NumberOfSections; ++i) {
+        if (std::memcmp(sec[i].Name, ".text", 5) == 0) {
+            textBase = base + sec[i].VirtualAddress;
+            textSize = sec[i].Misc.VirtualSize;
+            break;
+        }
+    }
+    if (!textBase || textSize < 32) {
+        return;
+    }
+
+    // pre_sim_call_aob: 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 44 38 35 ?? ?? ?? ?? 0F 84 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? E8
+    static constexpr uint8_t kPat[] = {
+        0x48, 0x8D, 0x0D, 0, 0, 0, 0, 0xE8, 0, 0, 0, 0,
+        0x44, 0x38, 0x35, 0, 0, 0, 0, 0x0F, 0x84, 0, 0, 0, 0,
+        0x48, 0x8D, 0x0D, 0, 0, 0, 0, 0xE8
+    };
+    static constexpr char kMask[] = "xxx????x????xxx????xx????xxx????x";
+    constexpr size_t kLen = sizeof(kPat);
+
+    for (size_t i = 0; i + kLen <= textSize; ++i) {
+        bool match = true;
+        for (size_t j = 0; j < kLen; ++j) {
+            if (kMask[j] == 'x' && textBase[i + j] != kPat[j]) {
+                match = false;
+                break;
+            }
+        }
+        if (match) {
+            int32_t disp = 0;
+            std::memcpy(&disp, textBase + i + 15, sizeof(disp));
+            g_inGameFlagPtr = textBase + i + 19 + disp;
+            return;
+        }
+    }
+}
+
+bool isGameRunning() noexcept
+{
+    if (!g_inGameFlagPtr) {
+        return true; // Fallback if AOB not matched on an unknown build
+    }
+    return (*g_inGameFlagPtr) != 0;
+}
 
 ID3D11Device*           g_device      = nullptr;
 ID3D11DeviceContext*    g_ctx         = nullptr;
@@ -596,6 +669,21 @@ void drawWidget(const StoredWidget& w, size_t idx)
         }
         break;
     }
+    case WidgetKind::CollapsibleLabel: {
+        if (w.separatorBefore) {
+            ImGui::Separator();
+        }
+        const ImGuiTreeNodeFlags flags = w.defaultOpen ? ImGuiTreeNodeFlags_DefaultOpen : ImGuiTreeNodeFlags_None;
+        if (ImGui::CollapsingHeader(w.label.c_str(), flags)) {
+            const char* txt = w.persistentText ? w.persistentText : "";
+            if (w.rgbaColor != 0) {
+                ImGui::TextColored(unpackRgba(w.rgbaColor), "%s", txt);
+            } else {
+                ImGui::TextWrapped("%s", txt);
+            }
+        }
+        break;
+    }
     }
 
     ImGui::PopID();
@@ -635,13 +723,32 @@ void renderUI()
 
     if (windowOpen) {
         std::lock_guard lock(g_tabsMutex);
+        const bool gameRunning = isGameRunning();
+        size_t     visibleTabs = 0;
+        size_t     hiddenTabs  = 0;
+        for (const auto& tab : g_tabs) {
+            if (gameRunning || tab.mainMenuAvailable != 0) {
+                ++visibleTabs;
+            } else {
+                ++hiddenTabs;
+            }
+        }
+
         if (g_tabs.empty()) {
             ImGui::TextDisabled("No mod tabs registered yet.");
+        } else if (visibleTabs == 0) {
+            ImGui::TextDisabled("Waiting for a republic to load (no main-menu tabs registered).");
         } else if (ImGui::BeginTabBar("##WRSR_ModTabs", ImGuiTabBarFlags_None)) {
             for (const auto& tab : g_tabs) {
+                if (!gameRunning && tab.mainMenuAvailable == 0) {
+                    continue;
+                }
                 std::string tabLabel = tab.title + "###" + tab.id;
                 if (ImGui::BeginTabItem(tabLabel.c_str())) {
                     ImGui::Spacing();
+                    if (tab.onFrame) {
+                        tab.onFrame(tab.frameUserData);
+                    }
                     if (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_S, false) && tab.onSave) {
                         tab.onSave(tab.userData);
                     }
@@ -652,6 +759,13 @@ void renderUI()
                 }
             }
             ImGui::EndTabBar();
+        }
+
+        if (hiddenTabs > 0) {
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::TextDisabled("%zu in-game tweak tab(s) hidden on Main Menu — load a republic to access them.",
+                                hiddenTabs);
         }
     }
     ImGui::End();
@@ -695,6 +809,7 @@ HRESULT WINAPI hookedPresent(IDXGISwapChain* sc, UINT syncInterval, UINT flags)
 
         installDirectInputGuard();
         installC3dInputGuards();
+        initInGameFlagProbe();
 
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -896,6 +1011,47 @@ int32_t WRSR_OVERLAY_CALL hostAddLabel(int32_t tabId, const ModLabelDesc* desc)
     return 1;
 }
 
+int32_t WRSR_OVERLAY_CALL hostAddCollapsibleLabel(int32_t tabId, const ModCollapsibleLabelDesc* desc)
+{
+    if (!desc || desc->struct_size < sizeof(ModCollapsibleLabelDesc) || !desc->header || !desc->text) {
+        return 0;
+    }
+    std::lock_guard lock(g_tabsMutex);
+    if (tabId < 0 || static_cast<size_t>(tabId) >= g_tabs.size()) {
+        return 0;
+    }
+    StoredWidget w;
+    w.kind            = WidgetKind::CollapsibleLabel;
+    w.label           = desc->header;
+    w.persistentText  = desc->text;
+    w.defaultOpen     = desc->default_open;
+    w.separatorBefore = desc->separator_before;
+    w.rgbaColor       = desc->rgba_color;
+    g_tabs[static_cast<size_t>(tabId)].widgets.push_back(std::move(w));
+    return 1;
+}
+
+int32_t WRSR_OVERLAY_CALL hostSetTabFrameCallback(int32_t tabId, ModOverlayButtonFn onFrame, void* userData)
+{
+    std::lock_guard lock(g_tabsMutex);
+    if (tabId < 0 || static_cast<size_t>(tabId) >= g_tabs.size()) {
+        return 0;
+    }
+    g_tabs[static_cast<size_t>(tabId)].onFrame       = onFrame;
+    g_tabs[static_cast<size_t>(tabId)].frameUserData = userData;
+    return 1;
+}
+
+int32_t WRSR_OVERLAY_CALL hostSetTabMainMenuAvailable(int32_t tabId, uint8_t available)
+{
+    std::lock_guard lock(g_tabsMutex);
+    if (tabId < 0 || static_cast<size_t>(tabId) >= g_tabs.size()) {
+        return 0;
+    }
+    g_tabs[static_cast<size_t>(tabId)].mainMenuAvailable = available ? 1u : 0u;
+    return 1;
+}
+
 int32_t WRSR_OVERLAY_CALL hostIsVisible(void)
 {
     return g_visible.load(std::memory_order_relaxed) ? 1 : 0;
@@ -961,8 +1117,11 @@ bool ensureHubConnected()
                 g_hub->addCheckbox    = &hostAddCheckbox;
                 g_hub->addButton      = &hostAddButton;
                 g_hub->addLabel       = &hostAddLabel;
-                g_hub->isVisible      = &hostIsVisible;
-                g_hub->setVisible     = &hostSetVisible;
+                g_hub->isVisible           = &hostIsVisible;
+                g_hub->setVisible          = &hostSetVisible;
+                g_hub->addCollapsibleLabel     = &hostAddCollapsibleLabel;
+                g_hub->setTabFrameCallback     = &hostSetTabFrameCallback;
+                g_hub->setTabMainMenuAvailable = &hostSetTabMainMenuAvailable;
                 InterlockedExchange(&g_hub->ownerInitialized, 1);
 
                 g_isHost = true;
@@ -1044,6 +1203,47 @@ int32_t WRSR_OVERLAY_CALL AddLabel(int32_t tab_id, const ModLabelDesc* desc)
         return 0;
     }
     return g_hub->addLabel(tab_id, desc);
+}
+
+int32_t WRSR_OVERLAY_CALL AddCollapsibleLabel(int32_t tab_id, const ModCollapsibleLabelDesc* desc)
+{
+    if (!ensureHubConnected() || !g_hub) {
+        return 0;
+    }
+    if (g_hub->structSize >= sizeof(SharedOverlayHub) && g_hub->addCollapsibleLabel) {
+        return g_hub->addCollapsibleLabel(tab_id, desc);
+    }
+    if (desc && desc->text && g_hub->addLabel) {
+        ModLabelDesc fallback{};
+        fallback.struct_size      = sizeof(ModLabelDesc);
+        fallback.text             = desc->text;
+        fallback.separator_before = desc->separator_before;
+        fallback.rgba_color       = desc->rgba_color;
+        return g_hub->addLabel(tab_id, &fallback);
+    }
+    return 0;
+}
+
+int32_t WRSR_OVERLAY_CALL SetTabFrameCallback(int32_t tab_id, ModOverlayButtonFn on_frame, void* user_data)
+{
+    if (!ensureHubConnected() || !g_hub) {
+        return 0;
+    }
+    if (g_hub->structSize >= sizeof(SharedOverlayHub) && g_hub->setTabFrameCallback) {
+        return g_hub->setTabFrameCallback(tab_id, on_frame, user_data);
+    }
+    return 0;
+}
+
+int32_t WRSR_OVERLAY_CALL SetTabMainMenuAvailable(int32_t tab_id, uint8_t available)
+{
+    if (!ensureHubConnected() || !g_hub) {
+        return 0;
+    }
+    if (g_hub->structSize >= sizeof(SharedOverlayHub) && g_hub->setTabMainMenuAvailable) {
+        return g_hub->setTabMainMenuAvailable(tab_id, available);
+    }
+    return 0;
 }
 
 } // extern "C"

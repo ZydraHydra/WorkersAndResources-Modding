@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "zydrahydra.media_redirector",
+  "name": "MediaRedirector",
+  "version": "1.0.0",
+  "author": "ZydraHydra",
+  "description": "Non-destructive Virtual File System (VFS) path redirector for media_soviet\\ overrides with priority ordering and conflict detection via F9.",
+  "dll": "MediaRedirector.dll",
+  "loaderApi": {
+    "min": 1,
+    "max": 1
+  },
+  "supportedGameVersions": [],
+  "requiredSymbols": [],
+  "optionalSymbols": [],
+  "dependencies": [],
+  "conflicts": [],
+  "loadBefore": [],
+  "loadAfter": [],
+  "defaultPriority": 100,
+  "enabledByDefault": true
+}

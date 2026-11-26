@@ -1,0 +1,70 @@
+"workshopitem"
+{
+    "appid"           "784150"
+    "publishedfileid" "{PUBLISHED_FILE_ID}"
+    "contentfolder"   "{CONTENT_DIR}"
+    "previewfile"     "{PREVIEW_FILE}"
+    "visibility"      "{VISIBILITY}"
+    "title"           "{WORKSHOP_TITLE}"
+    "description"     "[h1]Comrade, Override media_soviet\ Files Without Ever Touching Vanilla Data![/h1]Tired of backing up and overwriting core files inside [i]media_soviet\[/i] every time you try a shader, texture, or INI overhaul—or losing your changes whenever Steam verifies or patches the game?
+
+By decree of the [b]Supreme Soviet Archival Directorate[/b], [b]MediaRedirector[/b] provides a non-destructive Virtual File System (VFS) that transparently redirects read-only [i]media_soviet\[/i] opens to local [i]media_overrides\[/i] packs and subscribed Steam Workshop override folders & [i].zip[/i] archives—complete with priority ordering and conflict detection in the [b]F9[/b] overlay (accessible right from the [b]Main Menu[/b]!).
+
+[b]⚠️ EARLY ALPHA NOTICE:[/b] All discovered packs start [b]disabled by default[/b]—enable them manually in [b]F9 -> Media VFS[/b] and back up your saves before testing.
+
+{EDITION_HEADER}
+Source code & releases: [url=https://github.com/ZydraHydra/WorkersAndResources-Modding]ZydraHydra GitHub[/url]
+
+[b]Alpha Field Dispatch:[/b] Treat this mod as an early [b]Alpha[/b] release. It has been verified on WRSR `1.2.0.8` and `1.2.0.9` and needs broader field testing on large late-game republics. Back up your saves first and report any issues on GitHub!
+
+[h1]Wait - What is a DLL Mod? (Step-by-Step Setup)[/h1]Ordinary Steam Workshop mods only add buildings or vehicles. Because [b]MediaRedirector[/b] adds an in-game [b]F9[/b] overlay and hooks into game logic, it needs a [b]Mod Loader[/b] alongside the game. Simply clicking Play in Steam will [b]not[/b] load DLL mods on its own.
+
+Both [b]TesmioLoader (v0.4.5+)[/b] and [b]Republic Mod Loader (v1.0.1)[/b] automatically find subscribed Steam Workshop DLL mods - [b]no manual file copying required[/b]:
+
+[b]Option A - TesmioLoader (Recommended - Mature & Updated for WRSR 1.2.0.9):[/b]
+[list=1]
+[*] Subscribe to this mod ([b]MediaRedirector[/b]) - Workshop ID [i]{PUBLISHED_FILE_ID}[/i].
+[*] Download & extract [url=https://github.com/MaxLegend/TesmioLoader/releases]TesmioLoader (v0.4.5+)[/url] into your WRSR game directory ([url=https://maxlegend.github.io/TesmioLoaderDocs/#/getting-started]Docs[/url]).
+[*] Run [b]tesmiolauncher.exe[/b]. Since v0.4, TesmioLoader automatically scans your Steam Workshop folder and lists subscribed DLL plugins (if your Workshop is in a separate Steam library, set it in the launcher / [i]workshop_path[/i]).
+[*] Tick [b]MediaRedirector[/b], launch WRSR, and press [b]F9[/b] in-game!
+[/list]
+[b]Option B - Republic Mod Loader (RML - All-on-Steam Alternative):[/b]
+[list=1]
+[*] Subscribe to this mod ([b]MediaRedirector[/b]) - Workshop ID [i]{PUBLISHED_FILE_ID}[/i].
+[*] Also subscribe to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3787969749]Republic Mod Loader (RML)[/url] ([url=https://github.com/Ultimate-Universe/WRSR-RepublicModLoader]GitHub[/url]).
+[*] Open RML from Steam Workshop:
+[code]<Your Steam Library>\steamapps\workshop\content\784150\3787969749\RepublicModLoader.exe[/code]
+(Tip: create a Desktop shortcut or add it to Steam as a Non-Steam Game.)
+[*] Tick [b]MediaRedirector[/b] in RML and click [b]Launch WRSR[/b], then press [b]F9[/b] in-game!
+[/list]
+(Manual/Non-Steam only: this Workshop item's DLL lives at [code]<Your Steam Library>\steamapps\workshop\content\784150\{PUBLISHED_FILE_ID}\plugins\MediaRedirector.dll[/code] -> copy into [code]<Game Dir>\plugins\[/code] if you aren't using Steam Workshop scanning.)
+
+[h1]Operating Media VFS (Main Menu & In-Game)[/h1][list]
+[*] Press [b]F9[/b] on the [b]Main Menu[/b] (or in-game) to open [b]WRSR Tweaks [F9][/b] -> [b]Media VFS[/b] tab (or [b]Esc[/b] to close).
+[*] [b]Enable Runtime Redirection:[/b] Live atomic toggle for VFS redirection.
+[*] [b]Scan Steam Workshop Overrides:[/b] Discovers subscribed Workshop packs (both extracted folders and [i].zip[/i] archives) containing [i]media_soviet\[/i] or [i]override\[/i].
+[*] [b]Manual-Only Pack List:[/b] Every newly discovered pack starts [b]disabled[/b]. Tick [b]Enabled[/b] and reorder priority with [b]Move Up[/b] / [b]Move Down[/b], then click [b]Save Config[/b] and relaunch.
+[*] [b]Conflict Inspector:[/b] Expandable list showing every colliding [i]media_soviet\[/i] path, which pack won, and which packs were overridden.
+[/list]
+
+[h1]For Modders: How to Support MediaRedirector[/h1][list]
+[*] Package only your modified files under [code]media_soviet\...[/code] or [code]override\...[/code] (either directly in your Workshop folder or inside a [i].zip[/i] archive at root or one folder deep).
+[*] Set [code]$ITEM_NAME "Your Mod Title"[/code] in [i]workshopconfig.ini[/i] so your mod displays with a readable title in the [b]F9[/b] list.
+[*] Avoid bundling unmodified vanilla files so your mod stays lightweight and collision-free in the [b]Conflict Inspector[/b].
+[*] Players can also drop local packs into [code]<Game Dir>\media_overrides\<PackName>\[/code] (or [i].zip[/i]).
+[/list]
+
+[h1]Five-Year Plan Guarantees (Zero-Alloc & Save-Safe)[/h1][list]
+[*] [b]Early-Boot Indexing:[/b] Builds the immutable VFS table synchronously at startup before [i]SOVIET64.exe[/i] parses core [i].ini[/i] files.
+[*] [b]Zero-Alloc, Lock-Free Hot Path:[/b] Uses stack buffers and an immutable [i]wstring_view[/i] map—zero heap allocations and zero mutex locks inside [i]CreateFileW[/i] / [i]GetFileAttributesW[/i].
+[*] [b]100% Non-Destructive:[/b] Original files in [i]media_soviet\[/i] are never modified.
+[/list]
+
+[h1]Companion Mods (Logistics & Engine Suite)[/h1][list]
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3846322975][b]AdaptiveSimSpeed[/b][/url] - Hardware-adaptive fast-forward (up to 15x) via [b]F9[/b].
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3846054095][b]SmartBayAccess[/b][/url] - Eliminate single-vehicle courtyard bottlenecks at multi-bay road stations via [b]F9[/b].
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3845944617][b]CustomsSpeedControl[/b][/url] - Scale Customs House cargo Load & Unload speeds live via [b]F9[/b].
+[/list]{CHANGELOG_SECTION}"
+    "language"        "english"
+    "changenote"      "{CHANGENOTE}"
+}

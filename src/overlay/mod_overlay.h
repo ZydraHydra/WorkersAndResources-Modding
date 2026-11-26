@@ -14,6 +14,10 @@
 
 #include <stdint.h>
 
+#ifndef WRSR_PROFILE_HOOK
+#define WRSR_PROFILE_HOOK(name) ((void)0)
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -75,6 +79,15 @@ typedef struct ModLabelDesc {
     uint32_t    rgba_color;       /* 0 = default theme color, else 0xRRGGBBAA          */
 } ModLabelDesc;
 
+typedef struct ModCollapsibleLabelDesc {
+    uint32_t    struct_size;
+    const char* header;           /* CollapsingHeader title (copied by host)           */
+    const char* text;             /* Persistent UTF-8 string/buffer (process lifetime) */
+    uint8_t     default_open;     /* Non-zero opens header by default                  */
+    uint8_t     separator_before; /* Non-zero draws ImGui::Separator() first           */
+    uint32_t    rgba_color;       /* 0 = default theme color, else 0xRRGGBBAA          */
+} ModCollapsibleLabelDesc;
+
 /* Connects to (or creates & becomes host for) the process-local overlay hub. */
 int32_t WRSR_OVERLAY_CALL ModOverlay_Initialize(void);
 
@@ -90,6 +103,9 @@ int32_t WRSR_OVERLAY_CALL AddFloatSlider(int32_t tab_id, const ModFloatSliderDes
 int32_t WRSR_OVERLAY_CALL AddCheckbox(int32_t tab_id, const ModCheckboxDesc* desc);
 int32_t WRSR_OVERLAY_CALL AddButton(int32_t tab_id, const ModButtonDesc* desc);
 int32_t WRSR_OVERLAY_CALL AddLabel(int32_t tab_id, const ModLabelDesc* desc);
+int32_t WRSR_OVERLAY_CALL AddCollapsibleLabel(int32_t tab_id, const ModCollapsibleLabelDesc* desc);
+int32_t WRSR_OVERLAY_CALL SetTabFrameCallback(int32_t tab_id, ModOverlayButtonFn on_frame, void* user_data);
+int32_t WRSR_OVERLAY_CALL SetTabMainMenuAvailable(int32_t tab_id, uint8_t available);
 
 #ifdef __cplusplus
 }
