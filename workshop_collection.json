@@ -1,0 +1,65 @@
+{
+    "appId":  "784150",
+    "publishedFileId":  "3846399315",
+    "collectionUrl":  "https://steamcommunity.com/sharedfiles/filedetails/?id=3846399315",
+    "title":  "WRSR Tweaks — Complete Collection",
+    "description":  "Complete collection of native x64 C++20 quality-of-life \u0026 logistics mods for Workers \u0026 Resources: Soviet Republic (RML \u0026 TesmioLoader).",
+    "items":  [
+                  {
+                      "mod":  "AdaptiveSimSpeed",
+                      "workshopTitle":  "WRSR Tweaks: Adaptive Sim Speed (Smooth Fast-Forward)",
+                      "publishedFileId":  "3846322975",
+                      "version":  "1.0.8",
+                      "workshopUrl":  "https://steamcommunity.com/sharedfiles/filedetails/?id=3846322975",
+                      "summary":  "Native x64 C++20 plugin for **Workers \u0026 Resources: Soviet Republic** (`SOVIET64.exe`) that turns Fast Forward (`\u003e\u003e`) into a hardware-adaptive fast-forward (up to `15.0x`) via the shared **`F9`** multi-mod overlay (`WRSR Tweaks [F9]`), scaling simulation speed dynamically to your available CPU/GPU headroom without tanking FPS in late-game cities."
+                  },
+                  {
+                      "mod":  "CODispatchControl",
+                      "workshopTitle":  "WRSR Tweaks: Construction Office Vehicle Sizing",
+                      "publishedFileId":  "3846041311",
+                      "version":  "1.0.1",
+                      "workshopUrl":  "https://steamcommunity.com/sharedfiles/filedetails/?id=3846041311",
+                      "summary":  "Native x64 plugin for **Workers \u0026 Resources: Soviet Republic** (`SOVIET64.exe`) that optimizes Construction Office (CO) vehicle dispatch so COs match truck and bus sizes to actual construction demand instead of sending oversized vehicles for tiny remaining workloads."
+                  },
+                  {
+                      "mod":  "CustomsSpeedControl",
+                      "workshopTitle":  "WRSR Tweaks: Customs Loading Speed (0.25x–100x)",
+                      "publishedFileId":  "3845944617",
+                      "version":  "1.0.14",
+                      "workshopUrl":  "https://steamcommunity.com/sharedfiles/filedetails/?id=3845944617",
+                      "summary":  "Native x64 C++20 plugin for **Workers \u0026 Resources: Soviet Republic** (`SOVIET64.exe`) that scales **Customs House (`$TYPE_CUSTOMHOUSE`)** cargo **Load** and **Unload** speeds at runtime (`0.25x` – `100.0x`) via the shared **`F9`** multi-mod overlay (`WRSR Tweaks [F9]`), while leaving domestic stations, warehouses, and factories untouched."
+                  },
+                  {
+                      "mod":  "SmartBayAccess",
+                      "workshopTitle":  "WRSR Tweaks: Multi-Bay Station Entry (No Queues)",
+                      "publishedFileId":  "3846054095",
+                      "version":  "1.0.1",
+                      "workshopUrl":  "https://steamcommunity.com/sharedfiles/filedetails/?id=3846054095",
+                      "summary":  "Native x64 C++ plugin for **Workers \u0026 Resources: Soviet Republic** (`SOVIET64.exe`) that eliminates single-vehicle courtyard bottlenecks at multi-bay road buildings (cargo stations, depots, Customs Houses, bus platforms) via the unified `F9` overlay."
+                  },
+                  {
+                      "mod":  "SmartDOBatching",
+                      "workshopTitle":  "WRSR Tweaks: Distribution Office Fill Limits",
+                      "publishedFileId":  "3845998630",
+                      "version":  "1.0.1",
+                      "workshopUrl":  "https://steamcommunity.com/sharedfiles/filedetails/?id=3845998630",
+                      "summary":  "A DLL plugin for *Workers \u0026 Resources: Soviet Republic* that prevents Distribution Offices from dispatching vehicles unless a configurable minimum fill threshold is met. Configured via the shared **F9** overlay tab \"DO Batching\"."
+                  },
+                  {
+                      "mod":  "TechServiceControl",
+                      "workshopTitle":  "WRSR Tweaks: Tech Services Dispatch Thresholds",
+                      "publishedFileId":  "3846052185",
+                      "version":  "1.0.1",
+                      "workshopUrl":  "https://steamcommunity.com/sharedfiles/filedetails/?id=3846052185",
+                      "summary":  "Native x64 C++ plugin for **Workers \u0026 Resources: Soviet Republic** (`SOVIET64.exe`) that lets you customize Technical Services dispatch thresholds at runtime via the unified `F9` overlay."
+                  },
+                  {
+                      "mod":  "TradePriceLimits",
+                      "workshopTitle":  "WRSR Tweaks: Customs Price Limits (Buy \u0026 Sell)",
+                      "publishedFileId":  "3845533384",
+                      "version":  "1.0.25",
+                      "workshopUrl":  "https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384",
+                      "summary":  "Native x64 C++20 plugin for **Workers \u0026 Resources: Soviet Republic** (`SOVIET64.exe`) that stops Distribution Offices (`Road` and `Rail`) from dispatching new imports above your **Max Buy** cap or new exports below your **Min Sell** floor at Customs Houses."
+                  }
+              ]
+}

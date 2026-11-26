@@ -29,6 +29,14 @@ jobs:
             Write-Host "Validating $($_.FullName)"
             Get-Content $_.FullName -Raw | ConvertFrom-Json | Out-Null
           }
+          if (Test-Path "workshop_collection.json") {
+            Write-Host "Validating workshop_collection.json"
+            Get-Content "workshop_collection.json" -Raw | ConvertFrom-Json | Out-Null
+          }
+
+      - name: Verify collection manifest & README sync
+        shell: pwsh
+        run: .\scripts\sync_collection.ps1 -CheckOnly -CheckSteam -SummaryFile $env:GITHUB_STEP_SUMMARY
 
   build-win64:
     name: Build & Stage All Mods × All Game Versions (Windows x64)

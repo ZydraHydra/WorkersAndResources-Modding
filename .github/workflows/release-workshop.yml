@@ -230,3 +230,8 @@ jobs:
               "Published **$trackName** -> Steam Workshop ID ``$pubId`` (https://steamcommunity.com/sharedfiles/filedetails/?id=$pubId)" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
             }
           }
+
+      - name: Check Steam Workshop Collection sync
+        if: always()
+        shell: pwsh
+        run: .\scripts\sync_collection.ps1 -CheckOnly -CheckSteam -SummaryFile $env:GITHUB_STEP_SUMMARY

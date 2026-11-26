@@ -38,3 +38,6 @@ Follow these steps to create a new x64 C++ plugin under `mods/`:
    .\scripts\deploy.ps1 -Mod MyNewMod
    .\scripts\publish_workshop.ps1 -Mod MyNewMod -GameVersion all -DryRun
    ```
+5. **Sync the mod collection:**
+   - Run `.\scripts\sync_collection.ps1` to update `workshop_collection.json` and `README.md` (CI checks this automatically).
+   - Once the new mod has a `publishedFileId` in `mods/MyNewMod/game_versions.json`, add it to the Steam Workshop Collection on Steam Community (GitHub Actions will remind you in the workflow summary if the live Steam Collection is out of sync).
