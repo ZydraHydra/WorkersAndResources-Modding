@@ -70,3 +70,8 @@ load_multiplier=2.00
 unload_multiplier=2.00
 affect_rail=true
 ```
+
+## Companion Mods
+
+- [**TradePriceLimits**](https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384) ([GitHub](../../mods/TradePriceLimits)) — Per-resource Max Buy / Min Sell price thresholds on Customs House dispatches via the **`F8`** overlay.
+- [**SmartDOBatching**](https://steamcommunity.com/sharedfiles/filedetails/?id=3845998630) ([GitHub](../../mods/SmartDOBatching)) — Prevent Distribution Offices from dispatching near-empty trucks or trains via the shared **`F9`** overlay (`DO Batching` tab).

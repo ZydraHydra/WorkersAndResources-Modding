@@ -34,7 +34,7 @@ A DLL plugin for *Workers & Resources: Soviet Republic* that prevents Distributi
 
 ### Option A — TesmioLoader (Recommended)
 
-1. Subscribe on the Steam Workshop.
+1. Subscribe on the [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3845998630).
 2. Download & extract [TesmioLoader](https://github.com/MaxLegend/TesmioLoader/releases) into your WRSR game directory.
 3. Run `tesmiolauncher.exe`, tick **SmartDOBatching**, and launch WRSR.
 4. Press **F9** in-game → open the **DO Batching** tab.
@@ -47,7 +47,7 @@ A DLL plugin for *Workers & Resources: Soviet Republic* that prevents Distributi
 
 ### Manual (Non-Steam)
 
-Copy `SmartDOBatching.dll` and `SmartDOBatching.ini` into `<WRSR game dir>\plugins\`.
+Copy `SmartDOBatching.dll` and `SmartDOBatching.ini` from `<Steam Library>\steamapps\workshop\content\784150\3845998630\plugins\` (or a GitHub Release zip) into `<WRSR game dir>\plugins\`.
 
 ---
 
