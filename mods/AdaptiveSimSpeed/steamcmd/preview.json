@@ -1,0 +1,28 @@
+{
+  "gameVersionBadge": "WRSR 1.2.0.9",
+  "hotkeyBadge": "PRESS F9 IN-GAME",
+  "title": "ADAPTIVE SIM SPEED",
+  "subtitle": "Hardware-adaptive fast-forward (up to 15x) via the F9 overlay",
+  "pills": [
+    "RML + TESMIOLOADER",
+    "EARLY ALPHA",
+    "FPS-AWARE SCALING"
+  ],
+  "windowTitle": "WRSR Tweaks [F9]",
+  "tabs": [
+    { "label": "Sim Speed", "active": true },
+    { "label": "DO Batching", "active": false },
+    { "label": "CO Dispatch", "active": false }
+  ],
+  "hookStatus": "Hook: ACTIVE (PreSimUpdate @ +0x11D8FF | C3D_TIMER scaling)",
+  "windowDesc": "Adaptively scales simulation speed within unused FPS headroom.",
+  "sliders": [
+    { "label": "Max Fast-Forward Speed", "valueText": "8.0x", "fraction": 0.42 },
+    { "label": "Target Min FPS", "valueText": "60 FPS", "fraction": 0.33 },
+    { "label": "Render Headroom Reserve", "valueText": "4.0 ms", "fraction": 0.29 }
+  ],
+  "presets": ["Vanilla 3x", "Balanced 6x", "Turbo 10x", "Uncapped 15x"],
+  "footerCounter": "Early Alpha - Needs Testing | Back up saves",
+  "tagline": "Fast early-game speed, smooth late-game cities — zero FPS tanking",
+  "footer": "Save-safe | QPC EMA timing | Saved to AdaptiveSimSpeed.ini"
+}

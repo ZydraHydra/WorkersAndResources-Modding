@@ -1,0 +1,20 @@
+{
+  "workshopTitle": "WRSR Tweaks: Adaptive Sim Speed (Smooth Fast-Forward)",
+  "defaultGameVersion": "latest",
+  "gameVersions": [
+    {
+      "id": "latest",
+      "label": "Unified (WRSR 1.2.0.9, 1.2.0.8, 1.1.1.13, 1.1.1.9 & 1.1.1.7)",
+      "isPrimary": true,
+      "supportedGameVersions": [
+        "1.2.0.9",
+        "1.2.0.8",
+        "1.1.1.13",
+        "1.1.1.9",
+        "1.1.1.7"
+      ],
+      "publishWorkshop": true,
+      "publishedFileId": "0"
+    }
+  ]
+}

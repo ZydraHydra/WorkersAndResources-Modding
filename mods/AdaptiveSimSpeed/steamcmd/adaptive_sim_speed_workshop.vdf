@@ -1,0 +1,66 @@
+"workshopitem"
+{
+    "appid"           "784150"
+    "publishedfileid" "{PUBLISHED_FILE_ID}"
+    "contentfolder"   "{CONTENT_DIR}"
+    "previewfile"     "{PREVIEW_FILE}"
+    "visibility"      "{VISIBILITY}"
+    "title"           "{WORKSHOP_TITLE}"
+    "description"     "[h1]Comrade, Accelerate Your Five-Year Plan Without Tanking FPS![/h1]Tired of waiting 20 minutes in Fast Forward (>>) while your starter town builds—or watching your frame rate crater in a late-game republic because vanilla >> pushes too hard?
+
+By decree of the [b]Supreme Soviet Temporal Efficiency Directorate[/b], [b]AdaptiveSimSpeed[/b] measures simulation cost and adaptively scales Fast Forward (up to [b]15x[/b]) inside your unused frame headroom—delivering rapid early-game construction and gracefully throttling down to protect your target FPS in massive cities.
+
+{EDITION_HEADER}
+Source code & releases: [url=https://github.com/ZydraHydra/WorkersAndResources-Modding]ZydraHydra GitHub[/url]
+
+[b]Alpha Field Dispatch (EARLY ALPHA — NEEDS MORE TESTING):[/b] Treat this mod as an early [b]Alpha[/b] release! It hooks into and manipulates many small internal engine and simulation timings whose full side effects across the entire game are not completely known yet — especially in [b]large production chains[/b], dense rail/signal networks, and huge late-game republics. In theory, everything [i]should[/i] work cleanly because it scales simulation progression within your frame budget rather than breaking 1x step behavior, [b]but unexpected side effects may still occur[/b]. Back up your saves first and report any issues on GitHub!
+
+[h1]Wait - What is a DLL Mod? (Step-by-Step Setup)[/h1]Ordinary Steam Workshop mods only add buildings or vehicles. Because [b]AdaptiveSimSpeed[/b] adds an in-game [b]F9[/b] overlay and hooks into simulation timing, it needs a [b]Mod Loader[/b] alongside the game. Simply clicking Play in Steam will [b]not[/b] load DLL mods on its own.
+
+Both [b]TesmioLoader (v0.4.5+)[/b] and [b]Republic Mod Loader (v1.0.1)[/b] automatically find subscribed Steam Workshop DLL mods - [b]no manual file copying required[/b]:
+
+[b]Option A - TesmioLoader (Recommended - Mature & Updated for WRSR 1.2.0.x):[/b]
+[list=1]
+[*] Subscribe to this mod ([b]AdaptiveSimSpeed[/b]) - Workshop ID [i]{PUBLISHED_FILE_ID}[/i].
+[*] Download & extract [url=https://github.com/MaxLegend/TesmioLoader/releases]TesmioLoader (v0.4.5+)[/url] into your WRSR game directory ([url=https://maxlegend.github.io/TesmioLoaderDocs/#/getting-started]Docs[/url]).
+[*] Run [b]tesmiolauncher.exe[/b]. Since v0.4, TesmioLoader automatically scans your Steam Workshop folder and lists subscribed DLL plugins (if your Workshop is in a separate Steam library, set it in the launcher / [i]workshop_path[/i]).
+[*] Tick [b]AdaptiveSimSpeed[/b], launch WRSR, and press [b]F9[/b] in-game!
+[/list]
+[b]Option B - Republic Mod Loader (RML - All-on-Steam Alternative):[/b]
+[list=1]
+[*] Subscribe to this mod ([b]AdaptiveSimSpeed[/b]) - Workshop ID [i]{PUBLISHED_FILE_ID}[/i].
+[*] Also subscribe to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3787969749]Republic Mod Loader (RML)[/url] ([url=https://github.com/Ultimate-Universe/WRSR-RepublicModLoader]GitHub[/url]).
+[*] Open RML from Steam Workshop:
+[code]<Your Steam Library>\steamapps\workshop\content\784150\3787969749\RepublicModLoader.exe[/code]
+(Tip: create a Desktop shortcut or add it to Steam as a Non-Steam Game.)
+[*] Tick [b]AdaptiveSimSpeed[/b] in RML and click [b]Launch WRSR[/b], then press [b]F9[/b] in-game!
+[/list]
+(Manual/Non-Steam only: this Workshop item's DLL lives at [code]<Your Steam Library>\steamapps\workshop\content\784150\{PUBLISHED_FILE_ID}\plugins\AdaptiveSimSpeed.dll[/code] -> copy into [code]<Game Dir>\plugins\[/code] if you aren't using Steam Workshop scanning.)
+
+[h1]Operating Adaptive Sim Speed (In-Game)[/h1][list]
+[*] Press [b]F9[/b] anytime in-game to open [b]WRSR Tweaks [F9][/b] -> [b]Sim Speed[/b] tab (or [b]Esc[/b] to close).
+[*] [b]Enable Adaptive Fast-Forward:[/b] Master toggle for adaptive simulation speed scaling.
+[*] [b]Only Boost >> (Fast-Forward):[/b] Keeps 1x Play completely vanilla for building and watching.
+[*] [b]Max Fast-Forward Speed (3x - 15x):[/b] Upper bound on simulation speed when FPS headroom is available.
+[*] [b]Target Min FPS (30 - 120) & Render Reserve (ms):[/b] Protects frame rate and DX11/OS headroom.
+[*] [b]Save Config (Ctrl+S):[/b] Writes settings to [i]AdaptiveSimSpeed.ini[/i] beside the plugin DLL.
+[/list]
+[h1]Recommended Modes[/h1][list]
+[*] [b]Vanilla 3x / Balanced 6x / Turbo 10x / Uncapped 15x:[/b] One-click quick presets right inside the F9 tab.
+[*] [b]Smooth Late-Game Cities:[/b] Keep [i]Target Min FPS = 60[/i] and [i]Render Headroom Reserve = 4.0 ms[/i] so fast-forward automatically scales down before stuttering.
+[/list]
+[h1]Five-Year Plan Guarantees (Save-Safe & Lightweight)[/h1][list]
+[*] [b]Headroom-Aware Scaling:[/b] Uses high-resolution QPC timing (EMA-smoothed) to stay within your frame budget.
+[*] [b]100% Save-Safe:[/b] Zero save format changes; settings live cleanly in [i]AdaptiveSimSpeed.ini[/i] next to the DLL.
+[/list]
+[h1]Companion Mods (Logistics Suite)[/h1][list]
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3846054095][b]SmartBayAccess[/b][/url] - Eliminate single-vehicle courtyard bottlenecks at multi-bay road stations via [b]F9[/b].
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3846052185][b]TechServiceControl[/b][/url] - Customize snowplow, garbage, sewage & water dispatch thresholds via [b]F9[/b].
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3846041311][b]CODispatchControl[/b][/url] - Match Construction Office trucks and buses to remaining site demand via [b]F9[/b].
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3845998630][b]SmartDOBatching[/b][/url] - Prevent Distribution Offices from dispatching near-empty trucks or trains via [b]F9[/b].
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3845944617][b]CustomsSpeedControl[/b][/url] - Scale Customs House cargo Load & Unload speeds live via [b]F9[/b].
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384][b]TradePriceLimits[/b][/url] - Per-resource Max Buy / Min Sell price thresholds on Customs House dispatches via [b]F8[/b].
+[/list]{CHANGELOG_SECTION}"
+    "language"        "english"
+    "changenote"      "{CHANGENOTE}"
+}
