@@ -1,0 +1,69 @@
+"workshopitem"
+{
+    "appid"           "784150"
+    "publishedfileid" "{PUBLISHED_FILE_ID}"
+    "contentfolder"   "{CONTENT_DIR}"
+    "previewfile"     "{PREVIEW_FILE}"
+    "visibility"      "{VISIBILITY}"
+    "title"           "{WORKSHOP_TITLE}"
+    "description"     "[h1]Comrade, Stop Sending Snowplows Out for a 1% Dusting of Snow![/h1]Do your Technical Services snowplows burn fuel clearing roads at 0.4% snow while your dense residential districts wait for garbage, sewage, and water trucks?
+
+By decree of the [b]Supreme Soviet Municipal Services Directorate[/b], [b]TechServiceControl[/b] lets you tune all four Technical Services dispatch thresholds live in-game via the unified [b]F9[/b] overlay.
+
+{EDITION_HEADER}
+Source code & releases: [url=https://github.com/ZydraHydra/WorkersAndResources-Modding]ZydraHydra GitHub[/url]
+
+[b]Alpha Field Dispatch:[/b] Treat this mod as an early [b]Alpha[/b] release. It has been verified on WRSR `1.2.0.8` and `1.2.0.9` and needs broader field testing on large late-game republics. Back up your saves first and report any issues on GitHub!
+
+[h1]Wait - What is a DLL Mod? (Step-by-Step Setup)[/h1]Ordinary Steam Workshop mods only add buildings or vehicles. Because [b]TechServiceControl[/b] adds an in-game [b]F9[/b] overlay and hooks into game logic, it needs a [b]Mod Loader[/b] alongside the game. Simply clicking Play in Steam will [b]not[/b] load DLL mods on its own.
+
+Both [b]TesmioLoader (v0.4.5+)[/b] and [b]Republic Mod Loader (v1.0.1)[/b] automatically find subscribed Steam Workshop DLL mods - [b]no manual file copying required[/b]:
+
+[b]Option A - TesmioLoader (Recommended - Mature & Updated for WRSR 1.2.0.9):[/b]
+[list=1]
+[*] Subscribe to this mod ([b]TechServiceControl[/b]) - Workshop ID [i]{PUBLISHED_FILE_ID}[/i].
+[*] Download & extract [url=https://github.com/MaxLegend/TesmioLoader/releases]TesmioLoader (v0.4.5+)[/url] into your WRSR game directory ([url=https://maxlegend.github.io/TesmioLoaderDocs/#/getting-started]Docs[/url]).
+[*] Run [b]tesmiolauncher.exe[/b]. Since v0.4, TesmioLoader automatically scans your Steam Workshop folder and lists subscribed DLL plugins (if your Workshop is in a separate Steam library, set it in the launcher / [i]workshop_path[/i]).
+[*] Tick [b]TechServiceControl[/b], launch WRSR, and press [b]F9[/b] in-game!
+[/list]
+[b]Option B - Republic Mod Loader (RML - All-on-Steam Alternative):[/b]
+[list=1]
+[*] Subscribe to this mod ([b]TechServiceControl[/b]) - Workshop ID [i]{PUBLISHED_FILE_ID}[/i].
+[*] Also subscribe to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3787969749]Republic Mod Loader (RML)[/url] ([url=https://github.com/Ultimate-Universe/WRSR-RepublicModLoader]GitHub[/url]).
+[*] Open RML from Steam Workshop:
+[code]<Your Steam Library>\steamapps\workshop\content\784150\3787969749\RepublicModLoader.exe[/code]
+(Tip: create a Desktop shortcut or add it to Steam as a Non-Steam Game.)
+[*] Tick [b]TechServiceControl[/b] in RML and click [b]Launch WRSR[/b], then press [b]F9[/b] in-game!
+[/list]
+(Manual/Non-Steam only: this Workshop item's DLL lives at [code]<Your Steam Library>\steamapps\workshop\content\784150\{PUBLISHED_FILE_ID}\plugins\TechServiceControl.dll[/code] -> copy into [code]<Game Dir>\plugins\[/code] if you aren't using Steam Workshop scanning.)
+
+[h1]Operating Tech Service Control (In-Game)[/h1][list]
+[*] Press [b]F9[/b] anytime in-game to open [b]WRSR Tweaks [F9][/b] -> [b]Tech Services[/b] tab (or [b]Esc[/b] to close).
+[*] [b]Enable Threshold Overrides:[/b] Master checkbox to toggle custom thresholds on or off.
+[*] [b]Snowplow Dispatch >= %[/b] (1% - 90%, default 20%): Holds snowplows in the depot until road snow depth reaches this percentage.
+[*] [b]Garbage Pickup >= %[/b] (10% - 95%, default 65%): Dispatches garbage trucks once waste containers or building bins reach this fill percentage (vanilla: 75% mixed / 60% fraction).
+[*] [b]Sewage Pickup >= %[/b] (10% - 95%, default 70%): Dispatches sewage trucks once unpiped building sewage tanks reach this fill percentage (vanilla: 70%).
+[*] [b]Water Delivery <= %[/b] (5% - 90%, default 40%): Dispatches water trucks once unpiped building water tanks drop below this fill percentage (vanilla: 30%).
+[*] [b]Quick Presets:[/b] [i]Vanilla[/i], [i]Fuel Saver[/i], and [i]Dense City[/i] buttons apply recommended settings immediately.
+[*] [b]Save Config (Ctrl+S):[/b] Writes settings to [i]TechServiceControl.ini[/i] beside the plugin DLL.
+[/list]
+
+[h1]Recommended Settings by Play-Style[/h1][list]
+[*] [b]Fuel Saver:[/b] Snow >= 35%, Garbage >= 85%, Sewage >= 85%, Water <= 20%. Minimizes fuel burn and truck trips.
+[*] [b]Dense City:[/b] Snow >= 15%, Garbage >= 50%, Sewage >= 55%, Water <= 55%. Proactive servicing for high-density residential districts.
+[*] [b]Vanilla:[/b] Click [i]Vanilla[/i] to disable overrides and restore unmodded thresholds.
+[/list]
+
+[h1]Five-Year Plan Guarantees (Save-Safe & Lightweight)[/h1][list]
+[*] [b]Graceful Standby:[/b] Each of the 4 hooks resolves dynamically via AOB signatures and falls back to STANDBY independently if unmatched.
+[*] [b]100% Save-Safe:[/b] Settings live cleanly in [i]TechServiceControl.ini[/i] next to the DLL (binary WRSR saves are never modified).
+[/list]
+
+[h1]Companion Mods (Logistics Suite)[/h1][list]
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3845998630][b]SmartDOBatching[/b][/url] - Prevent Distribution Offices from dispatching near-empty trucks or trains via [b]F9[/b].
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3845944617][b]CustomsSpeedControl[/b][/url] - Scale Customs House cargo Load & Unload speeds live via [b]F9[/b].
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384][b]TradePriceLimits[/b][/url] - Set min-sell / max-buy price limits on Distribution Office border transfers ([b]F8[/b]).
+[/list]{CHANGELOG_SECTION}"
+    "language"        "english"
+    "changenote"      "{CHANGENOTE}"
+}

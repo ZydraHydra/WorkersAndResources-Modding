@@ -1,0 +1,14 @@
+"workshopitem"
+{
+	"appid"		"784150"
+	"publishedfileid"		"{PUBLISHED_FILE_ID}"
+	"contentfolder"		"{CONTENT_DIR}"
+	"previewfile"		"{PREVIEW_FILE}"
+	"visibility"		"{VISIBILITY}"
+	"title"		"{WORKSHOP_TITLE}"
+	"description"		"{EDITION_HEADER}
+
+TechServiceControl v{VERSION}: Customize Technical Services dispatch thresholds for snowplows, garbage pickup, sewage pickup, and water delivery via the F9 overlay.{CHANGELOG_SECTION}"
+	"language"		"0"
+	"changenote"		"{CHANGENOTE}"
+}

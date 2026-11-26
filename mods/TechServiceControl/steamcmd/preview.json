@@ -1,0 +1,28 @@
+{
+  "gameVersionBadge": "WRSR 1.2.0.9",
+  "hotkeyBadge": "PRESS F9 IN-GAME",
+  "title": "TECH SERVICE CONTROL",
+  "subtitle": "Customize snowplow, garbage, sewage & water dispatch thresholds via F9",
+  "pills": [
+    "RML + TESMIOLOADER",
+    "SNOWPLOW FUEL SAVER",
+    "UTILITY THRESHOLDS"
+  ],
+  "windowTitle": "WRSR Tweaks [F9]",
+  "tabs": [
+    { "label": "CO Dispatch", "active": false },
+    { "label": "Tech Services", "active": true }
+  ],
+  "hookStatus": "Hooks: 4/4 ACTIVE (Snow, Garbage, Sewage, Water | profile: 1.2.0.9)",
+  "windowDesc": "Customize Technical Services dispatch thresholds.",
+  "sliders": [
+    { "label": "Snowplow Dispatch >= %", "valueText": "20%", "fraction": 0.21 },
+    { "label": "Garbage Pickup >= %", "valueText": "65%", "fraction": 0.65 },
+    { "label": "Sewage Pickup >= %", "valueText": "70%", "fraction": 0.71 },
+    { "label": "Water Delivery <= %", "valueText": "40%", "fraction": 0.41 }
+  ],
+  "presets": ["Vanilla", "Fuel Saver", "Dense City"],
+  "footerCounter": "Save-safe | Live F9 tuning | Saved to TechServiceControl.ini",
+  "tagline": "No more snowplows burning fuel on a 1% dusting of snow",
+  "footer": "Snow, Garbage, Sewage & Water | Save-safe | TechServiceControl.ini"
+}
