@@ -246,6 +246,64 @@ $bg.DrawString("$($items.Count) COLLECTION MODS", $fBgSub, $bBgGold, (New-Rect (
 $centerOverlay = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(95, 12, 11, 8))
 $bg.FillRectangle($centerOverlay, 440, 0, 1040, $BH)
 
+# Place mod preview images along the left and right wings (outside Steam's centered content column)
+$previewEntries = [System.Collections.Generic.List[string]]::new()
+foreach ($it in $items) {
+    $p = Join-Path $Root "mods\$($it.mod)\steamcmd\previewimage.png"
+    if (Test-Path $p) { $previewEntries.Add($p) }
+}
+
+if ($previewEntries.Count -gt 0) {
+    $leftCount = [int][Math]::Ceiling($previewEntries.Count / 2.0)
+    $rightCount = $previewEntries.Count - $leftCount
+    $maxPerSide = [Math]::Max($leftCount, [Math]::Max(1, $rightCount))
+
+    $availH = $BH - 220
+    $gapY = 18
+    $cardSize = [Math]::Min(210, [int](($availH - ($maxPerSide - 1) * $gapY) / $maxPerSide))
+
+    $shadowBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(145, 0, 0, 0))
+    $cardBorderPen = New-Object System.Drawing.Pen ([System.Drawing.Color]::FromArgb(140, 200, 154, 58)), 2
+    $tintBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(65, 14, 12, 9))
+
+    for ($side = 0; $side -lt 2; $side++) {
+        $startIdx = if ($side -eq 0) { 0 } else { $leftCount }
+        $count = if ($side -eq 0) { $leftCount } else { $rightCount }
+        if ($count -le 0) { continue }
+
+        $totalH = $count * $cardSize + ($count - 1) * $gapY
+        $startY = ($BH - $totalH) / 2.0
+        $baseCenterX = if ($side -eq 0) { 230.0 } else { $BW - 230.0 }
+
+        for ($j = 0; $j -lt $count; $j++) {
+            $imgPath = $previewEntries[$startIdx + $j]
+            $staggerX = if (($j % 2) -eq 0) { -24.0 } else { 24.0 }
+            if ($side -eq 1) { $staggerX = -$staggerX }
+            $cx = $baseCenterX + $staggerX
+            $cy = $startY + $j * ($cardSize + $gapY) + ($cardSize / 2.0)
+            $angle = if ((($j + $side) % 2) -eq 0) { -3.5 } else { 3.5 }
+
+            $srcImg = [System.Drawing.Image]::FromFile($imgPath)
+            $state = $bg.Save()
+            $bg.TranslateTransform($cx, $cy)
+            $bg.RotateTransform($angle)
+
+            $half = $cardSize / 2.0
+            $bg.FillRectangle($shadowBrush, (-$half + 8), (-$half + 10), $cardSize, $cardSize)
+            $bg.DrawImage($srcImg, (-$half), (-$half), $cardSize, $cardSize)
+            $bg.FillRectangle($tintBrush, (-$half), (-$half), $cardSize, $cardSize)
+            $bg.DrawRectangle($cardBorderPen, (-$half), (-$half), $cardSize, $cardSize)
+
+            $bg.Restore($state)
+            $srcImg.Dispose()
+        }
+    }
+
+    $shadowBrush.Dispose()
+    $cardBorderPen.Dispose()
+    $tintBrush.Dispose()
+}
+
 $centerOverlay.Dispose()
 $sideGoldPen.Dispose()
 $sideCrimsonBrush.Dispose()
