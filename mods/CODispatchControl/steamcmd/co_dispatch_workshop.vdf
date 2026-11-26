@@ -1,0 +1,23 @@
+"workshopitem"
+{
+    "appid"           "784150"
+    "publishedfileid" "{PUBLISHED_FILE_ID}"
+    "contentfolder"   "{CONTENT_DIR}"
+    "previewfile"     "{PREVIEW_FILE}"
+    "visibility"      "{VISIBILITY}"
+    "title"           "{WORKSHOP_TITLE}"
+    "description"     "[h1]CODispatchControl[/h1]Optimizes Construction Office (CO) vehicle dispatch in [b]Workers & Resources: Soviet Republic[/b] so COs match truck and bus sizes to actual construction demand instead of sending oversized vehicles for tiny remaining workloads.
+
+{EDITION_HEADER}
+Source code & releases: [url=https://github.com/ZydraHydra/WorkersAndResources-Modding]ZydraHydra GitHub[/url]
+
+[h1]Features (F9 -> CO Dispatch Tab)[/h1][list]
+[*] [b]Min Material Truck Fill %[/b] (0% - 100%, default 50%): Rejects oversized trucks if [i]remaining_phase_material / vehicle_capacity[/i] is below threshold and a smaller capable truck exists in the CO (automatically exempts small final top-offs under 1.5t).
+[*] [b]Min Bus Workday Ratio[/b] (0.0 - 2.0, default 0.5): Prevents sending large buses when only a few workdays remain if a smaller bus/microbus is available in the CO.
+[*] [b]Max Trucks En Route per Site[/b] (1 - 10, default 2): Caps simultaneous material trucks heading to the same construction site to prevent road-node traffic jams.
+[*] [b]Mechanism Transport Safe[/b]: Excavators, cranes, bulldozers, and flatbed carriers are never blocked.
+[*] [b]Quick Presets[/b]: [i]Vanilla[/i], [i]Balanced[/i], and [i]Strict[/i] buttons plus [i]Save Config[/i] to [i]CODispatchControl.ini[/i].
+[/list]{CHANGELOG_SECTION}"
+    "language"        "english"
+    "changenote"      "{CHANGENOTE}"
+}

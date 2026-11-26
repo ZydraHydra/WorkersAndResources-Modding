@@ -316,6 +316,10 @@ foreach ($track in $targetTracks) {
     $changelogData = Get-ModChangelogData -RootDir $Root -ModName $Mod -ResolvedVer $ResolvedVer
     $note = if ($Changenote) { $Changenote } else { $changelogData.changenote }
     $VdfSrc = Join-Path $ModDir "steamcmd\workshop_item.vdf"
+    if (-not (Test-Path $VdfSrc)) {
+        $altVdf = Get-ChildItem (Join-Path $ModDir "steamcmd") -Filter "*_workshop.vdf" -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($altVdf) { $VdfSrc = $altVdf.FullName }
+    }
     $emitVdf = $publishWorkshop
     if ($emitVdf -and (Test-Path $VdfSrc)) {
         $contentSlash = $ContentDir -replace '\\', '/'
