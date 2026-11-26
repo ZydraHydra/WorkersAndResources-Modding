@@ -121,6 +121,7 @@ Deploy to game:
 - [**CODispatchControl**](https://steamcommunity.com/sharedfiles/filedetails/?id=3846041311) ([GitHub](../../mods/CODispatchControl)) — Match Construction Office trucks and buses to site demand and cap simultaneous trucks per site via the shared **`F9`** overlay (`CO Dispatch` tab).
 - [**CustomsSpeedControl**](https://steamcommunity.com/sharedfiles/filedetails/?id=3845944617) ([GitHub](../../mods/CustomsSpeedControl)) — Adjust Customs House cargo Load and Unload transfer speeds (`0.25x`–`100.0x`, Road & Rail toggle) live via the **`F9`** overlay.
 - [**TradePriceLimits**](https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384) ([GitHub](../../mods/TradePriceLimits)) — Per-resource Max Buy / Min Sell price thresholds on Customs House dispatches via the **`F8`** overlay.
+- [**TechServiceControl**](https://steamcommunity.com/sharedfiles/filedetails/?id=3846052185) ([GitHub](../../mods/TechServiceControl)) — Customize Technical Services snowplow, garbage, sewage, and water dispatch thresholds via the shared **`F9`** overlay (`Tech Services` tab).
 
 ---
 

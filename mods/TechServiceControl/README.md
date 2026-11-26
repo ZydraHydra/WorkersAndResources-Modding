@@ -2,6 +2,9 @@
 
 Native x64 C++ plugin for **Workers & Resources: Soviet Republic** (`SOVIET64.exe`) that lets you customize Technical Services dispatch thresholds at runtime via the unified `F9` overlay.
 
+- **Steam Workshop:** [TechServiceControl (ID `3846052185`)](https://steamcommunity.com/sharedfiles/filedetails/?id=3846052185)
+- **GitHub Releases:** [WorkersAndResources-Modding Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases)
+
 ## Features
 
 - **Snowplow Dispatch >= %** (`1%`–`90%`, default `20%`): Holds snowplows in the Technical Services office until road snow depth reaches the configured threshold.
