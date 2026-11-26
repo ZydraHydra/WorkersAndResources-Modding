@@ -17,6 +17,7 @@ on:
           - SmartDOBatching
           - CODispatchControl
           - TechServiceControl
+          - SmartBayAccess
       game_version:
         description: "WRSR game version track ('all' or specific id like '1.1.1.7' / 'latest')"
         required: true

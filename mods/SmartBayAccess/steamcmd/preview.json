@@ -1,0 +1,27 @@
+{
+  "gameVersionBadge": "WRSR 1.2.0.9",
+  "hotkeyBadge": "PRESS F9 IN-GAME",
+  "title": "SMART BAY ACCESS",
+  "subtitle": "Eliminate single-vehicle courtyard bottlenecks at multi-bay road buildings",
+  "pills": [
+    "RML + TESMIOLOADER",
+    "MULTI-BAY BATCHING",
+    "CUSTOMS & STATIONS"
+  ],
+  "windowTitle": "WRSR Tweaks [F9]",
+  "tabs": [
+    { "label": "Tech Services", "active": false },
+    { "label": "Bay Access", "active": true }
+  ],
+  "hookStatus": "Hook: ACTIVE @ SOVIET64.exe+0x6CCDC0 (profile: 1.2.0.9)",
+  "windowDesc": "Batch multi-bay road building apron entry and exit while preserving bay reservations.",
+  "sliders": [
+    { "label": "Active Mode: Same-Direction Batching", "valueText": "mode = 1", "fraction": 0.50 },
+    { "label": "Active Tracked Buildings", "valueText": "2", "fraction": 0.25 },
+    { "label": "Batched Entries Allowed", "valueText": "12", "fraction": 0.65 }
+  ],
+  "presets": ["Vanilla", "Same-Direction Batching", "Unrestricted"],
+  "footerCounter": "Save-safe | Live F9 switching | Saved to SmartBayAccess.ini",
+  "tagline": "No more trucks queuing single-file outside empty multi-bay stations",
+  "footer": "Stations, Depots & Customs | Save-safe | SmartBayAccess.ini"
+}

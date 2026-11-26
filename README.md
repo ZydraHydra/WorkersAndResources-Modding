@@ -14,6 +14,7 @@ Native x64 C++20 plugin workspace for **Workers & Resources: Soviet Republic** (
 | [`SmartDOBatching`](mods/SmartDOBatching) | v1.0.0 (Alpha) | Minimum cargo fill thresholds (`0%`–`100%`) for Road & Rail Distribution Office dispatches, **Exempt Essential Goods** (Food, Meat, Alcohol, Medicine/Chemicals, Coal, Water, Fuel), **Prevent Small-Building Deadlock** (`85%` dest storage cap), quick presets, and shared `F9` overlay tab (`DO Batching`). ([Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3845998630) · [Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases)) |
 | [`CODispatchControl`](mods/CODispatchControl) | v1.0.0 (Alpha) | Matches Construction Office trucks and buses to remaining site demand (`Min Material Truck Fill %`, `Min Bus Workday Ratio`), caps simultaneous material trucks per site (`Max Trucks En Route per Site`), never blocks mechanism/flatbed transport, and integrates into the shared `F9` overlay (`CO Dispatch` tab). ([Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3846041311) · [Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases)) |
 | [`TechServiceControl`](mods/TechServiceControl) | v1.0.0 (Alpha) | Customizes Technical Services dispatch thresholds (`Snowplow Dispatch >= %`, `Garbage Pickup >= %`, `Sewage Pickup >= %`, `Water Delivery <= %`) with `Vanilla` / `Fuel Saver` / `Dense City` presets and `TechServiceControl.ini` persistence via the shared `F9` overlay (`Tech Services` tab). ([Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3846052185) · [Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases)) |
+| [`SmartBayAccess`](mods/SmartBayAccess) | v1.0.0 (Alpha) | Eliminates single-vehicle courtyard bottlenecks at multi-bay road buildings (cargo stations, depots, Customs Houses, bus platforms) with `Vanilla`, `Same-Direction Batching` (default), and `Unrestricted` modes via the shared `F9` overlay (`Bay Access` tab). ([Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases)) |
 
 ## Repository Layout
 
@@ -29,6 +30,7 @@ WorkersAndResources-Modding/
 │   ├── SmartDOBatching/     # Distribution Office minimum batch fill mod, RML manifest, Workshop VDF, README
 │   └── CODispatchControl/   # Construction Office dispatch sizing & per-site truck cap mod, RML manifest, Workshop VDF, README
 │   └── TechServiceControl/  # Technical Services snowplow/garbage/sewage/water threshold mod, RML manifest, Workshop VDF, README
+│   └── SmartBayAccess/      # Multi-bay road building apron batching mod, RML manifest, Workshop VDF, README
 ├── scripts/
 │   ├── build.ps1            # Build one or all mods (Release x64, static /MT CRT)
 │   ├── deploy.ps1           # Deploy a built mod into local RML plugins directory
@@ -39,6 +41,7 @@ WorkersAndResources-Modding/
 │   ├── REVERSE_ENGINEERING.md
 │   ├── CUSTOMS_REVERSE_ENGINEERING.md
 │   ├── TECH_SERVICE_REVERSE_ENGINEERING.md
+│   ├── BAY_ACCESS_REVERSE_ENGINEERING.md
 │   └── ADDING_A_MOD.md
 └── references/              # Gitignored local reference clones (RML, TesmioLoader, etc.)
 ```

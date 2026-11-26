@@ -1,0 +1,67 @@
+"workshopitem"
+{
+    "appid"           "784150"
+    "publishedfileid" "{PUBLISHED_FILE_ID}"
+    "contentfolder"   "{CONTENT_DIR}"
+    "previewfile"     "{PREVIEW_FILE}"
+    "visibility"      "{VISIBILITY}"
+    "title"           "{WORKSHOP_TITLE}"
+    "description"     "[h1]Comrade, Stop Queuing Trucks Single-File Outside Empty Multi-Bay Stations![/h1]In vanilla WRSR, multi-bay cargo stations, depots, bus platforms, and Customs Houses lock the entire courtyard whenever a single vehicle is driving in or backing out—leaving free bays idle while trucks wait outside.
+
+By decree of the [b]Supreme Soviet Transport Efficiency Directorate[/b], [b]SmartBayAccess[/b] batches apron entry and exit across free bays while preserving per-bay reservations and leaving 1-bay buildings and rail untouched.
+
+{EDITION_HEADER}
+Source code & releases: [url=https://github.com/ZydraHydra/WorkersAndResources-Modding]ZydraHydra GitHub[/url]
+
+[b]Alpha Field Dispatch:[/b] Treat this mod as an early [b]Alpha[/b] release. It has been verified on WRSR `1.2.0.8` and `1.2.0.9` and needs broader field testing on large late-game republics. Back up your saves first and report any issues on GitHub!
+
+[h1]Wait - What is a DLL Mod? (Step-by-Step Setup)[/h1]Ordinary Steam Workshop mods only add buildings or vehicles. Because [b]SmartBayAccess[/b] adds an in-game [b]F9[/b] overlay and hooks into game logic, it needs a [b]Mod Loader[/b] alongside the game. Simply clicking Play in Steam will [b]not[/b] load DLL mods on its own.
+
+Both [b]TesmioLoader (v0.4.5+)[/b] and [b]Republic Mod Loader (v1.0.1)[/b] automatically find subscribed Steam Workshop DLL mods - [b]no manual file copying required[/b]:
+
+[b]Option A - TesmioLoader (Recommended - Mature & Updated for WRSR 1.2.0.9):[/b]
+[list=1]
+[*] Subscribe to this mod ([b]SmartBayAccess[/b]) - Workshop ID [i]{PUBLISHED_FILE_ID}[/i].
+[*] Download & extract [url=https://github.com/MaxLegend/TesmioLoader/releases]TesmioLoader (v0.4.5+)[/url] into your WRSR game directory ([url=https://maxlegend.github.io/TesmioLoaderDocs/#/getting-started]Docs[/url]).
+[*] Run [b]tesmiolauncher.exe[/b]. Since v0.4, TesmioLoader automatically scans your Steam Workshop folder and lists subscribed DLL plugins (if your Workshop is in a separate Steam library, set it in the launcher / [i]workshop_path[/i]).
+[*] Tick [b]SmartBayAccess[/b], launch WRSR, and press [b]F9[/b] in-game!
+[/list]
+[b]Option B - Republic Mod Loader (RML - All-on-Steam Alternative):[/b]
+[list=1]
+[*] Subscribe to this mod ([b]SmartBayAccess[/b]) - Workshop ID [i]{PUBLISHED_FILE_ID}[/i].
+[*] Also subscribe to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3787969749]Republic Mod Loader (RML)[/url] ([url=https://github.com/Ultimate-Universe/WRSR-RepublicModLoader]GitHub[/url]).
+[*] Open RML from Steam Workshop:
+[code]<Your Steam Library>\steamapps\workshop\content\784150\3787969749\RepublicModLoader.exe[/code]
+(Tip: create a Desktop shortcut or add it to Steam as a Non-Steam Game.)
+[*] Tick [b]SmartBayAccess[/b] in RML and click [b]Launch WRSR[/b], then press [b]F9[/b] in-game!
+[/list]
+(Manual/Non-Steam only: this Workshop item's DLL lives at [code]<Your Steam Library>\steamapps\workshop\content\784150\{PUBLISHED_FILE_ID}\plugins\SmartBayAccess.dll[/code] -> copy into [code]<Game Dir>\plugins\[/code] if you aren't using Steam Workshop scanning.)
+
+[h1]Operating Smart Bay Access (In-Game)[/h1][list]
+[*] Press [b]F9[/b] anytime in-game to open [b]WRSR Tweaks [F9][/b] -> [b]Bay Access[/b] tab (or [b]Esc[/b] to close).
+[*] [b]Same-Direction Batching (mode = 1, Default):[/b] Allows multiple trucks to enter free bays simultaneously while none are exiting, and exit simultaneously while none are entering. Prevents head-on deadlocks on dead-end stations.
+[*] [b]Unrestricted (mode = 2):[/b] Allows simultaneous entry and exit whenever a free physical bay exists (maximum throughput at busy Customs Houses).
+[*] [b]Vanilla (mode = 0):[/b] Restores vanilla single-mover apron lock behavior.
+[*] [b]Reset Tracking / Save Config (Ctrl+S):[/b] Flushes active tracking or writes your mode to [i]SmartBayAccess.ini[/i].
+[/list]
+
+[h1]Recommended Modes[/h1][list]
+[*] [b]General Republic Logistics:[/b] Keep [i]Same-Direction Batching[/i] (`mode = 1`) for clean, deadlock-free multi-bay cargo stations and depots.
+[*] [b]High-Traffic Customs Houses:[/b] Switch to [i]Unrestricted[/i] (`mode = 2`) for maximum simultaneous entry and exit throughput.
+[/list]
+
+[h1]Five-Year Plan Guarantees (Save-Safe & Lightweight)[/h1][list]
+[*] [b]Multi-Bay Road Only:[/b] Automatically skips 1-bay buildings and all rail/train traffic.
+[*] [b]100% Save-Safe:[/b] Tracks active movers externally without modifying serialized building structs or save formats; automatically flushes on save load/unload.
+[/list]
+
+[h1]Companion Mods (Logistics Suite)[/h1][list]
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3846052185][b]TechServiceControl[/b][/url] - Customize snowplow, garbage, sewage & water dispatch thresholds via [b]F9[/b].
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3846041311][b]CODispatchControl[/b][/url] - Match Construction Office trucks and buses to remaining site demand via [b]F9[/b].
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3845998630][b]SmartDOBatching[/b][/url] - Prevent Distribution Offices from dispatching near-empty trucks or trains via [b]F9[/b].
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3845944617][b]CustomsSpeedControl[/b][/url] - Scale Customs House cargo Load & Unload speeds live via [b]F9[/b].
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384][b]TradePriceLimits[/b][/url] - Set min-sell / max-buy price limits on Distribution Office border transfers ([b]F8[/b]).
+[/list]{CHANGELOG_SECTION}"
+    "language"        "english"
+    "changenote"      "{CHANGENOTE}"
+}
