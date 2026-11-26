@@ -12,6 +12,7 @@ Native x64 C++20 plugin workspace for **Workers & Resources: Soviet Republic** (
 | [`TradePriceLimits`](mods/TradePriceLimits) | v1.0.19+ (Alpha) | Per-resource Max Buy / Min Sell price thresholds for **new** Customs House dispatches (`RUB` & `USD`; vehicles already en route finish their trip), `F8` WRSR-themed ImGui overlay, `Enforce Limits` bypass, Blocked Checks readout, and per-save `trade_price_limits.ini` sidecar. ([Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384) · [Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases)) |
 | [`CustomsSpeedControl`](mods/CustomsSpeedControl) | v1.0.9+ (Alpha) | Independent Customs House (`$TYPE_CUSTOMHOUSE`) cargo **Load** & **Unload** speed multipliers (`0.25x`–`100.0x`) with quick presets (`1x`–`100x`), **Affect Rail** toggle, and shared `F9` multi-mod overlay (`WRSR Tweaks [F9]`), leaving domestic stations and warehouses at vanilla speeds. ([Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3845944617) · [Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases)) |
 | [`SmartDOBatching`](mods/SmartDOBatching) | v1.0.0 (Alpha) | Minimum cargo fill thresholds (`0%`–`100%`) for Road & Rail Distribution Office dispatches, **Exempt Essential Goods** (Food, Meat, Alcohol, Medicine/Chemicals, Coal, Water, Fuel), **Prevent Small-Building Deadlock** (`85%` dest storage cap), quick presets, and shared `F9` overlay tab (`DO Batching`). ([Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3845998630) · [Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases)) |
+| [`CODispatchControl`](mods/CODispatchControl) | v1.0.0 (Alpha) | Matches Construction Office trucks and buses to remaining site demand (`Min Material Truck Fill %`, `Min Bus Workday Ratio`), caps simultaneous material trucks per site (`Max Trucks En Route per Site`), never blocks mechanism/flatbed transport, and integrates into the shared `F9` overlay (`CO Dispatch` tab). ([Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3846041311) · [Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases)) |
 
 ## Repository Layout
 
@@ -24,7 +25,8 @@ WorkersAndResources-Modding/
 ├── mods/
 │   ├── TradePriceLimits/    # Trade price threshold mod, RML manifest, Workshop VDF, README
 │   ├── CustomsSpeedControl/ # Customs House load/unload speed mod, RML manifest, Workshop VDF, README
-│   └── SmartDOBatching/     # Distribution Office minimum batch fill mod, RML manifest, Workshop VDF, README
+│   ├── SmartDOBatching/     # Distribution Office minimum batch fill mod, RML manifest, Workshop VDF, README
+│   └── CODispatchControl/   # Construction Office dispatch sizing & per-site truck cap mod, RML manifest, Workshop VDF, README
 ├── scripts/
 │   ├── build.ps1            # Build one or all mods (Release x64, static /MT CRT)
 │   ├── deploy.ps1           # Deploy a built mod into local RML plugins directory
@@ -48,7 +50,7 @@ WorkersAndResources-Modding/
 ## Versioning & Game-Version Releases
 
 - **Automatic Per-Mod Versioning:** Each mod defines its `MAJOR.MINOR` base in `mods/<Mod>/VERSION` (e.g. `1.0`). The patch number is derived automatically from Git commits touching `mods/<Mod>/` or `common/` (so changes to one mod never bump another mod's version), or overridden by release tags (`<Mod>-v<SemVer>` / `<Mod>-wrsr<GameVer>-v<SemVer>`). CMake embeds the version into the compiled Windows PE `VS_VERSION_INFO` resource, `RmlPluginQuery`/`TsmPluginInit`, and the output `<Mod>.rml.json`.
-- **Unified Multi-Version DLL (`latest`, Collection-Safe):** Each mod publishes a single primary Steam Workshop item (`latest`, `isPrimary: true`) that permanently keeps one Workshop ID (`3845533384` for `TradePriceLimits`, `3845944617` for `CustomsSpeedControl`, `3845998630` for `SmartDOBatching`) and detects supported WRSR builds (`1.2.0.9`, `1.2.0.8`, `1.1.1.13`, `1.1.1.9`, `1.1.1.7`, plus AOB fallback) at runtime so subscribers stay on one item across updates. Separate per-version tracks remain supported in `game_versions.json` if a breaking game update ever requires a pinned legacy item.
+- **Unified Multi-Version DLL (`latest`, Collection-Safe):** Each mod publishes a single primary Steam Workshop item (`latest`, `isPrimary: true`) that permanently keeps one Workshop ID (`3845533384` for `TradePriceLimits`, `3845944617` for `CustomsSpeedControl`, `3845998630` for `SmartDOBatching`, `3846041311` for `CODispatchControl`) and detects supported WRSR builds (`1.2.0.9`, `1.2.0.8`, `1.1.1.13`, `1.1.1.9`, `1.1.1.7`, plus AOB fallback) at runtime so subscribers stay on one item across updates. Separate per-version tracks remain supported in `game_versions.json` if a breaking game update ever requires a pinned legacy item.
 
 ## Building
 

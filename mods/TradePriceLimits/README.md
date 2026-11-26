@@ -68,6 +68,7 @@ Both **TesmioLoader (`v0.4.5`)** and **Republic Mod Loader (`v1.0.1`)** automati
 
 - [**CustomsSpeedControl**](https://steamcommunity.com/sharedfiles/filedetails/?id=3845944617) ([GitHub](../../mods/CustomsSpeedControl)) — Adjust **Customs House (`$TYPE_CUSTOMHOUSE`)** cargo Load and Unload transfer speeds (`0.25x`–`100.0x`, Road & Rail toggle) live via the **`F9`** overlay while keeping domestic logistics at vanilla speed.
 - [**SmartDOBatching**](https://steamcommunity.com/sharedfiles/filedetails/?id=3845998630) ([GitHub](../../mods/SmartDOBatching)) — Prevent Distribution Offices from dispatching near-empty trucks or trains via the shared **`F9`** overlay (`DO Batching` tab).
+- [**CODispatchControl**](https://steamcommunity.com/sharedfiles/filedetails/?id=3846041311) ([GitHub](../../mods/CODispatchControl)) — Match Construction Office trucks and buses to site demand and cap simultaneous trucks per site via the shared **`F9`** overlay (`CO Dispatch` tab).
 
 ## Controls & Rebinding
 
