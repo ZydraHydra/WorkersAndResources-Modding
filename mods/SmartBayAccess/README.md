@@ -5,6 +5,12 @@ Native x64 C++ plugin for **Workers & Resources: Soviet Republic** (`SOVIET64.ex
 - **Steam Workshop:** [SmartBayAccess (ID `3846054095`)](https://steamcommunity.com/sharedfiles/filedetails/?id=3846054095)
 - **GitHub Releases:** [WorkersAndResources-Modding Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases)
 
+## Demo
+
+- **Video Demo:** [YouTube — SmartBayAccess Mod Demo](https://youtu.be/1YjFUKZOkso)
+
+![SmartBayAccess Demo](media/smartbayaccess_demo.gif)
+
 ## Features
 
 - **Multi-Bay Road Buildings Only:** Automatically passes through for 1-bay buildings and all rail/train traffic.
