@@ -2,6 +2,9 @@
 
 All notable changes to **TradePriceLimits** are documented here. The topmost section is automatically included in Steam Workshop release notes and the Workshop page description.
 
+## [1.0.25]
+- **Negative Price Input Fix:** Allowed `-` in `filterNumericChar` so players can type negative price limits directly into the `F8` overlay (e.g. `-280` for waste import payouts).
+
 ## [1.0.24]
 - **Steam Workshop Display Title:** Updated the Steam Workshop listing title to **WRSR Tweaks: Customs Price Limits (Buy & Sell)** (internal DLL/INI/RML names unchanged).
 

@@ -541,7 +541,7 @@ void drawLivePriceCell(int colIdx, float price, bool blocked)
 int filterNumericChar(ImGuiInputTextCallbackData* data)
 {
     const ImWchar ch = data->EventChar;
-    if ((ch >= '0' && ch <= '9') || ch == '.') {
+    if ((ch >= '0' && ch <= '9') || ch == '.' || ch == '-') {
         return 0;
     }
     return 1;
