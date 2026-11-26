@@ -18,7 +18,7 @@ Both **TesmioLoader (`v0.4.5+`)** and **Republic Mod Loader (`v1.0.1+`)** automa
 
 ### Option A — TesmioLoader (Recommended)
 
-1. Subscribe to **MediaRedirector** on the Steam Workshop or download the release zip from [GitHub Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases).
+1. Subscribe to **MediaRedirector** on the [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3846470422) or download the release zip from [GitHub Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases).
 2. Download and extract [**TesmioLoader**](https://github.com/MaxLegend/TesmioLoader/releases) ([Docs](https://maxlegend.github.io/TesmioLoaderDocs/#/getting-started)) into your WRSR game directory.
 3. Run **`tesmiolauncher.exe`**, tick **MediaRedirector**, launch the game, and press **`F9`** on the **Main Menu** (or in-game).
 
