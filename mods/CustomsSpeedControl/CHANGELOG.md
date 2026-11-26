@@ -2,6 +2,9 @@
 
 All notable changes to **CustomsSpeedControl** are documented here. The topmost section is automatically included in Steam Workshop release notes and the Workshop page description.
 
+## [1.0.15]
+- **Shared `F9` Overlay Update:** Updated `WRSR Tweaks [F9]` overlay hub to hide in-game tweak tabs on the Main Menu until a republic is loaded and support collapsible/live-telemetry ABI extensions (for `MediaRedirector`).
+
 ## [1.0.14]
 - **Steam Workshop Display Title:** Updated the Steam Workshop listing title to **WRSR Tweaks: Customs Loading Speed (0.25x–100x)** (internal DLL/INI/RML names unchanged).
 

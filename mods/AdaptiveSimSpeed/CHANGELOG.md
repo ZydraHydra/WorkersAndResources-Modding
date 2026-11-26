@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.0.10]
+- **Shared `F9` Overlay Update:** Updated `WRSR Tweaks [F9]` overlay hub to hide in-game tweak tabs on the Main Menu until a republic is loaded and support collapsible/live-telemetry ABI extensions (for `MediaRedirector`).
+
 ## [1.0.0]
 - Initial **Early Alpha** release of `AdaptiveSimSpeed`: hardware-adaptive fast-forward (`3x`–`15x`) via the unified `F9` (`WRSR Tweaks [F9]` -> `Sim Speed`) overlay.
 - Hooks `PreSimUpdate` and scales `C3D_TIMER` simulation speed dynamically within unused frame budget `(1000 / target_min_fps) - render_reserve_ms` using EMA-smoothed `QueryPerformanceCounter` measurements.
