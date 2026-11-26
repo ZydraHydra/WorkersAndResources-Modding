@@ -180,10 +180,20 @@ if ($hasMarkers) {
     $updatedReadme = $readmeRaw
 }
 
+function Normalize-JsonForCompare {
+    param([string]$RawJson)
+    $c = ($RawJson | ConvertFrom-Json | ConvertTo-Json -Depth 10 -Compress)
+    return ($c -replace '\\u0026', '&' -replace '\\u003c', '<' -replace '\\u003e', '>' -replace '\\u0027', "'")
+}
+
 $jsonChanged = $true
 if (Test-Path $CollectionPath) {
-    $oldJson = (Get-Content $CollectionPath -Raw -Encoding UTF8) -replace "`r`n", "`n"
-    $jsonChanged = ($oldJson -ne ($newJson -replace "`r`n", "`n"))
+    $oldJson = Get-Content $CollectionPath -Raw -Encoding UTF8
+    try {
+        $jsonChanged = ((Normalize-JsonForCompare $oldJson) -ne (Normalize-JsonForCompare $newJson))
+    } catch {
+        $jsonChanged = (($oldJson -replace "`r`n", "`n") -ne ($newJson -replace "`r`n", "`n"))
+    }
 }
 $descChanged = $true
 if (Test-Path $DescPath) {
