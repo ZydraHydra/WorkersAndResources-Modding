@@ -12,6 +12,7 @@ A DLL plugin for *Workers & Resources: Soviet Republic* that prevents Distributi
 |---|---|
 | **Min Truck Fill %** | 0–100 %, default **50%** — road DO vehicles wait for a proper load |
 | **Min Train Fill %** | 0–100 %, default **60%** — rail DO vehicles held for larger batches |
+| **Smart Vehicle Sizing** | Evaluated per-vehicle — large trucks stay parked on small loads while smaller trucks in the same DO still get dispatched |
 | **Exempt Essential Goods** | Food · Meat · Alcohol · Medicine · Chemicals · Coal · Water · Fuel bypass gating so towns never starve or freeze |
 | **Prevent Small-Building Deadlock** | Clamps required batch to 85 % of destination storage so a 12 t truck doesn't wait forever for a 4 t grocery store |
 | **Quick Presets** | Vanilla 0% · 50% · 75% · 90% |

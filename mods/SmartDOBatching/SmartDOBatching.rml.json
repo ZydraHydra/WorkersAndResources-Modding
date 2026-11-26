@@ -4,7 +4,7 @@
   "name": "SmartDOBatching",
   "version": "1.0.0",
   "author": "ZydraHydra",
-  "description": "Prevents Distribution Offices from dispatching near-empty trucks or trains. Configurable minimum fill thresholds per vehicle type, with essential-goods exemption and small-building deadlock prevention.",
+  "description": "Prevents Distribution Offices from dispatching near-empty trucks or trains while letting smaller vehicles pick up smaller loads. Configurable minimum fill thresholds per vehicle type, with essential-goods exemption and small-building deadlock prevention.",
   "dll": "SmartDOBatching.dll",
   "loaderApi": {
     "min": 1,

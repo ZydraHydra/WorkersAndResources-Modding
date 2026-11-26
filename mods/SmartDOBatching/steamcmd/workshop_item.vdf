@@ -41,6 +41,7 @@ Both [b]TesmioLoader (v0.4.5+)[/b] and [b]Republic Mod Loader (v1.0.1)[/b] autom
 [*] Press [b]F9[/b] anytime in-game to open the overlay, then click the [b]DO Batching[/b] tab.
 [*] [b]Min Truck Fill %[/b] (default 50%): A road truck must be able to carry at least this fraction of its capacity worth of cargo before the DO dispatches it. Set 0% to restore vanilla behaviour for road vehicles.
 [*] [b]Min Train Fill %[/b] (default 60%): Same as above but for rail wagons. Trains are expensive to run; hold them for bigger batches.
+[*] [b]Smart Vehicle Sizing:[/b] Checked per vehicle, not globally — if a 12t truck and a 3t truck share a DO, a 2.5t load leaves the 12t truck parked while still dispatching the 3t truck!
 [*] [b]Exempt Essential Goods[/b] (default ON): Food, Meat, Alcohol, Medicine, Chemicals, Coal, Water, and Fuel bypass the fill check entirely - towns will never starve or freeze waiting for a full batch.
 [*] [b]Prevent Small-Building Deadlock[/b] (default ON): If the destination building's storage is smaller than the required batch (e.g. a 4t grocery store vs a 12t truck), the required cargo is capped at 85% of the destination's capacity so the DO never deadlocks permanently.
 [*] [b]Quick Presets:[/b] [i]Vanilla 0%[/i], [i]50%[/i], [i]75%[/i], [i]90%[/i] buttons set both truck and train thresholds at once.

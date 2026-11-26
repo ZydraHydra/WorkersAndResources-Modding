@@ -2,7 +2,7 @@
 
 ## [1.0.0] - 2026-11-26
 - Initial release.
-- Hooks `CanVehicleTakeDistTask` and resolves `GetVehicleResourceCapacity` via AOB signatures for exact per-vehicle, per-resource capacity gating.
+- Hooks `CanVehicleTakeDistTask` and resolves `GetVehicleResourceCapacity` via AOB signatures for exact per-vehicle, per-resource capacity gating (so smaller vehicles in a DO still pick up smaller loads while larger ones wait).
 - Configurable Min Truck Fill % (default 50%) and Min Train Fill % (default 60%).
 - Exempt Essential Goods option (Food, Meat, Alcohol, Medicine/Chemicals, Coal, Water, Fuel).
 - Prevent Small-Building Deadlock option (caps required batch at 85% of destination storage).
