@@ -95,14 +95,14 @@ prevent_small_building_deadlock = true
 ## Companion Mods
 
 - **[CustomsSpeedControl](https://steamcommunity.com/sharedfiles/filedetails/?id=3845944617)** — Scale Customs House load/unload speeds (0.25×–100×) via the same F9 overlay.
-- **TradePriceLimits** — Set min-sell / max-buy price rules on border Distribution Offices.
+- **[TradePriceLimits](https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384)** — Set min-sell / max-buy price rules on border Distribution Offices.
 
 ---
 
 ## Building from Source
 
 ```powershell
-cd e:\____PROJECTS\WorkersAndResources-Modding
+cd WorkersAndResources-Modding
 .\scripts\build.ps1 -Mod SmartDOBatching -Config Release
 ```
 

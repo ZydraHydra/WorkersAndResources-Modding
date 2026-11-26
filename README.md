@@ -11,6 +11,7 @@ Native x64 C++20 plugin workspace for **Workers & Resources: Soviet Republic** (
 |---|---|---|
 | [`TradePriceLimits`](mods/TradePriceLimits) | v1.0.19+ (Alpha) | Per-resource Max Buy / Min Sell price thresholds for **new** Customs House dispatches (`RUB` & `USD`; vehicles already en route finish their trip), `F8` WRSR-themed ImGui overlay, `Enforce Limits` bypass, Blocked Checks readout, and per-save `trade_price_limits.ini` sidecar. ([Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384) · [Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases)) |
 | [`CustomsSpeedControl`](mods/CustomsSpeedControl) | v1.0.9+ (Alpha) | Independent Customs House (`$TYPE_CUSTOMHOUSE`) cargo **Load** & **Unload** speed multipliers (`0.25x`–`100.0x`) with quick presets (`1x`–`100x`), **Affect Rail** toggle, and shared `F9` multi-mod overlay (`WRSR Tweaks [F9]`), leaving domestic stations and warehouses at vanilla speeds. ([Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3845944617) · [Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases)) |
+| [`SmartDOBatching`](mods/SmartDOBatching) | v1.0.0 (Alpha) | Minimum cargo fill thresholds (`0%`–`100%`) for Road & Rail Distribution Office dispatches, **Exempt Essential Goods** (Food, Meat, Alcohol, Medicine/Chemicals, Coal, Water, Fuel), **Prevent Small-Building Deadlock** (`85%` dest storage cap), quick presets, and shared `F9` overlay tab (`DO Batching`). ([Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases)) |
 
 ## Repository Layout
 
@@ -22,7 +23,8 @@ WorkersAndResources-Modding/
 ├── src/overlay/             # Shared F9 multi-mod ImGui overlay hub (Local\WRSR_ModOverlay_<PID>)
 ├── mods/
 │   ├── TradePriceLimits/    # Trade price threshold mod, RML manifest, Workshop VDF, README
-│   └── CustomsSpeedControl/ # Customs House load/unload speed mod, RML manifest, Workshop VDF, README
+│   ├── CustomsSpeedControl/ # Customs House load/unload speed mod, RML manifest, Workshop VDF, README
+│   └── SmartDOBatching/     # Distribution Office minimum batch fill mod, RML manifest, Workshop VDF, README
 ├── scripts/
 │   ├── build.ps1            # Build one or all mods (Release x64, static /MT CRT)
 │   ├── deploy.ps1           # Deploy a built mod into local RML plugins directory

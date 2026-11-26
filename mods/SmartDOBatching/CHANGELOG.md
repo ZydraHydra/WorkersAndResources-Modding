@@ -2,7 +2,7 @@
 
 ## [1.0.0] - 2026-11-26
 - Initial release.
-- Hooks EvaluateDistTask (shared dispatch_check_aob with TradePriceLimits).
+- Hooks `CanVehicleTakeDistTask` and resolves `GetVehicleResourceCapacity` via AOB signatures for exact per-vehicle, per-resource capacity gating.
 - Configurable Min Truck Fill % (default 50%) and Min Train Fill % (default 60%).
 - Exempt Essential Goods option (Food, Meat, Alcohol, Medicine/Chemicals, Coal, Water, Fuel).
 - Prevent Small-Building Deadlock option (caps required batch at 85% of destination storage).

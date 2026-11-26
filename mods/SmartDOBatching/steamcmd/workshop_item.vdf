@@ -60,7 +60,7 @@ Both [b]TesmioLoader (v0.4.5+)[/b] and [b]Republic Mod Loader (v1.0.1)[/b] autom
 [/list]
 [h1]Companion Mods (Logistics Suite)[/h1][list]
 [*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3845944617][b]CustomsSpeedControl[/b][/url] - Scale Customs House cargo Load & Unload speeds (0.25x - 100.0x, Road & Rail toggle) live via the same [b]F9[/b] overlay. Works cleanly alongside SmartDOBatching!
-[*] [b]TradePriceLimits[/b] - Set min-sell / max-buy price limits on Distribution Office border transfers (RUB & USD). Pairs perfectly for a fully automated, efficient logistics network.
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384][b]TradePriceLimits[/b][/url] - Set min-sell / max-buy price limits on Distribution Office border transfers (RUB & USD). Pairs perfectly for a fully automated, efficient logistics network.
 [/list]{CHANGELOG_SECTION}"
     "language"        "english"
     "changenote"      "{CHANGENOTE}"
