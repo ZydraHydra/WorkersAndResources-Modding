@@ -93,14 +93,15 @@ bool isVehicleStillEnRoute(const uint8_t* veh, EnRouteEntry& entry, uint64_t now
 
         const uint8_t* currBld = wrsr::game::readField<const uint8_t*>(veh, g_off.vehCurrBldOff);
         const uint8_t* homeBld = wrsr::game::readField<const uint8_t*>(veh, g_off.vehHomeBldOff);
+        const int32_t  state   = wrsr::game::readField<int32_t>(veh, g_off.vehDispatchStateOff);
 
         if (homeBld && currBld != homeBld) {
             entry.hasLeftHome = true;
             return true;
         }
 
-        // Still inside home CO: keep during initial exit grace window, prune once returned
-        if (!entry.hasLeftHome && age < kEnRouteGraceMs) {
+        // Still inside home CO: keep while actively queued to exit (state == 8) or within grace window
+        if (!entry.hasLeftHome && (state == 8 || age < kEnRouteGraceMs)) {
             return true;
         }
         return false;
