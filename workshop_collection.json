@@ -32,9 +32,9 @@
                   {
                       "mod":  "MediaRedirector",
                       "workshopTitle":  "WRSR Tweaks: Media Redirector (Non-Destructive VFS)",
-                      "publishedFileId":  "0",
-                      "version":  "1.0.8",
-                      "workshopUrl":  "",
+                      "publishedFileId":  "3846470422",
+                      "version":  "1.0.9",
+                      "workshopUrl":  "https://steamcommunity.com/sharedfiles/filedetails/?id=3846470422",
                       "summary":  "Non-destructive Virtual File System (VFS) path redirector for **Workers \u0026 Resources: Soviet Republic** (`SOVIET64.exe`) that transparently redirects read-only file opens and attribute checks targeting `media_soviet\\...` to override packs on disk—allowing players to stack local and Steam Workshop base-file replacement mods with priority ordering and conflict detection via the **`F9`** overlay, without ever overwriting original game files in `media_soviet\\`."
                   },
                   {
