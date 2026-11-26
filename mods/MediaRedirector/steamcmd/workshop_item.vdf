@@ -47,12 +47,9 @@ Both [b]TesmioLoader (v0.4.5+)[/b] and [b]Republic Mod Loader (v1.0.1)[/b] autom
 [*] [b]Conflict Inspector:[/b] Expandable list showing every colliding [i]media_soviet\[/i] path, which pack won, and which packs were overridden.
 [/list]
 
-[h1]For Modders: How to Support MediaRedirector[/h1][list]
-[*] Package only your modified files under [code]media_soviet\...[/code] or [code]override\...[/code] (either directly in your Workshop folder or inside a [i].zip[/i] archive at root or one folder deep).
-[*] Set [code]$ITEM_NAME "Your Mod Title"[/code] in [i]workshopconfig.ini[/i] so your mod displays with a readable title in the [b]F9[/b] list.
-[*] Avoid bundling unmodified vanilla files so your mod stays lightweight and collision-free in the [b]Conflict Inspector[/b].
-[*] Players can also drop local packs into [code]<Game Dir>\media_overrides\<PackName>\[/code] (or [i].zip[/i]).
-[/list]
+[h1]For Modders: How to Support MediaRedirector[/h1]Want your texture, shader, or INI overhaul to work out-of-the-box with [b]MediaRedirector[/b] (supporting [i]media_soviet\[/i], [i]override\[/i], and [i].zip[/i] packs)?
+
+See the [url=https://github.com/ZydraHydra/WorkersAndResources-Modding/blob/main/mods/MediaRedirector/README.md#modder-integration-guide-for-content--overhaul-creators]Modder Integration Guide on GitHub[/url].
 
 [h1]Five-Year Plan Guarantees (Zero-Alloc & Save-Safe)[/h1][list]
 [*] [b]Early-Boot Indexing:[/b] Builds the immutable VFS table synchronously at startup before [i]SOVIET64.exe[/i] parses core [i].ini[/i] files.
