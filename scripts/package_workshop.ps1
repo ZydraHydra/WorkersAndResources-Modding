@@ -292,7 +292,8 @@ foreach ($track in $targetTracks) {
     # 6. Render clean workshop_item.vdf OUTSIDE content/
     $isPrimaryTrack  = ($null -ne $track.isPrimary -and [bool]$track.isPrimary) -or ($gvId -eq "latest")
     $publishWorkshop = if ($null -ne $track.PSObject.Properties['publishWorkshop']) { [bool]$track.publishWorkshop } else { $true }
-    $workshopTitle   = if ($isPrimaryTrack) { "$Mod" } else { "$Mod [$gvLabel]" }
+    $displayTitle    = if ($info.workshopTitle) { [string]$info.workshopTitle } else { $Mod }
+    $workshopTitle   = if ($isPrimaryTrack) { "$displayTitle" } else { "$displayTitle [$gvLabel]" }
 
     $primaryTrack = $info.gameVersions | Where-Object { ($null -ne $_.isPrimary -and [bool]$_.isPrimary) -or $_.id -eq "latest" } | Select-Object -First 1
     $primaryId    = if ($primaryTrack -and $primaryTrack.publishedFileId) { [string]$primaryTrack.publishedFileId } else { "" }

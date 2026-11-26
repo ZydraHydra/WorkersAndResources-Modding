@@ -2,6 +2,9 @@
 
 All notable changes to **TradePriceLimits** are documented here. The topmost section is automatically included in Steam Workshop release notes and the Workshop page description.
 
+## [1.0.24]
+- **Steam Workshop Display Title:** Updated the Steam Workshop listing title to **WRSR Tweaks: Customs Price Limits (Buy & Sell)** (internal DLL/INI/RML names unchanged).
+
 ## [1.0.19]
 - **Companion Mod Cross-Links:** Interlinked [`CustomsSpeedControl`](https://steamcommunity.com/sharedfiles/filedetails/?id=3845944617) across `README.md` and the Steam Workshop description.
 

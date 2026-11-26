@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.1]
+
+- **Steam Workshop Display Title:** Updated the Steam Workshop listing title to **WRSR Tweaks: Multi-Bay Station Entry (No Queues)** (internal DLL/INI/RML names unchanged).
+
 ## [1.0.0]
 
 - Initial release of **SmartBayAccess** (`SmartBayAccess.dll`) with unified `F9` **Bay Access** tab.

@@ -1,5 +1,8 @@
 # SmartDOBatching Changelog
 
+## [1.0.1] - 2026-11-26
+- **Steam Workshop Display Title:** Updated the Steam Workshop listing title to **WRSR Tweaks: Distribution Office Fill Limits** (internal DLL/INI/RML names unchanged).
+
 ## [1.0.0] - 2026-11-26
 - Initial release.
 - Hooks `CanVehicleTakeDistTask` and resolves `GetVehicleResourceCapacity` via AOB signatures for exact per-vehicle, per-resource capacity gating (so smaller vehicles in a DO still pick up smaller loads while larger ones wait).

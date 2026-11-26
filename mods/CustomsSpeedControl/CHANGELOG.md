@@ -2,6 +2,9 @@
 
 All notable changes to **CustomsSpeedControl** are documented here. The topmost section is automatically included in Steam Workshop release notes and the Workshop page description.
 
+## [1.0.14]
+- **Steam Workshop Display Title:** Updated the Steam Workshop listing title to **WRSR Tweaks: Customs Loading Speed (0.25x–100x)** (internal DLL/INI/RML names unchanged).
+
 ## [1.0.9]
 - **Companion Mod Cross-Links:** Interlinked [`TradePriceLimits`](https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384) across `README.md` and the Steam Workshop description.
 

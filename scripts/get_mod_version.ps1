@@ -72,6 +72,7 @@ if ($VersionOverride) {
 }
 
 $gvPath = Join-Path $ModDir "game_versions.json"
+$workshopTitle = $Mod
 $defaultGv = "latest"
 $gameVersions = @(
     [pscustomobject]@{
@@ -82,7 +83,10 @@ $gameVersions = @(
     }
 )
 if (Test-Path $gvPath) {
-    $gvObj = Get-Content $gvPath -Raw | ConvertFrom-Json
+    $gvObj = Get-Content $gvPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    if ($gvObj.workshopTitle) {
+        $workshopTitle = [string]$gvObj.workshopTitle
+    }
     if ($gvObj.defaultGameVersion) {
         $defaultGv = [string]$gvObj.defaultGameVersion
     }
@@ -93,6 +97,7 @@ if (Test-Path $gvPath) {
 
 $result = [pscustomobject]@{
     mod                = $Mod
+    workshopTitle      = $workshopTitle
     version            = $resolved
     defaultGameVersion = $defaultGv
     gameVersions       = $gameVersions
