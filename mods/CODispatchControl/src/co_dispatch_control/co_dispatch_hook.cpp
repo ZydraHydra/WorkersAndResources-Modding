@@ -71,31 +71,39 @@ PFN_GetVehicleResourceCapacity g_getVehicleResourceCapacity = nullptr;
 struct EnRouteEntry {
     uint8_t* siteBuilding{nullptr};
     uint64_t timestampMs{0};
+    bool     hasLeftHome{false};
 };
 
 std::mutex                                  g_enRouteMutex;
 std::unordered_map<uint8_t*, EnRouteEntry>  g_enRouteVehicles;
 
+constexpr uint64_t kEnRouteGraceMs  = 5000ULL;   // Allow time to exit CO gate after dispatch
 constexpr uint64_t kEnRouteMaxAgeMs = 300000ULL; // 5-minute safety TTL
 
-bool isVehicleStillEnRoute(const uint8_t* veh) noexcept
+bool isVehicleStillEnRoute(const uint8_t* veh, EnRouteEntry& entry, uint64_t now) noexcept
 {
     __try {
         if (!veh) {
             return false;
         }
+        const uint64_t age = now - entry.timestampMs;
+        if (age > kEnRouteMaxAgeMs) {
+            return false;
+        }
+
         const uint8_t* currBld = wrsr::game::readField<const uint8_t*>(veh, g_off.vehCurrBldOff);
         const uint8_t* homeBld = wrsr::game::readField<const uint8_t*>(veh, g_off.vehHomeBldOff);
-        const int32_t  state   = wrsr::game::readField<int32_t>(veh, g_off.vehDispatchStateOff);
 
-        // Parked back in home CO or no longer in active dispatch state
-        if (homeBld && currBld == homeBld) {
-            return false;
+        if (homeBld && currBld != homeBld) {
+            entry.hasLeftHome = true;
+            return true;
         }
-        if (state != 8) {
-            return false;
+
+        // Still inside home CO: keep during initial exit grace window, prune once returned
+        if (!entry.hasLeftHome && age < kEnRouteGraceMs) {
+            return true;
         }
-        return true;
+        return false;
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         return false;
     }
@@ -108,7 +116,7 @@ int countActiveTrucksForSite(const uint8_t* siteBuilding) noexcept
 
     int count = 0;
     for (auto it = g_enRouteVehicles.begin(); it != g_enRouteVehicles.end();) {
-        if ((now - it->second.timestampMs) > kEnRouteMaxAgeMs || !isVehicleStillEnRoute(it->first)) {
+        if (!isVehicleStillEnRoute(it->first, it->second, now)) {
             it = g_enRouteVehicles.erase(it);
             continue;
         }
@@ -124,7 +132,7 @@ void recordDispatchedTruck(uint8_t* veh, uint8_t* siteBuilding) noexcept
 {
     const uint64_t now = GetTickCount64();
     std::lock_guard lock(g_enRouteMutex);
-    g_enRouteVehicles[veh] = EnRouteEntry{siteBuilding, now};
+    g_enRouteVehicles[veh] = EnRouteEntry{siteBuilding, now, false};
 }
 
 // ── Vehicle capacity helpers (SEH-safe) ───────────────────────────────────
