@@ -1,0 +1,68 @@
+"workshopitem"
+{
+    "appid"           "784150"
+    "publishedfileid" "{PUBLISHED_FILE_ID}"
+    "contentfolder"   "{CONTENT_DIR}"
+    "previewfile"     "{PREVIEW_FILE}"
+    "visibility"      "{VISIBILITY}"
+    "title"           "{WORKSHOP_TITLE}"
+    "description"     "[h1]Comrade, Stop Sending 12t Dumpers for Two Wheelbarrows of Gravel![/h1]Do your Construction Offices keep dispatching massive 12-tonne trucks for 1.8 tonnes of remaining bricks, or 40-seat buses when a construction phase only needs 2 workdays to finish? And do five trucks jam the same road node at once?
+
+By decree of the [b]Supreme Soviet Construction Logistics Directorate[/b], [b]CODispatchControl[/b] teaches Construction Offices to match vehicle sizes to actual remaining site demand and cap simultaneous trucks per construction site — while [b]never[/b] blocking excavators, cranes, bulldozers, or flatbed carriers.
+
+{EDITION_HEADER}
+Source code & releases: [url=https://github.com/ZydraHydra/WorkersAndResources-Modding]ZydraHydra GitHub[/url]
+
+[b]Alpha Field Dispatch:[/b] Treat this mod as an early [b]Alpha[/b] release. It has been verified on WRSR `1.2.0.8` and `1.2.0.9` and needs broader field testing on large late-game republics. Back up your saves first and report any issues on GitHub!
+
+[h1]Wait - What is a DLL Mod? (Step-by-Step Setup)[/h1]Ordinary Steam Workshop mods only add buildings or vehicles. Because [b]CODispatchControl[/b] adds an in-game [b]F9[/b] overlay and hooks into game logic, it needs a [b]Mod Loader[/b] alongside the game. Simply clicking Play in Steam will [b]not[/b] load DLL mods on its own.
+
+Both [b]TesmioLoader (v0.4.5+)[/b] and [b]Republic Mod Loader (v1.0.1)[/b] automatically find subscribed Steam Workshop DLL mods - [b]no manual file copying required[/b]:
+
+[b]Option A - TesmioLoader (Recommended - Mature & Updated for WRSR 1.2.0.9):[/b]
+[list=1]
+[*] Subscribe to this mod ([b]CODispatchControl[/b]) - Workshop ID [i]{PUBLISHED_FILE_ID}[/i].
+[*] Download & extract [url=https://github.com/MaxLegend/TesmioLoader/releases]TesmioLoader (v0.4.5+)[/url] into your WRSR game directory ([url=https://maxlegend.github.io/TesmioLoaderDocs/#/getting-started]Docs[/url]).
+[*] Run [b]tesmiolauncher.exe[/b]. Since v0.4, TesmioLoader automatically scans your Steam Workshop folder and lists subscribed DLL plugins (if your Workshop is in a separate Steam library, set it in the launcher / [i]workshop_path[/i]).
+[*] Tick [b]CODispatchControl[/b], launch WRSR, and press [b]F9[/b] in-game!
+[/list]
+[b]Option B - Republic Mod Loader (RML - All-on-Steam Alternative):[/b]
+[list=1]
+[*] Subscribe to this mod ([b]CODispatchControl[/b]) - Workshop ID [i]{PUBLISHED_FILE_ID}[/i].
+[*] Also subscribe to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3787969749]Republic Mod Loader (RML)[/url] ([url=https://github.com/Ultimate-Universe/WRSR-RepublicModLoader]GitHub[/url]).
+[*] Open RML from Steam Workshop:
+[code]<Your Steam Library>\steamapps\workshop\content\784150\3787969749\RepublicModLoader.exe[/code]
+(Tip: create a Desktop shortcut or add it to Steam as a Non-Steam Game.)
+[*] Tick [b]CODispatchControl[/b] in RML and click [b]Launch WRSR[/b], then press [b]F9[/b] in-game!
+[/list]
+(Manual/Non-Steam only: this Workshop item's DLL lives at [code]<Your Steam Library>\steamapps\workshop\content\784150\{PUBLISHED_FILE_ID}\plugins\CODispatchControl.dll[/code] -> copy into [code]<Game Dir>\plugins\[/code] if you aren't using Steam Workshop scanning.)
+
+[h1]Operating CO Dispatch Control (In-Game)[/h1][list]
+[*] Press [b]F9[/b] anytime in-game to open [b]WRSR Tweaks [F9][/b] -> [b]CO Dispatch[/b] tab (or [b]Esc[/b] to close).
+[*] [b]Min Material Truck Fill %[/b] (0% - 100%, default 50%): Rejects oversized material trucks when [i]remaining_phase_material / vehicle_capacity[/i] is below threshold and a smaller capable truck exists in the CO. Final top-offs below [i]1.5t[/i] are automatically exempted.
+[*] [b]Min Bus Workday Ratio[/b] (0.0 - 2.0, default 0.5): Prevents dispatching large buses when [i]remaining_workdays < bus_capacity * ratio[/i] if a smaller bus or microbus exists in the CO.
+[*] [b]Max Trucks En Route per Site[/b] (1 - 10, default 2): Caps simultaneous material trucks heading to the same construction site to prevent road-node traffic jams.
+[*] [b]Quick Presets:[/b] [i]Vanilla[/i], [i]Balanced[/i], and [i]Strict[/i] buttons apply recommended settings immediately.
+[*] [b]Save Config (Ctrl+S):[/b] Writes settings to [i]CODispatchControl.ini[/i] beside the plugin DLL.
+[/list]
+
+[h1]Recommended Settings by Play-Style[/h1][list]
+[*] [b]Balanced (default):[/b] Fill 50%, Bus Ratio 0.50, Max Trucks 2. Big trucks handle bulk deliveries; small trucks and microbuses take finish-up shifts.
+[*] [b]Strict (anti-congestion):[/b] Fill 75%, Bus Ratio 1.00, Max Trucks 1. Tightly eliminates road-node queues around busy construction zones.
+[*] [b]Vanilla:[/b] Click the [i]Vanilla[/i] preset (0% / 0.00 / 10) to restore unmodded CO dispatch.
+[/list]
+
+[h1]Five-Year Plan Guarantees (Save-Safe & Lightweight)[/h1][list]
+[*] [b]Mechanism & Flatbed Safe:[/b] Excavators, bulldozers, cranes, and flatbed carrier dispatches are [b]never[/b] blocked.
+[*] [b]No Deadlocks:[/b] Fill-threshold and bus-ratio checks automatically exempt a vehicle if the CO has no smaller capable vehicle, or if remaining material is under [i]1.5t[/i].
+[*] [b]100% Save-Safe:[/b] Settings live cleanly in [i]CODispatchControl.ini[/i] next to the DLL (binary WRSR saves are never modified).
+[/list]
+
+[h1]Companion Mods (Logistics Suite)[/h1][list]
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3845998630][b]SmartDOBatching[/b][/url] - Prevent Distribution Offices from dispatching near-empty trucks or trains via the same [b]F9[/b] overlay.
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3845944617][b]CustomsSpeedControl[/b][/url] - Scale Customs House cargo Load & Unload speeds live via [b]F9[/b].
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3845533384][b]TradePriceLimits[/b][/url] - Set min-sell / max-buy price limits on Distribution Office border transfers ([b]F8[/b]).
+[/list]{CHANGELOG_SECTION}"
+    "language"        "english"
+    "changenote"      "{CHANGENOTE}"
+}

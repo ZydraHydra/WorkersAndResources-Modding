@@ -253,10 +253,17 @@ foreach ($track in $targetTracks) {
         $resolvedId = "0"
     }
 
-    # 4. Copy or generate previewimage.png (< 1 MB required by Steam)
+    # 4. Generate/copy previewimage.png (< 1 MB required by Steam)
     $PreviewStage   = Join-Path $StageDir "previewimage.png"
     $PreviewContent = Join-Path $ContentDir "previewimage.png"
     $PreviewSrc     = Join-Path $ModDir "steamcmd\previewimage.png"
+    $PreviewSpec    = Join-Path $ModDir "steamcmd\preview.json"
+    if (Test-Path $PreviewSpec) {
+        $regen = (-not (Test-Path $PreviewSrc)) -or ((Get-Item $PreviewSpec).LastWriteTimeUtc -gt (Get-Item $PreviewSrc).LastWriteTimeUtc)
+        if ($regen) {
+            & (Join-Path $PSScriptRoot "generate_preview.ps1") -Mod $Mod
+        }
+    }
     if (Test-Path $PreviewSrc) {
         Copy-Item $PreviewSrc $PreviewStage -Force
     } else {

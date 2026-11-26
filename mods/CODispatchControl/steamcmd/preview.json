@@ -1,0 +1,27 @@
+{
+  "gameVersionBadge": "WRSR 1.2.0.9",
+  "hotkeyBadge": "PRESS F9 IN-GAME",
+  "title": "CO DISPATCH CONTROL",
+  "subtitle": "Match CO trucks & buses to site demand via the F9 overlay",
+  "pills": [
+    "RML + TESMIOLOADER",
+    "TRUCK & BUS SIZING",
+    "PER-SITE TRUCK CAP"
+  ],
+  "windowTitle": "WRSR Tweaks [F9]",
+  "tabs": [
+    { "label": "DO Batching", "active": false },
+    { "label": "CO Dispatch", "active": true }
+  ],
+  "hookStatus": "Hook: ACTIVE @ SOVIET64.exe+0x169440 (profile: 1.2.0.9)",
+  "windowDesc": "Match Construction Office vehicles to remaining site demand.",
+  "sliders": [
+    { "label": "Min Material Truck Fill %", "valueText": "50%", "fraction": 0.50 },
+    { "label": "Min Bus Workday Ratio", "valueText": "0.50", "fraction": 0.25 },
+    { "label": "Max Trucks En Route per Site", "valueText": "2", "fraction": 0.12 }
+  ],
+  "presets": ["Vanilla", "Balanced", "Strict"],
+  "footerCounter": "Mechanisms & flatbeds never blocked | Top-off < 1.5t exempt",
+  "tagline": "Smaller trucks & buses take finish-up shifts — no wasted hauls",
+  "footer": "Per-site traffic cap | Save-safe | Saved to CODispatchControl.ini"
+}
