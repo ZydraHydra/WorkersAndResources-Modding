@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "zydrahydra.smart_bay_access",
+  "name": "SmartBayAccess",
+  "version": "1.0.0",
+  "author": "ZydraHydra",
+  "description": "Eliminate single-vehicle courtyard bottlenecks at multi-bay road buildings (cargo stations, depots, Customs Houses, bus platforms) via the F9 overlay.",
+  "dll": "SmartBayAccess.dll",
+  "loaderApi": {
+    "min": 1,
+    "max": 1
+  },
+  "supportedGameVersions": [],
+  "requiredSymbols": [],
+  "optionalSymbols": [],
+  "dependencies": [],
+  "conflicts": [],
+  "loadBefore": [],
+  "loadAfter": [],
+  "defaultPriority": 1000,
+  "enabledByDefault": true
+}
