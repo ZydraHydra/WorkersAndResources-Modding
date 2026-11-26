@@ -2,6 +2,7 @@
 
 Native x64 C++ plugin for **Workers & Resources: Soviet Republic** (`SOVIET64.exe`) that eliminates single-vehicle courtyard bottlenecks at multi-bay road buildings (cargo stations, depots, Customs Houses, bus platforms) via the unified `F9` overlay.
 
+- **Steam Workshop:** [SmartBayAccess (ID `3846054095`)](https://steamcommunity.com/sharedfiles/filedetails/?id=3846054095)
 - **GitHub Releases:** [WorkersAndResources-Modding Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases)
 
 ## Features
