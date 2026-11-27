@@ -14,6 +14,7 @@
 #include <string>
 
 #include "embedded_offsets.hpp"
+#include "wrsr/game_signatures.hpp"
 #include "wrsr/logger.hpp"
 #include "wrsr/offsets.hpp"
 #include "wrsr/pe_utils.hpp"
@@ -196,25 +197,36 @@ bool install(uint8_t* exeBase, size_t exeSize)
     uint8_t* scanBase = textSec.base ? textSec.base : exeBase;
     size_t   scanSize = textSec.base ? textSec.size : exeSize;
 
-    uint8_t* speedSite     = scanUniqueAob(scanBase, scanSize, speedAob.c_str(), "game_speed_ref_aob");
-    uint8_t* preSimCallSite = scanUniqueAob(scanBase, scanSize, preSimAob.c_str(), "pre_sim_call_aob");
+    uintptr_t namedSpeed = 0, namedPaused = 0, namedSimStep = 0;
+    if (wrsr::game::resolveNamedOffset("game_speed_state", namedSpeed) &&
+        wrsr::game::resolveNamedOffset("c3d_timer_paused", namedPaused) &&
+        wrsr::game::resolveNamedOffset("sim_step", namedSimStep) &&
+        namedSpeed && namedPaused && namedSimStep) {
+        g_gameSpeedPtr = reinterpret_cast<const int32_t*>(namedSpeed);
+        g_c3dTimerBase = reinterpret_cast<uint8_t*>(namedPaused) - timerStructOff;
+        g_preSimAddr   = reinterpret_cast<uint8_t*>(namedSimStep);
+    } else {
+        uint8_t* speedSite     = scanUniqueAob(scanBase, scanSize, speedAob.c_str(), "game_speed_ref_aob");
+        uint8_t* preSimCallSite = scanUniqueAob(scanBase, scanSize, preSimAob.c_str(), "pre_sim_call_aob");
 
-    if (!speedSite || !preSimCallSite) {
-        std::snprintf(g_statusText, sizeof(g_statusText),
-                      "Hook: Inactive — AOB signature mismatch (WRSR update?)");
-        g_state.store(HookState::FailedSignature, std::memory_order_relaxed);
-        wrsr::log::error("sim_speed_hook: AOB scan failed (speedSite=%p preSimCallSite=%p)",
-                         speedSite, preSimCallSite);
-        return false;
+        if (!speedSite || !preSimCallSite) {
+            std::snprintf(g_statusText, sizeof(g_statusText),
+                          "Hook: Inactive — AOB signature mismatch (WRSR update?)");
+            g_state.store(HookState::FailedSignature, std::memory_order_relaxed);
+            wrsr::log::error("sim_speed_hook: AOB scan failed (speedSite=%p preSimCallSite=%p)",
+                             speedSite, preSimCallSite);
+            return false;
+        }
+
+        g_gameSpeedPtr = reinterpret_cast<const int32_t*>(
+            resolveRipTarget(speedSite, speedDispOff, speedNextIpOff));
+        uint8_t* timerPausedPtr = resolveRipTarget(speedSite, timerDispOff, timerNextIpOff);
+        g_c3dTimerBase = timerPausedPtr - timerStructOff;
+
+        uint8_t* preSimTarget = resolveRipTarget(preSimCallSite, preSimDispOff, preSimNextIpOff);
+        g_preSimAddr = preSimTarget;
     }
-
-    g_gameSpeedPtr = reinterpret_cast<const int32_t*>(
-        resolveRipTarget(speedSite, speedDispOff, speedNextIpOff));
-    uint8_t* timerPausedPtr = resolveRipTarget(speedSite, timerDispOff, timerNextIpOff);
-    g_c3dTimerBase = timerPausedPtr - timerStructOff;
-
-    uint8_t* preSimTarget = resolveRipTarget(preSimCallSite, preSimDispOff, preSimNextIpOff);
-    g_preSimAddr = preSimTarget;
+    uint8_t* preSimTarget = static_cast<uint8_t*>(g_preSimAddr);
 
     wrsr::log::info(
         "Resolved PreSimUpdate=0x%p (RVA +0x%zX), GameSpeed=0x%p (RVA +0x%zX), C3D_TIMER=0x%p (RVA +0x%zX)",

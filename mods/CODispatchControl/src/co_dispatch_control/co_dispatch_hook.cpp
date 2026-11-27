@@ -363,9 +363,13 @@ bool install(uint8_t* exeBase, size_t exeSize)
         return false;
     }
 
-    uint8_t* dispatchAddr = ctx->scanSignature("dispatch_co_task_aob");
-    uint8_t* getCapAddr   = ctx->resolveRipTarget(
-        "get_veh_cap_aob", "get_veh_cap_disp_off", "get_veh_cap_next_ip_off");
+    uintptr_t namedDispatch = 0, namedGetCap = 0;
+    uint8_t* dispatchAddr = (wrsr::game::resolveNamedOffset("dispatch_co_task", namedDispatch) && namedDispatch)
+        ? reinterpret_cast<uint8_t*>(namedDispatch)
+        : ctx->scanSignature("dispatch_co_task_aob");
+    uint8_t* getCapAddr = (wrsr::game::resolveNamedOffset("get_veh_cap", namedGetCap) && namedGetCap)
+        ? reinterpret_cast<uint8_t*>(namedGetCap)
+        : ctx->resolveRipTarget("get_veh_cap_aob", "get_veh_cap_disp_off", "get_veh_cap_next_ip_off");
 
     if (!dispatchAddr || !getCapAddr) {
         g_state.store(HookState::AobNotMatched, std::memory_order_relaxed);

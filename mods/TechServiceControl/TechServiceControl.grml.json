@@ -1,0 +1,44 @@
+{
+    "schemaVersion":  1,
+    "id":  "zydrahydra.tech_service_control",
+    "name":  "TechServiceControl",
+    "version":  "1.0.0",
+    "author":  "ZydraHydra",
+    "description":  "Customize Technical Services dispatch thresholds for snowplows, garbage pickup, sewage pickup, and water delivery via the F9 overlay.",
+    "dll":  "TechServiceControl.dll",
+    "loaderApi":  {
+                      "min":  1,
+                      "max":  1
+                  },
+    "supportedGameVersions":  [
+
+                              ],
+    "requiredSymbols":  [
+
+                        ],
+    "optionalSymbols":  [
+
+                        ],
+    "dependencies":  [
+
+                     ],
+    "conflicts":  [
+
+                  ],
+    "loadBefore":  [
+
+                   ],
+    "loadAfter":  [
+
+                  ],
+    "defaultPriority":  1000,
+    "enabledByDefault":  true,
+    "required_offsets":  [
+                             "road_node_has_snow"
+                         ],
+    "optional_offsets":  [
+                             "find_water_target",
+                             "find_sewage_target",
+                             "waste_threshold_block"
+                         ]
+}

@@ -1,0 +1,43 @@
+{
+    "schemaVersion":  1,
+    "id":  "zydrahydra.co_dispatch_control",
+    "name":  "CODispatchControl",
+    "version":  "1.0.0",
+    "author":  "ZydraHydra",
+    "description":  "Optimizes Construction Office vehicle dispatch so COs match truck and bus sizes to actual construction demand and cap simultaneous material trucks per site. Live tuning via F9 overlay.",
+    "dll":  "CODispatchControl.dll",
+    "loaderApi":  {
+                      "min":  1,
+                      "max":  1
+                  },
+    "supportedGameVersions":  [
+
+                              ],
+    "requiredSymbols":  [
+
+                        ],
+    "optionalSymbols":  [
+
+                        ],
+    "dependencies":  [
+
+                     ],
+    "conflicts":  [
+
+                  ],
+    "loadBefore":  [
+
+                   ],
+    "loadAfter":  [
+
+                  ],
+    "defaultPriority":  1000,
+    "enabledByDefault":  true,
+    "required_offsets":  [
+                             "dispatch_co_task",
+                             "get_veh_cap"
+                         ],
+    "optional_offsets":  [
+
+                         ]
+}

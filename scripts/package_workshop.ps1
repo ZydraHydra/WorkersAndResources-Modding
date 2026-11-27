@@ -230,6 +230,21 @@ foreach ($track in $targetTracks) {
         $manifestJson = $manifestObj | ConvertTo-Json -Depth 10
         [System.IO.File]::WriteAllText((Join-Path $PluginDir "$Mod.rml.json"), $manifestJson + "`n", (New-Object System.Text.UTF8Encoding $false))
     }
+    $GrmlBuilt = Join-Path $BuildDir "$Mod.grml.json"
+    $GrmlSrc   = if (Test-Path $GrmlBuilt) { $GrmlBuilt } else { Join-Path $ModDir "$Mod.grml.json" }
+    if (Test-Path $GrmlSrc) {
+        $gObj = Get-Content $GrmlSrc -Raw -Encoding UTF8 | ConvertFrom-Json
+        $gObj.version = $ResolvedVer
+        if ($gObj.description) {
+            $descBase = ([string]$gObj.description) -replace '\s*\(v[0-9]+\.[0-9]+\.[0-9]+\)$', ''
+            $gObj.description = "$descBase (v$ResolvedVer)"
+        }
+        if ($null -ne $track.supportedGameVersions) {
+            $gObj.supportedGameVersions = @($track.supportedGameVersions)
+        }
+        $gJson = $gObj | ConvertTo-Json -Depth 10
+        [System.IO.File]::WriteAllText((Join-Path $PluginDir "$Mod.grml.json"), $gJson + "`n", (New-Object System.Text.UTF8Encoding $false))
+    }
 
     # 2b. Copy default global plugin INI beside the DLL (if present) so mod managers expose it
     $IniSrc = Join-Path $ModDir "$Mod.ini"

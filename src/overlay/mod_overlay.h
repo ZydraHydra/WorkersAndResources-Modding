@@ -1,22 +1,18 @@
 #pragma once
 // ============================================================================
-// mod_overlay.h — Self-contained F9 multi-mod ImGui overlay (Pure-C ABI)
+// mod_overlay.h — Dual-mode F9 multi-mod ImGui overlay (GRML + Standalone)
 // ============================================================================
-// Zero mod-specific dependencies. Any plugin DLL that compiles mod_overlay.cpp
-// shares a single DX11 Present/ResizeBuffers + WndProc hook in SOVIET64.exe via
-// a process-local Win32 named file mapping (Local\WRSR_ModOverlay_<PID>).
+// When loaded by Glorious Republic Mod Loader (GRML), GrmlPluginInit() docks
+// all tabs, WRSR_PROFILE_HOOK telemetry, and save-lifecycle callbacks directly
+// into GRML's unified F9 Mod Settings hub (zero duplicate DX11/CreateFileW hooks).
 //
-// Whichever mod initializes first owns the DX11/ImGui context and draws the
-// tabbed "WRSR Tweaks [F9]" window. Subsequent mods discover the hub and
-// register their own tabs + POD widget bindings across the C ABI boundary
-// without ever passing ImGuiContext* or C++ STL types across DLLs.
+// When loaded under legacy RML, TesmioLoader, or raw injection, falls back
+// transparently to the process-local Win32 mapping (Local\WRSR_ModOverlay_<PID>).
 // ============================================================================
 
 #include <stdint.h>
 
-#ifndef WRSR_PROFILE_HOOK
-#define WRSR_PROFILE_HOOK(name) ((void)0)
-#endif
+#include "grml_api.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -88,7 +84,7 @@ typedef struct ModCollapsibleLabelDesc {
     uint32_t    rgba_color;       /* 0 = default theme color, else 0xRRGGBBAA          */
 } ModCollapsibleLabelDesc;
 
-/* Connects to (or creates & becomes host for) the process-local overlay hub. */
+/* Connects to GRML (if active) or the process-local standalone overlay hub. */
 int32_t WRSR_OVERLAY_CALL ModOverlay_Initialize(void);
 
 /* Visibility helpers (returns 1 if visible, 0 if hidden). */
@@ -107,6 +103,47 @@ int32_t WRSR_OVERLAY_CALL AddCollapsibleLabel(int32_t tab_id, const ModCollapsib
 int32_t WRSR_OVERLAY_CALL SetTabFrameCallback(int32_t tab_id, ModOverlayButtonFn on_frame, void* user_data);
 int32_t WRSR_OVERLAY_CALL SetTabMainMenuAvailable(int32_t tab_id, uint8_t available);
 
+/* GRML host access & lock-free telemetry helpers */
+int32_t            WRSR_OVERLAY_CALL ModOverlay_IsHostedByGrml(void);
+const GrmlHostApi* WRSR_OVERLAY_CALL ModOverlay_GetGrmlHost(void);
+void               WRSR_OVERLAY_CALL ModOverlay_RecordHookTicks(const char* hook_name, int64_t qpc_ticks);
+void               WRSR_OVERLAY_CALL ModOverlay_FlushHookTelemetry(void);
+
 #ifdef __cplusplus
 }
+
+#ifndef WRSR_PROFILE_HOOK
+#include <windows.h>
+namespace wrsr::detail {
+struct GrmlHookProfileScope {
+    const char*   name;
+    LARGE_INTEGER start{};
+    explicit GrmlHookProfileScope(const char* hookName) noexcept : name(hookName)
+    {
+        if (ModOverlay_IsHostedByGrml()) {
+            QueryPerformanceCounter(&start);
+        } else {
+            start.QuadPart = 0;
+        }
+    }
+    ~GrmlHookProfileScope() noexcept
+    {
+        if (start.QuadPart != 0) {
+            LARGE_INTEGER end{};
+            QueryPerformanceCounter(&end);
+            ModOverlay_RecordHookTicks(name, end.QuadPart - start.QuadPart);
+        }
+    }
+    GrmlHookProfileScope(const GrmlHookProfileScope&)            = delete;
+    GrmlHookProfileScope& operator=(const GrmlHookProfileScope&) = delete;
+};
+} // namespace wrsr::detail
+#define WRSR_PROFILE_CONCAT_INNER(a, b) a##b
+#define WRSR_PROFILE_CONCAT(a, b) WRSR_PROFILE_CONCAT_INNER(a, b)
+#define WRSR_PROFILE_HOOK(name) ::wrsr::detail::GrmlHookProfileScope WRSR_PROFILE_CONCAT(_wrsrProf_, __LINE__)(name)
+#endif
+#else
+#ifndef WRSR_PROFILE_HOOK
+#define WRSR_PROFILE_HOOK(name) ((void)0)
+#endif
 #endif

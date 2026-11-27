@@ -17,6 +17,26 @@ cmake_policy(SET CMP0169 OLD)
 # Static CRT (/MT) across all targets so subscribers never need VCRedist DLLs
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
+# ── Canonical GRML Pure-C ABI Header (Submodule / Sibling / FetchContent) ─────
+set(_grml_submodule_inc "${CMAKE_CURRENT_SOURCE_DIR}/third_party/grml/include")
+set(_grml_sibling_inc   "${CMAKE_CURRENT_SOURCE_DIR}/../GloriousRepublicModLoader/include")
+if(EXISTS "${_grml_submodule_inc}/grml_api.h")
+    include_directories("${_grml_submodule_inc}")
+elseif(EXISTS "${_grml_sibling_inc}/grml_api.h")
+    include_directories("${_grml_sibling_inc}")
+else()
+    include(FetchContent)
+    FetchContent_Declare(
+        grml_sdk
+        GIT_REPOSITORY https://github.com/ZydraHydra/GloriousRepublicModLoader.git
+        GIT_TAG        main
+        GIT_SHALLOW    TRUE
+    )
+    FetchContent_Populate(grml_sdk)
+    FetchContent_GetProperties(grml_sdk SOURCE_DIR grml_sdk_SOURCE_DIR)
+    include_directories("${grml_sdk_SOURCE_DIR}/include")
+endif()
+
 # ── Mod toggles (add new mods here) ───────────────────────────────────────────
 option(WRSR_BUILD_TRADE_PRICE_LIMITS "Build TradePriceLimits plugin" ON)
 option(WRSR_BUILD_CUSTOMS_SPEED_CONTROL "Build CustomsSpeedControl plugin" ON)

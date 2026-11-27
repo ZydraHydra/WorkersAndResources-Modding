@@ -2,9 +2,11 @@
 // game_signatures.cpp — Shared WRSR PE profile resolution, AOB helpers & structs
 // ============================================================================
 #include "wrsr/game_signatures.hpp"
+#include "grml_api.h"
 
 #include <windows.h>
 
+#include <atomic>
 #include <cstring>
 #include <string>
 
@@ -110,6 +112,30 @@ void zeroDistTaskScoresSeh(uint8_t* task, const CommonLayout& L) noexcept
 }
 
 } // namespace
+
+namespace {
+std::atomic<const GrmlHostApi*> g_grmlHost{nullptr};
+} // namespace
+
+void setGrmlHost(const GrmlHostApi* host) noexcept
+{
+    g_grmlHost.store(host, std::memory_order_release);
+}
+
+const GrmlHostApi* getGrmlHost() noexcept
+{
+    return g_grmlHost.load(std::memory_order_acquire);
+}
+
+bool resolveNamedOffset(const char* sectionName, uintptr_t& outValue) noexcept
+{
+    outValue = 0;
+    const GrmlHostApi* host = g_grmlHost.load(std::memory_order_acquire);
+    if (!host || host->abi_version < 2u || host->struct_size < sizeof(GrmlHostApi) || !host->ResolveNamedOffset) {
+        return false;
+    }
+    return host->ResolveNamedOffset(sectionName, &outValue) != 0 && outValue != 0;
+}
 
 bool readSafeCString(const char* ptr, char* out, size_t maxLen) noexcept
 {
@@ -294,6 +320,19 @@ uint8_t* GameContext::resolveRipTarget(std::string_view sigKey,
 
 bool GameContext::resolveResourceVector() noexcept
 {
+    uintptr_t namedVec = 0;
+    if (resolveNamedOffset("resource_vector", namedVec) && namedVec != 0) {
+        uintptr_t namedStride = 0;
+        if (resolveNamedOffset("resource_stride", namedStride) &&
+            namedStride >= layout.resMinHeaderSize && namedStride <= 0x1000) {
+            layout.resStride = static_cast<uint32_t>(namedStride);
+        }
+        resourceVector = reinterpret_cast<ResourceVector*>(namedVec);
+        wrsr::log::info("resource_vector resolved via GRML ResolveNamedOffset -> ResourceVector=0x%p (stride=0x%X)",
+                        resourceVector, layout.resStride);
+        return true;
+    }
+
     const auto strideImmOff = offsets.getU32("signatures", "price_table_stride_imm_off");
     const bool autoStride   = offsets.getBool("signatures", "price_table_auto_detect_stride", true);
 
@@ -333,6 +372,14 @@ bool GameContext::resolveResourceVector() noexcept
 
 bool GameContext::resolveEvaluateDistTask() noexcept
 {
+    uintptr_t namedEval = 0;
+    if (resolveNamedOffset("evaluate_dist_task", namedEval) && namedEval != 0) {
+        evaluateDistTaskAddr = reinterpret_cast<uint8_t*>(namedEval);
+        wrsr::log::info("evaluate_dist_task resolved via GRML ResolveNamedOffset -> 0x%p",
+                        evaluateDistTaskAddr);
+        return true;
+    }
+
     const bool     autoTypeOff = offsets.getBool("signatures", "dispatch_auto_detect_type_off", true);
     const uint32_t scanWin     = offsets.getU32("signatures", "dispatch_auto_scan_window").value_or(0x280);
 

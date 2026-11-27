@@ -202,4 +202,43 @@ bool install()
     return MH_EnableHook(target) == MH_OK;
 }
 
+void handleSaveLoad(const wchar_t* saveDir)
+{
+    if (!saveDir || !*saveDir) return;
+    std::wstring dir(saveDir);
+    bool dirChanged = false;
+    {
+        std::lock_guard lock(g_mutex);
+        if (dir != g_lastSaveDir) {
+            g_lastSaveDir = dir;
+            dirChanged    = true;
+        }
+    }
+    if (dirChanged) {
+        auto& engine = tpl::RuleEngine::get();
+        engine.setActiveSaveDir(dir);
+        engine.loadFromSave(dir);
+        tpl::game::resetBlockedStats();
+        tpl::game::syncLivePricesToRules();
+        tpl::overlay::setActiveSavePath(dir.c_str());
+        wrsr::log::info("save_tracker (GRML): loaded sidecar INI for active save dir");
+    }
+}
+
+void handleSaveWrite(const wchar_t* saveDir)
+{
+    if (!saveDir || !*saveDir) return;
+    std::wstring dir(saveDir);
+    {
+        std::lock_guard lock(g_mutex);
+        g_lastSaveDir = dir;
+    }
+    auto& engine = tpl::RuleEngine::get();
+    engine.setActiveSaveDir(dir);
+    engine.saveToSave(dir);
+    tpl::game::resetBlockedStats();
+    tpl::overlay::setActiveSavePath(dir.c_str());
+    wrsr::log::info("save_tracker (GRML): saved sidecar INI in active save dir");
+}
+
 } // namespace tpl::save_tracker

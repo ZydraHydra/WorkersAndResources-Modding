@@ -378,9 +378,17 @@ bool install(uint8_t* exeBase, size_t exeSize)
         return false;
     }
 
+    auto resolveOrScan = [&](const char* grmlKey, const char* legacySig) -> uint8_t* {
+        uintptr_t val = 0;
+        if (wrsr::game::resolveNamedOffset(grmlKey, val) && val != 0) {
+            return reinterpret_cast<uint8_t*>(val);
+        }
+        return g_gameCtx.scanSignature(legacySig);
+    };
+
     // ── 1. Snowplow Dispatch (RoadNode_HasSnow) ───────────────────────────
     if (!isPendingSig(g_gameCtx.offsets, "road_node_has_snow_aob")) {
-        uint8_t* snowAddr = g_gameCtx.scanSignature("road_node_has_snow_aob");
+        uint8_t* snowAddr = resolveOrScan("road_node_has_snow", "road_node_has_snow_aob");
         if (snowAddr) {
             if (MH_CreateHook(snowAddr,
                               reinterpret_cast<void*>(&hkRoadNodeHasSnow),
@@ -397,7 +405,7 @@ bool install(uint8_t* exeBase, size_t exeSize)
 
     // ── 2. Water Delivery (FindWaterTarget) ───────────────────────────────
     if (!isPendingSig(g_gameCtx.offsets, "find_water_target_aob")) {
-        uint8_t* waterAddr = g_gameCtx.scanSignature("find_water_target_aob");
+        uint8_t* waterAddr = resolveOrScan("find_water_target", "find_water_target_aob");
         if (waterAddr) {
             const uint32_t ratioDispOff = g_gameCtx.offsets.getU32("signatures", "water_ratio_disp_off").value_or(170);
             const uint32_t ratioNextOff = g_gameCtx.offsets.getU32("signatures", "water_ratio_next_ip_off").value_or(174);
@@ -423,7 +431,7 @@ bool install(uint8_t* exeBase, size_t exeSize)
 
     // ── 3. Sewage Pickup (FindSewageTarget) ───────────────────────────────
     if (!isPendingSig(g_gameCtx.offsets, "find_sewage_target_aob")) {
-        uint8_t* sewageAddr = g_gameCtx.scanSignature("find_sewage_target_aob");
+        uint8_t* sewageAddr = resolveOrScan("find_sewage_target", "find_sewage_target_aob");
         if (sewageAddr) {
             const uint32_t ratioDispOff = g_gameCtx.offsets.getU32("signatures", "sewage_ratio_disp_off").value_or(168);
             const uint32_t ratioNextOff = g_gameCtx.offsets.getU32("signatures", "sewage_ratio_next_ip_off").value_or(172);
@@ -449,7 +457,7 @@ bool install(uint8_t* exeBase, size_t exeSize)
 
     // ── 4. Garbage / Waste Pickup (FindWasteTarget threshold load block) ──
     if (!isPendingSig(g_gameCtx.offsets, "waste_threshold_block_aob")) {
-        uint8_t* wasteAddr = g_gameCtx.scanSignature("waste_threshold_block_aob");
+        uint8_t* wasteAddr = resolveOrScan("waste_threshold_block", "waste_threshold_block_aob");
         if (wasteAddr) {
             g_wasteThresholds = allocNearModuleFloats(wasteAddr);
             if (g_wasteThresholds) {

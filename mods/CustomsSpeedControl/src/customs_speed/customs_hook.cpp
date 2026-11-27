@@ -508,7 +508,13 @@ bool install(uint8_t* exeBase, size_t exeSize)
         return false;
     }
 
-    uint8_t* target = scanUniqueAob(g_gameCtx.scanBase, g_gameCtx.scanSize, aobPattern.c_str());
+    uint8_t* target = nullptr;
+    uintptr_t namedTarget = 0;
+    if (wrsr::game::resolveNamedOffset("border_customs_tick", namedTarget) && namedTarget != 0) {
+        target = reinterpret_cast<uint8_t*>(namedTarget);
+    } else {
+        target = scanUniqueAob(g_gameCtx.scanBase, g_gameCtx.scanSize, aobPattern.c_str());
+    }
     if (!target) {
         g_state.store(HookState::AobNotMatched, std::memory_order_relaxed);
         std::snprintf(g_statusText, sizeof(g_statusText),

@@ -14,6 +14,8 @@
 #include <atomic>
 #include <string>
 
+#include "grml_api.h"
+#include "wrsr/game_signatures.hpp"
 #include "wrsr/loader_abi.hpp"
 #include "wrsr/logger.hpp"
 #include "wrsr/pe_utils.hpp"
@@ -33,9 +35,36 @@
 
 namespace {
 
-std::atomic<bool>          g_workerStarted{false};
+std::atomic<bool>            g_workerStarted{false};
+std::atomic<const GrmlHostApi*> g_grmlHost{nullptr};
 const wrsr::abi::RmlHostApi* g_rmlHost = nullptr;
 const wrsr::abi::TsmHost*    g_tsmHost = nullptr;
+
+void GRML_CALL onGrmlSaveLoad(const wchar_t* saveDir, void*)
+{
+    tpl::save_tracker::handleSaveLoad(saveDir);
+}
+
+void GRML_CALL onGrmlSaveWrite(const wchar_t* saveDir, void*)
+{
+    tpl::save_tracker::handleSaveWrite(saveDir);
+}
+
+void GRML_CALL renderGrmlSummaryTab(const GrmlUiApi* ui, void*)
+{
+    if (!ui) return;
+    auto& engine = tpl::RuleEngine::get();
+    ui->TextColored(0xE6C873FFu, "TradePriceLimits v%s", WRSR_MOD_VERSION);
+    ui->TextWrapped("Full per-resource price table opens with the F8 hotkey (configurable in TradePriceLimits.ini).");
+    ui->Separator();
+    uint8_t enforce = engine.isEnforcementEnabled() ? 1u : 0u;
+    if (ui->Checkbox("Enforce Trade Price Limits", &enforce)) {
+        engine.setEnforcementEnabled(enforce != 0);
+    }
+    ui->Text("Toggle Key: %s", engine.toggleKeyName().c_str());
+    ui->Text("Blocked Dispatches: %llu",
+             static_cast<unsigned long long>(tpl::game::getBlockedCount()));
+}
 
 std::wstring getSelfModuleDir()
 {
@@ -82,7 +111,9 @@ DWORD WINAPI workerThread(LPVOID)
         wrsr::log::warn("game_hooks::install: signatures not matched — overlay running in mock/standalone mode");
     }
 
-    if (!tpl::save_tracker::install()) {
+    if (g_grmlHost.load(std::memory_order_acquire) != nullptr) {
+        wrsr::log::info("Using GRML centralized save-lifecycle events (skipping duplicate CreateFileW hook)");
+    } else if (!tpl::save_tracker::install()) {
         wrsr::log::error("save_tracker::install failed");
     } else {
         wrsr::log::info("save_tracker::install succeeded (CreateFileW IAT hooked)");
@@ -199,4 +230,30 @@ WRSR_ABI_EXPORT int TsmPluginStart(void)
         g_tsmHost->log("TradePriceLimits  TsmPluginStart");
     }
     return 0;
+}
+
+// ============================================================================
+// Glorious Republic Mod Loader (GRML) — Pure-C ABI v1 Entrypoint
+// ============================================================================
+GRML_EXPORT void GRML_CALL GrmlPluginInit(const GrmlHostApi* host)
+{
+    if (!host || host->abi_version < 1 || host->struct_size < sizeof(GrmlHostApi)) {
+        return;
+    }
+    g_grmlHost.store(host, std::memory_order_release);
+    wrsr::game::setGrmlHost(host);
+    if (host->RegisterSaveEvents) {
+        host->RegisterSaveEvents(&onGrmlSaveLoad, nullptr, nullptr);
+    }
+    if (host->RegisterSaveWriteEvent) {
+        host->RegisterSaveWriteEvent(&onGrmlSaveWrite, nullptr);
+    }
+    if (host->ui && host->ui->RegisterTab) {
+        const int32_t tabId = host->ui->RegisterTab(
+            "zydrahydra.trade_price_limits", "Trade Limits", &renderGrmlSummaryTab, nullptr);
+        if (tabId >= 0 && host->ui->SetTabMainMenuAvailable) {
+            host->ui->SetTabMainMenuAvailable(tabId, 1);
+        }
+    }
+    ensureWorkerStarted();
 }

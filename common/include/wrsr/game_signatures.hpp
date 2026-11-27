@@ -12,7 +12,13 @@
 #include "wrsr/offsets.hpp"
 #include "wrsr/pe_utils.hpp"
 
+struct GrmlHostApi;
+
 namespace wrsr::game {
+
+void setGrmlHost(const GrmlHostApi* host) noexcept;
+const GrmlHostApi* getGrmlHost() noexcept;
+bool resolveNamedOffset(const char* sectionName, uintptr_t& outValue) noexcept;
 
 inline constexpr size_t kMaxResources = 256;
 

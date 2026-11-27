@@ -2,6 +2,7 @@
 // mod_overlay.cpp — Self-contained F9 multi-mod DX11 + ImGui overlay hub
 // ============================================================================
 #include "mod_overlay.h"
+#include "wrsr/game_signatures.hpp"
 
 #ifndef DIRECTINPUT_VERSION
 #define DIRECTINPUT_VERSION 0x0800
@@ -97,6 +98,104 @@ struct StoredTab {
 
 std::mutex             g_tabsMutex;
 std::vector<StoredTab> g_tabs;
+
+// ── GRML Host Adapter State (when loaded by GloriousRepublicModLoader) ───────
+std::atomic<const GrmlHostApi*> g_grmlHost{nullptr};
+std::string                     g_grmlPrimaryPluginId{"wrsr.mod"};
+
+struct ProfileBucket {
+    std::atomic<const char*> hookName{nullptr};
+    std::atomic<uint64_t>    calls{0};
+    std::atomic<int64_t>     qpcTicks{0};
+};
+constexpr size_t kMaxProfileBuckets = 32;
+ProfileBucket    g_profileBuckets[kMaxProfileBuckets];
+double           g_qpcFreqMs = 0.0;
+
+void initQpcFreq() noexcept
+{
+    if (g_qpcFreqMs == 0.0) {
+        LARGE_INTEGER freq{};
+        if (QueryPerformanceFrequency(&freq) && freq.QuadPart > 0) {
+            g_qpcFreqMs = 1000.0 / static_cast<double>(freq.QuadPart);
+        }
+    }
+}
+
+void drawWidgetToGrmlUi(const GrmlUiApi* ui, const StoredWidget& w)
+{
+    switch (w.kind) {
+    case WidgetKind::FloatSlider:
+        if (w.floatPtr) {
+            const char* fmt = w.format.empty() ? "%.2f" : w.format.c_str();
+            if (ui->SliderFloat(w.label.c_str(), w.floatPtr, w.minVal, w.maxVal, fmt)) {
+                if (w.onChange) w.onChange(w.userData);
+            }
+            if (!w.tooltip.empty() && ui->SetItemTooltip) {
+                ui->SetItemTooltip("%s", w.tooltip.c_str());
+            }
+        }
+        break;
+    case WidgetKind::Checkbox:
+        if (w.boolPtr) {
+            if (ui->Checkbox(w.label.c_str(), w.boolPtr)) {
+                if (w.onChange) w.onChange(w.userData);
+            }
+            if (!w.tooltip.empty() && ui->SetItemTooltip) {
+                ui->SetItemTooltip("%s", w.tooltip.c_str());
+            }
+        }
+        break;
+    case WidgetKind::Button:
+        if (w.sameLine) ui->SameLine();
+        if (ui->Button(w.label.c_str())) {
+            if (w.onClick) w.onClick(w.userData);
+        }
+        if (!w.tooltip.empty() && ui->SetItemTooltip) {
+            ui->SetItemTooltip("%s", w.tooltip.c_str());
+        }
+        break;
+    case WidgetKind::Label:
+        if (w.separatorBefore) ui->Separator();
+        {
+            const char* txt = w.persistentText ? w.persistentText : "";
+            if (w.rgbaColor != 0) ui->TextColored(w.rgbaColor, "%s", txt);
+            else if (ui->TextWrapped) ui->TextWrapped("%s", txt);
+            else ui->Text("%s", txt);
+        }
+        break;
+    case WidgetKind::CollapsibleLabel:
+        if (w.separatorBefore) ui->Separator();
+        if (ui->CollapsingHeader && ui->CollapsingHeader(w.label.c_str(), w.defaultOpen)) {
+            const char* txt = w.persistentText ? w.persistentText : "";
+            if (w.rgbaColor != 0) ui->TextColored(w.rgbaColor, "%s", txt);
+            else if (ui->TextWrapped) ui->TextWrapped("%s", txt);
+            else ui->Text("%s", txt);
+        }
+        break;
+    }
+}
+
+void GRML_CALL grmlRenderTabTrampoline(const GrmlUiApi* ui, void* userData)
+{
+    if (!ui) return;
+    ModOverlay_FlushHookTelemetry();
+
+    const size_t tabIdx = reinterpret_cast<uintptr_t>(userData);
+    StoredTab    snapshot;
+    {
+        std::lock_guard lock(g_tabsMutex);
+        if (tabIdx >= g_tabs.size()) return;
+        snapshot = g_tabs[tabIdx];
+    }
+
+    if (snapshot.onFrame) {
+        snapshot.onFrame(snapshot.frameUserData);
+    }
+    for (size_t i = 0; i < snapshot.widgets.size(); ++i) {
+        drawWidgetToGrmlUi(ui, snapshot.widgets[i]);
+    }
+}
 
 // ── Host-side DX11 / WndProc / Input guard state ─────────────────────────────
 std::atomic<bool>    g_dxInitialized{false};
@@ -1142,15 +1241,84 @@ bool ensureHubConnected()
 
 } // namespace
 
+GRML_EXPORT void GRML_CALL GrmlPluginInit(const GrmlHostApi* host)
+{
+    if (!host || host->abi_version < 1 || host->struct_size < sizeof(GrmlHostApi) || !host->ui) {
+        return;
+    }
+    initQpcFreq();
+    g_grmlHost.store(host, std::memory_order_release);
+    wrsr::game::setGrmlHost(host);
+    if (host->Log) {
+        host->Log(GRML_LOG_INFO, "OverlayAdapter", "GrmlPluginInit attached — docking F9 UI & telemetry into GRML");
+    }
+}
+
 extern "C" {
+
+int32_t WRSR_OVERLAY_CALL ModOverlay_IsHostedByGrml(void)
+{
+    return g_grmlHost.load(std::memory_order_acquire) != nullptr ? 1 : 0;
+}
+
+const GrmlHostApi* WRSR_OVERLAY_CALL ModOverlay_GetGrmlHost(void)
+{
+    return g_grmlHost.load(std::memory_order_acquire);
+}
+
+void WRSR_OVERLAY_CALL ModOverlay_RecordHookTicks(const char* hook_name, int64_t qpc_ticks)
+{
+    if (!hook_name || qpc_ticks < 0) return;
+    for (size_t i = 0; i < kMaxProfileBuckets; ++i) {
+        const char* cur = g_profileBuckets[i].hookName.load(std::memory_order_acquire);
+        if (cur == hook_name) {
+            g_profileBuckets[i].calls.fetch_add(1, std::memory_order_relaxed);
+            g_profileBuckets[i].qpcTicks.fetch_add(qpc_ticks, std::memory_order_relaxed);
+            return;
+        }
+        if (cur == nullptr) {
+            const char* expected = nullptr;
+            if (g_profileBuckets[i].hookName.compare_exchange_strong(expected, hook_name, std::memory_order_acq_rel) ||
+                expected == hook_name) {
+                g_profileBuckets[i].calls.fetch_add(1, std::memory_order_relaxed);
+                g_profileBuckets[i].qpcTicks.fetch_add(qpc_ticks, std::memory_order_relaxed);
+                return;
+            }
+        }
+    }
+}
+
+void WRSR_OVERLAY_CALL ModOverlay_FlushHookTelemetry(void)
+{
+    const GrmlHostApi* host = g_grmlHost.load(std::memory_order_acquire);
+    if (!host || !host->ui || !host->ui->ReportHookTiming) return;
+    initQpcFreq();
+
+    for (size_t i = 0; i < kMaxProfileBuckets; ++i) {
+        const char* hook = g_profileBuckets[i].hookName.load(std::memory_order_acquire);
+        if (!hook) break;
+        const uint64_t calls = g_profileBuckets[i].calls.exchange(0, std::memory_order_relaxed);
+        const int64_t  ticks = g_profileBuckets[i].qpcTicks.exchange(0, std::memory_order_relaxed);
+        if (calls > 0) {
+            const double ms = static_cast<double>(ticks) * g_qpcFreqMs;
+            host->ui->ReportHookTiming(g_grmlPrimaryPluginId.c_str(), hook, calls, ms);
+        }
+    }
+}
 
 int32_t WRSR_OVERLAY_CALL ModOverlay_Initialize(void)
 {
+    if (g_grmlHost.load(std::memory_order_acquire) != nullptr) {
+        return 1;
+    }
     return ensureHubConnected() ? 1 : 0;
 }
 
 int32_t WRSR_OVERLAY_CALL ModOverlay_IsVisible(void)
 {
+    if (g_grmlHost.load(std::memory_order_acquire) != nullptr) {
+        return 1;
+    }
     if (!ensureHubConnected() || !g_hub || !g_hub->isVisible) {
         return 0;
     }
@@ -1159,6 +1327,9 @@ int32_t WRSR_OVERLAY_CALL ModOverlay_IsVisible(void)
 
 void WRSR_OVERLAY_CALL ModOverlay_SetVisible(int32_t visible)
 {
+    if (g_grmlHost.load(std::memory_order_acquire) != nullptr) {
+        return;
+    }
     if (!ensureHubConnected() || !g_hub || !g_hub->setVisible) {
         return;
     }
@@ -1167,6 +1338,17 @@ void WRSR_OVERLAY_CALL ModOverlay_SetVisible(int32_t visible)
 
 int32_t WRSR_OVERLAY_CALL RegisterModTab(const ModTabDesc* desc)
 {
+    if (const GrmlHostApi* host = g_grmlHost.load(std::memory_order_acquire)) {
+        if (!desc || !desc->tab_id || !desc->title || !host->ui || !host->ui->RegisterTab) {
+            return -1;
+        }
+        const int32_t localIdx = hostRegisterTab(desc);
+        if (localIdx < 0) return -1;
+        g_grmlPrimaryPluginId = desc->tab_id;
+        host->ui->RegisterTab(desc->tab_id, desc->title, &grmlRenderTabTrampoline,
+                              reinterpret_cast<void*>(static_cast<uintptr_t>(localIdx)));
+        return localIdx;
+    }
     if (!ensureHubConnected() || !g_hub || !g_hub->registerTab) {
         return -1;
     }
@@ -1175,6 +1357,9 @@ int32_t WRSR_OVERLAY_CALL RegisterModTab(const ModTabDesc* desc)
 
 int32_t WRSR_OVERLAY_CALL AddFloatSlider(int32_t tab_id, const ModFloatSliderDesc* desc)
 {
+    if (g_grmlHost.load(std::memory_order_acquire) != nullptr) {
+        return hostAddFloatSlider(tab_id, desc);
+    }
     if (!ensureHubConnected() || !g_hub || !g_hub->addFloatSlider) {
         return 0;
     }
@@ -1183,6 +1368,9 @@ int32_t WRSR_OVERLAY_CALL AddFloatSlider(int32_t tab_id, const ModFloatSliderDes
 
 int32_t WRSR_OVERLAY_CALL AddCheckbox(int32_t tab_id, const ModCheckboxDesc* desc)
 {
+    if (g_grmlHost.load(std::memory_order_acquire) != nullptr) {
+        return hostAddCheckbox(tab_id, desc);
+    }
     if (!ensureHubConnected() || !g_hub || !g_hub->addCheckbox) {
         return 0;
     }
@@ -1191,6 +1379,9 @@ int32_t WRSR_OVERLAY_CALL AddCheckbox(int32_t tab_id, const ModCheckboxDesc* des
 
 int32_t WRSR_OVERLAY_CALL AddButton(int32_t tab_id, const ModButtonDesc* desc)
 {
+    if (g_grmlHost.load(std::memory_order_acquire) != nullptr) {
+        return hostAddButton(tab_id, desc);
+    }
     if (!ensureHubConnected() || !g_hub || !g_hub->addButton) {
         return 0;
     }
@@ -1199,6 +1390,9 @@ int32_t WRSR_OVERLAY_CALL AddButton(int32_t tab_id, const ModButtonDesc* desc)
 
 int32_t WRSR_OVERLAY_CALL AddLabel(int32_t tab_id, const ModLabelDesc* desc)
 {
+    if (g_grmlHost.load(std::memory_order_acquire) != nullptr) {
+        return hostAddLabel(tab_id, desc);
+    }
     if (!ensureHubConnected() || !g_hub || !g_hub->addLabel) {
         return 0;
     }
@@ -1207,6 +1401,9 @@ int32_t WRSR_OVERLAY_CALL AddLabel(int32_t tab_id, const ModLabelDesc* desc)
 
 int32_t WRSR_OVERLAY_CALL AddCollapsibleLabel(int32_t tab_id, const ModCollapsibleLabelDesc* desc)
 {
+    if (g_grmlHost.load(std::memory_order_acquire) != nullptr) {
+        return hostAddCollapsibleLabel(tab_id, desc);
+    }
     if (!ensureHubConnected() || !g_hub) {
         return 0;
     }
@@ -1226,6 +1423,9 @@ int32_t WRSR_OVERLAY_CALL AddCollapsibleLabel(int32_t tab_id, const ModCollapsib
 
 int32_t WRSR_OVERLAY_CALL SetTabFrameCallback(int32_t tab_id, ModOverlayButtonFn on_frame, void* user_data)
 {
+    if (g_grmlHost.load(std::memory_order_acquire) != nullptr) {
+        return hostSetTabFrameCallback(tab_id, on_frame, user_data);
+    }
     if (!ensureHubConnected() || !g_hub) {
         return 0;
     }
@@ -1237,6 +1437,13 @@ int32_t WRSR_OVERLAY_CALL SetTabFrameCallback(int32_t tab_id, ModOverlayButtonFn
 
 int32_t WRSR_OVERLAY_CALL SetTabMainMenuAvailable(int32_t tab_id, uint8_t available)
 {
+    if (const GrmlHostApi* host = g_grmlHost.load(std::memory_order_acquire)) {
+        hostSetTabMainMenuAvailable(tab_id, available);
+        if (host->ui && host->ui->SetTabMainMenuAvailable) {
+            host->ui->SetTabMainMenuAvailable(tab_id, available);
+        }
+        return 1;
+    }
     if (!ensureHubConnected() || !g_hub) {
         return 0;
     }

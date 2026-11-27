@@ -477,11 +477,18 @@ bool install(uint8_t* exeBase, size_t exeSize)
         return false;
     }
 
-    uint8_t* tickAddr        = ctx->scanSignature("road_vehicle_tick_aob");
-    uint8_t* bldMoveAddr     = ctx->scanSignature("road_vehicle_bld_move_aob");
-    uint8_t* parkingTickAddr = ctx->scanSignature("road_vehicle_parking_tick_aob");
-    uint8_t* entryGateAddr   = ctx->scanSignature("apron_entry_gate_aob");
-    uint8_t* exitGateAddr    = ctx->scanSignature("apron_exit_gate_aob");
+    auto resolveOrScan = [&](const char* grmlKey, const char* legacySig) -> uint8_t* {
+        uintptr_t val = 0;
+        if (wrsr::game::resolveNamedOffset(grmlKey, val) && val != 0) {
+            return reinterpret_cast<uint8_t*>(val);
+        }
+        return ctx->scanSignature(legacySig);
+    };
+    uint8_t* tickAddr        = resolveOrScan("road_vehicle_tick", "road_vehicle_tick_aob");
+    uint8_t* bldMoveAddr     = resolveOrScan("road_vehicle_bld_move", "road_vehicle_bld_move_aob");
+    uint8_t* parkingTickAddr = resolveOrScan("road_vehicle_parking_tick", "road_vehicle_parking_tick_aob");
+    uint8_t* entryGateAddr   = resolveOrScan("apron_entry_gate", "apron_entry_gate_aob");
+    uint8_t* exitGateAddr    = resolveOrScan("apron_exit_gate", "apron_exit_gate_aob");
 
     if (!tickAddr) {
         g_state.store(HookState::AobNotMatched, std::memory_order_relaxed);
