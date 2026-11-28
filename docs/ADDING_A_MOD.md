@@ -19,7 +19,7 @@ Follow these steps to create a new x64 C++ plugin under `mods/`:
        └── workshop_item.vdf        # Rendered via scripts/render_workshop_vdf.ps1
    ```
    - **Preview Image Standard**: Define `steamcmd/preview.json` and run `.\scripts\generate_preview.ps1 -Mod MyNewMod` so all mods share the 700×700 Soviet dark-gold-crimson UI mockup style.
-   - **Workshop Description Standard**: Define `steamcmd/workshop_sections.json` and run `.\scripts\render_workshop_vdf.ps1 -Mod MyNewMod` to render `steamcmd/workshop_item.vdf` from `templates/workshop_description.vdf.tpl` (shared Alpha notice, TesmioLoader + RML setup, and changelog footer).
+   - **Workshop Description Standard**: Define `steamcmd/workshop_sections.json` and run `.\scripts\render_workshop_vdf.ps1 -Mod MyNewMod` to render `steamcmd/workshop_item.vdf` from `templates/workshop_description.vdf.tpl` (shared Alpha notice, GRML + TesmioLoader setup, and changelog footer).
 2. **Wire automatic versioning & shared library** in `mods/MyNewMod/CMakeLists.txt`:
    - Link `wrsr_common` for `wrsr/loader_abi.hpp`, `wrsr/logger.hpp`, `wrsr/pe_utils.hpp`, `wrsr/offsets.hpp`, and `wrsr/game_signatures.hpp` (shared WRSR PE profiles, AOB resolvers, `ResourceVector`, and `DistTask` helpers backed by `common/config/offsets.ini`).
    - Optionally call `wrsr_embed_offsets(MyNewMod "${CMAKE_CURRENT_SOURCE_DIR}/config/offsets.ini")` and pass `wrsr::generated::kEmbeddedOffsetsIni` to `wrsr::game::GameContext::initialize(...)` if the mod needs mod-specific signatures or overrides layered on top of `common/config/offsets.ini`.

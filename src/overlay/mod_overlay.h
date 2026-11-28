@@ -106,6 +106,7 @@ int32_t WRSR_OVERLAY_CALL SetTabMainMenuAvailable(int32_t tab_id, uint8_t availa
 /* GRML host access & lock-free telemetry helpers */
 int32_t            WRSR_OVERLAY_CALL ModOverlay_IsHostedByGrml(void);
 const GrmlHostApi* WRSR_OVERLAY_CALL ModOverlay_GetGrmlHost(void);
+void               WRSR_OVERLAY_CALL ModOverlay_WaitForHostReady(uint32_t fallback_sleep_ms);
 void               WRSR_OVERLAY_CALL ModOverlay_RecordHookTicks(const char* hook_name, int64_t qpc_ticks);
 void               WRSR_OVERLAY_CALL ModOverlay_FlushHookTelemetry(void);
 

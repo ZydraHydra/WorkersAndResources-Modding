@@ -38,7 +38,7 @@ WorkersAndResources-Modding/
 TradePriceLimits.dll
 ├── main.cpp
 │   ├── Exports: RmlPluginQuery / RmlPluginLoad (RML v1 — tested vs RML v1.0.1)
-│   ├── Exports: TsmPluginApiVersion / TsmPluginInit / TsmPluginStart / TsmPluginTargetVersion (Tesmio API v4, 0.4.5)
+│   ├── Exports: TsmPluginApiVersion / TsmPluginInit / TsmPluginStart / TsmPluginTargetVersion (Tesmio API v4, 0.4.6) & GrmlPluginInit (GRML API v2)
 │   └── Idempotent worker thread → installs hooks after process init
 ├── core/rules.{hpp,cpp}
 │   ├── RuleEngine singleton (std::mutex for config + lock-free atomic FastThresholdSlot[256] for simulation hot path)

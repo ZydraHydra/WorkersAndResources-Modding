@@ -24,7 +24,7 @@ A DLL plugin for *Workers & Resources: Soviet Republic* that prevents Distributi
 ## Requirements
 
 - Workers & Resources: Soviet Republic **v1.1.1.x** or **v1.2.0.x** (AOB-matched automatically)
-- **TesmioLoader v0.4.5+** *or* **Republic Mod Loader v1.0.1+**
+- [**Glorious Republic Mod Loader (GRML)**](https://steamcommunity.com/sharedfiles/filedetails/?id=3846999477) *(Recommended)* or **TesmioLoader v0.4.6+** *(Legacy Alternative)*
 
 > **Does NOT work with vanilla Steam launch.** A mod loader is required.
 
@@ -32,18 +32,19 @@ A DLL plugin for *Workers & Resources: Soviet Republic* that prevents Distributi
 
 ## Installation
 
-### Option A — TesmioLoader (Recommended)
+### Option A — Glorious Republic Mod Loader (GRML, Recommended)
+
+1. Subscribe on the [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3845998630).
+2. Subscribe to [**Glorious Republic Mod Loader (GRML)**](https://steamcommunity.com/sharedfiles/filedetails/?id=3846999477) ([GitHub](https://github.com/ZydraHydra/GloriousRepublicModLoader)).
+3. Open `GloriousRepublicModLoader.exe`, tick **SmartDOBatching**, click **Launch**.
+4. Press **F9** in-game → open the **DO Batching** tab.
+
+### Option B — TesmioLoader (`v0.4.6+`, Legacy Alternative)
 
 1. Subscribe on the [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3845998630).
 2. Download & extract [TesmioLoader](https://github.com/MaxLegend/TesmioLoader/releases) into your WRSR game directory.
 3. Run `tesmiolauncher.exe`, tick **SmartDOBatching**, and launch WRSR.
 4. Press **F9** in-game → open the **DO Batching** tab.
-
-### Option B — Republic Mod Loader (RML)
-
-1. Subscribe to this mod **and** to [Republic Mod Loader](https://steamcommunity.com/sharedfiles/filedetails/?id=3787969749).
-2. Open `RepublicModLoader.exe`, tick **SmartDOBatching**, click **Launch WRSR**.
-3. Press **F9** in-game → open the **DO Batching** tab.
 
 ### Manual (Non-Steam)
 

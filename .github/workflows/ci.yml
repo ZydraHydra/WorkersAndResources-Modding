@@ -27,7 +27,7 @@ jobs:
             throw "Repo audit failed."
           }
 
-          Get-ChildItem mods -Recurse -Include "*.rml.json","game_versions.json" | ForEach-Object {
+          Get-ChildItem mods -Recurse -Include "*.grml.json","*.rml.json","game_versions.json" | ForEach-Object {
             Write-Host "Validating $($_.FullName)"
             Get-Content $_.FullName -Raw | ConvertFrom-Json | Out-Null
           }

@@ -54,7 +54,7 @@ function New-FallbackPreviewPng {
     $gfx.DrawString("WRSR NATIVE PLUGIN", $tagFont, $goldBrush, (New-Object System.Drawing.RectangleF 36, 72, 440, 40), $sf)
     $gfx.DrawString($Title, $titleFont, $creamBrush, (New-Object System.Drawing.RectangleF 36, 170, 440, 120), $sf)
     $gfx.DrawString($Subtitle, $subFont, $mutedBrush, (New-Object System.Drawing.RectangleF 36, 330, 440, 80), $sf)
-    $gfx.DrawString("RML  |  TESMIOLOADER  |  X64", $tagFont, $goldBrush, (New-Object System.Drawing.RectangleF 36, 428, 440, 40), $sf)
+    $gfx.DrawString("GRML  |  TESMIOLOADER  |  X64", $tagFont, $goldBrush, (New-Object System.Drawing.RectangleF 36, 428, 440, 40), $sf)
 
     $bmp.Save($OutPath, [System.Drawing.Imaging.ImageFormat]::Png)
     $gfx.Dispose()

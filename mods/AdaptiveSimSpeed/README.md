@@ -10,25 +10,25 @@ Native x64 C++20 plugin for **Workers & Resources: Soviet Republic** (`SOVIET64.
 
 Regular Steam Workshop mods only add buildings, maps, or vehicles. Because **AdaptiveSimSpeed** adds an in-game `F9` overlay and live simulation-speed scaling, it runs through a **Mod Loader**. Launching WRSR through Steam's normal **Play** button alone will **not** load `.dll` mods.
 
-Both **TesmioLoader (`v0.4.5+`)** and **Republic Mod Loader (`v1.0.1`)** automatically scan your Steam Workshop folder — **no manual DLL copying needed**.
+Both [**Glorious Republic Mod Loader (GRML)**](https://steamcommunity.com/sharedfiles/filedetails/?id=3846999477) and **TesmioLoader (`v0.4.6+`)** automatically scan your Steam Workshop folder — **no manual DLL copying needed**.
 
-### Option A — TesmioLoader (Recommended, `v0.4.0+` Auto Workshop Discovery, tested vs `v0.4.5`)
+### Option A — Glorious Republic Mod Loader (GRML, Recommended)
 
-1. Subscribe to **AdaptiveSimSpeed** on the [Steam Workshop (`WRSR 1.2.0.9, 1.2.0.8, 1.1.1.13, 1.1.1.9 & 1.1.1.7`)](https://steamcommunity.com/sharedfiles/filedetails/?id=3846322975) or download the unified release zip from [GitHub Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases) (AOB-matched for `WRSR 1.2.0.9`).
-2. Download and extract [**TesmioLoader**](https://github.com/MaxLegend/TesmioLoader/releases) ([Docs](https://maxlegend.github.io/TesmioLoaderDocs/#/getting-started)) into your WRSR game directory.
-3. Run **`tesmiolauncher.exe`** — since **v0.4.0**, TesmioLoader automatically scans `steamapps\workshop\content\784150\` for compatible plugins (use `workshop_path` or the launcher selector if your Workshop lives in another Steam library).
-4. Tick **AdaptiveSimSpeed**, launch the game, and press **`F9`** in-game!
-
-### Option B — Republic Mod Loader (RML `v1.0.1`, All-on-Steam Alternative)
-
-1. Subscribe to **AdaptiveSimSpeed** on the [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3846322975).
-2. Subscribe to [**Republic Mod Loader (RML)**](https://steamcommunity.com/sharedfiles/filedetails/?id=3787969749) ([GitHub](https://github.com/Ultimate-Universe/WRSR-RepublicModLoader)).
-3. Run **`RepublicModLoader.exe`** from:
+1. Subscribe to **AdaptiveSimSpeed** on the [Steam Workshop (`WRSR 1.2.0.9, 1.2.0.8, 1.1.1.13, 1.1.1.9 & 1.1.1.7`)](https://steamcommunity.com/sharedfiles/filedetails/?id=3846322975) or download the unified release zip from [GitHub Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases).
+2. Subscribe to [**Glorious Republic Mod Loader (GRML)**](https://steamcommunity.com/sharedfiles/filedetails/?id=3846999477) ([GitHub](https://github.com/ZydraHydra/GloriousRepublicModLoader)).
+3. Run **`GloriousRepublicModLoader.exe`** from:
    ```text
-   <Your Steam Library>\steamapps\workshop\content\784150\3787969749\RepublicModLoader.exe
+   <Your Steam Library>\steamapps\workshop\content\784150\3846999477\GloriousRepublicModLoader.exe
    ```
    *(You can create a Desktop shortcut or add it to Steam as a Non-Steam Game.)*
-4. Tick **AdaptiveSimSpeed** in RML, click **Launch**, and press **`F9`** once loaded into your savegame.
+4. Tick **AdaptiveSimSpeed** in GRML, click **Launch**, and press **`F9`** in-game!
+
+### Option B — TesmioLoader (`v0.4.6+`, Legacy Alternative)
+
+1. Subscribe to **AdaptiveSimSpeed** on the Steam Workshop (link above).
+2. Download and extract [**TesmioLoader**](https://github.com/MaxLegend/TesmioLoader/releases) ([Docs](https://maxlegend.github.io/TesmioLoaderDocs/#/getting-started)) into your WRSR game directory.
+3. Run **`tesmiolauncher.exe`** — TesmioLoader automatically scans `steamapps\workshop\content\784150\` for compatible plugins (use `workshop_path` or the launcher selector if your Workshop lives in another Steam library).
+4. Tick **AdaptiveSimSpeed**, launch the game, and press **`F9`** in-game!
 
 *(Manual / Non-Steam installs only: copy `plugins\AdaptiveSimSpeed.dll` and `AdaptiveSimSpeed.ini` from a GitHub Release zip into `<Game Dir>\plugins\`.)*
 

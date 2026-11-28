@@ -4,7 +4,7 @@ Non-destructive Virtual File System (VFS) path redirector for **Workers & Resour
 
 > **Alpha Status:** Consider this an early **Alpha** release. Always back up your saves and test your override packs before relying on them in long-running republics.
 
-> **Important:** Native DLL plugins require a Mod Loader (**TesmioLoader v0.4.5+** or **Republic Mod Loader v1.0.1+**). Launching WRSR through Steam's normal **Play** button alone will **not** load `.dll` mods. All discovered override packs start **disabled by default**—nothing is auto-enabled until you opt in via the `F9` -> **Media VFS** tab (available right from the **Main Menu**!) or `MediaRedirector.ini`.
+> **Important:** [**Glorious Republic Mod Loader (GRML)**](https://steamcommunity.com/sharedfiles/filedetails/?id=3846999477) already includes MediaRedirector built-in! This standalone DLL plugin is primarily for **TesmioLoader (`v0.4.6+`)** or manual setups. Launching WRSR through Steam's normal **Play** button alone will **not** load `.dll` mods. All discovered override packs start **disabled by default**—nothing is auto-enabled until you opt in via the `F9` -> **Media VFS** tab (available right from the **Main Menu**!) or `MediaRedirector.ini`.
 
 ![MediaRedirector F9 Overlay](steamcmd/previewimage.png)
 
@@ -14,19 +14,16 @@ Non-destructive Virtual File System (VFS) path redirector for **Workers & Resour
 
 ## Quick Start (For Players New to Mod Loaders)
 
-Both **TesmioLoader (`v0.4.5+`)** and **Republic Mod Loader (`v1.0.1+`)** automatically scan your Steam Workshop folder — **no manual DLL copying needed**.
+### Option A — Glorious Republic Mod Loader (GRML, Recommended — Built-In)
 
-### Option A — TesmioLoader (Recommended)
+1. Subscribe to [**Glorious Republic Mod Loader (GRML)**](https://steamcommunity.com/sharedfiles/filedetails/?id=3846999477) ([GitHub](https://github.com/ZydraHydra/GloriousRepublicModLoader)) — **MediaRedirector is already built into GRML**, so you don't need to install this standalone DLL separately.
+2. Run **`GloriousRepublicModLoader.exe`** and press **`F9`** in-game to manage overrides.
+
+### Option B — TesmioLoader (`v0.4.6+`, Legacy Standalone Alternative)
 
 1. Subscribe to **MediaRedirector** on the [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3846470422) or download the release zip from [GitHub Releases](https://github.com/ZydraHydra/WorkersAndResources-Modding/releases).
 2. Download and extract [**TesmioLoader**](https://github.com/MaxLegend/TesmioLoader/releases) ([Docs](https://maxlegend.github.io/TesmioLoaderDocs/#/getting-started)) into your WRSR game directory.
 3. Run **`tesmiolauncher.exe`**, tick **MediaRedirector**, launch the game, and press **`F9`** on the **Main Menu** (or in-game).
-
-### Option B — Republic Mod Loader (RML)
-
-1. Subscribe to **MediaRedirector** and [**Republic Mod Loader (RML)**](https://steamcommunity.com/sharedfiles/filedetails/?id=3787969749) ([GitHub](https://github.com/Ultimate-Universe/WRSR-RepublicModLoader)).
-2. Run **`RepublicModLoader.exe`** from `<Your Steam Library>\steamapps\workshop\content\784150\3787969749\RepublicModLoader.exe`.
-3. Tick **MediaRedirector**, click **Launch**, and press **`F9`** on the **Main Menu** (or in-game).
 
 *(Manual / Non-Steam installs only: copy `MediaRedirector.dll`, `MediaRedirector.rml.json`, and `MediaRedirector.ini` into `<Game Dir>\plugins\`.)*
 

@@ -222,7 +222,7 @@ void registerOverlayTab()
 
 DWORD WINAPI workerThread(LPVOID)
 {
-    Sleep(500);
+    ModOverlay_WaitForHostReady(500);
 
     wrsr::log::info("AdaptiveSimSpeed v%s (WRSR target: %s) — worker thread started",
                     WRSR_MOD_VERSION, WRSR_GAME_VERSION);
@@ -317,7 +317,7 @@ WRSR_ABI_EXPORT int WRSR_ABI_CALL RmlPluginLoad(const wrsr::abi::RmlHostApi* hos
 // ============================================================================
 // TesmioLoader — Compatibility Exports (API v4, Target v0.4.5)
 // ============================================================================
-WRSR_ABI_EXPORT const char TsmPluginTargetVersion[] = "0.4.5";
+WRSR_ABI_EXPORT const char TsmPluginTargetVersion[] = "0.4.6";
 
 WRSR_ABI_EXPORT unsigned TsmPluginApiVersion(void)
 {

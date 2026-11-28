@@ -17,10 +17,13 @@ cmake_policy(SET CMP0169 OLD)
 # Static CRT (/MT) across all targets so subscribers never need VCRedist DLLs
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-# ── Canonical GRML Pure-C ABI Header (Submodule / Sibling / FetchContent) ─────
+# ── Canonical GRML Pure-C ABI Header (Mirror / Submodule / Sibling / FetchContent) ─────
+set(_grml_mirror_inc    "${CMAKE_CURRENT_SOURCE_DIR}/third_party/grml")
 set(_grml_submodule_inc "${CMAKE_CURRENT_SOURCE_DIR}/third_party/grml/include")
 set(_grml_sibling_inc   "${CMAKE_CURRENT_SOURCE_DIR}/../GloriousRepublicModLoader/include")
-if(EXISTS "${_grml_submodule_inc}/grml_api.h")
+if(EXISTS "${_grml_mirror_inc}/grml_api.h")
+    include_directories("${_grml_mirror_inc}")
+elseif(EXISTS "${_grml_submodule_inc}/grml_api.h")
     include_directories("${_grml_submodule_inc}")
 elseif(EXISTS "${_grml_sibling_inc}/grml_api.h")
     include_directories("${_grml_sibling_inc}")

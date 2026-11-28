@@ -14,18 +14,19 @@ Native x64 plugin for **Workers & Resources: Soviet Republic** (`SOVIET64.exe`) 
 
 ## Installation
 
-### Option A — TesmioLoader (Recommended)
+### Option A — Glorious Republic Mod Loader (GRML, Recommended)
+
+1. Subscribe to **CODispatchControl** on the [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3846041311).
+2. Subscribe to [**Glorious Republic Mod Loader (GRML)**](https://steamcommunity.com/sharedfiles/filedetails/?id=3846999477) ([GitHub](https://github.com/ZydraHydra/GloriousRepublicModLoader)).
+3. Open `GloriousRepublicModLoader.exe`, tick **CODispatchControl**, click **Launch**.
+4. Press **F9** in-game → open the **CO Dispatch** tab.
+
+### Option B — TesmioLoader (`v0.4.6+`, Legacy Alternative)
 
 1. Subscribe on the [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3846041311).
 2. Download & extract [TesmioLoader](https://github.com/MaxLegend/TesmioLoader/releases) into your WRSR game directory.
 3. Run `tesmiolauncher.exe`, tick **CODispatchControl**, and launch WRSR.
 4. Press **F9** in-game → open the **CO Dispatch** tab.
-
-### Option B — Republic Mod Loader (RML)
-
-1. Subscribe to this mod **and** to [Republic Mod Loader](https://steamcommunity.com/sharedfiles/filedetails/?id=3787969749).
-2. Open `RepublicModLoader.exe`, tick **CODispatchControl**, click **Launch WRSR**.
-3. Press **F9** in-game → open the **CO Dispatch** tab.
 
 ### Manual (Non-Steam)
 

@@ -101,7 +101,18 @@ std::vector<StoredTab> g_tabs;
 
 // ── GRML Host Adapter State (when loaded by GloriousRepublicModLoader) ───────
 std::atomic<const GrmlHostApi*> g_grmlHost{nullptr};
+std::atomic<HANDLE>             g_grmlPostScanEvent{nullptr};
+std::atomic<bool>               g_grmlPostScanDone{false};
 std::string                     g_grmlPrimaryPluginId{"wrsr.mod"};
+
+void GRML_CALL onGrmlPostScan(void*)
+{
+    g_grmlPostScanDone.store(true, std::memory_order_release);
+    HANDLE ev = g_grmlPostScanEvent.load(std::memory_order_acquire);
+    if (ev) {
+        SetEvent(ev);
+    }
+}
 
 struct ProfileBucket {
     std::atomic<const char*> hookName{nullptr};
@@ -1247,8 +1258,20 @@ GRML_EXPORT void GRML_CALL GrmlPluginInit(const GrmlHostApi* host)
         return;
     }
     initQpcFreq();
+    if (!g_grmlPostScanEvent.load(std::memory_order_acquire)) {
+        HANDLE ev = CreateEventW(nullptr, TRUE, FALSE, nullptr);
+        HANDLE expected = nullptr;
+        if (ev && !g_grmlPostScanEvent.compare_exchange_strong(expected, ev, std::memory_order_acq_rel)) {
+            CloseHandle(ev);
+        }
+    }
     g_grmlHost.store(host, std::memory_order_release);
     wrsr::game::setGrmlHost(host);
+    if (host->abi_version >= 2 && host->RegisterPostScanCallback) {
+        host->RegisterPostScanCallback(&onGrmlPostScan, nullptr);
+    } else {
+        onGrmlPostScan(nullptr);
+    }
     if (host->Log) {
         host->Log(GRML_LOG_INFO, "OverlayAdapter", "GrmlPluginInit attached — docking F9 UI & telemetry into GRML");
     }
@@ -1264,6 +1287,23 @@ int32_t WRSR_OVERLAY_CALL ModOverlay_IsHostedByGrml(void)
 const GrmlHostApi* WRSR_OVERLAY_CALL ModOverlay_GetGrmlHost(void)
 {
     return g_grmlHost.load(std::memory_order_acquire);
+}
+
+void WRSR_OVERLAY_CALL ModOverlay_WaitForHostReady(uint32_t fallback_sleep_ms)
+{
+    // Give LoadLibraryW -> GrmlPluginInit a brief window to attach on worker threads.
+    constexpr uint32_t kAttachPollMs = 20;
+    uint32_t waited = 0;
+    while (!g_grmlHost.load(std::memory_order_acquire) && waited < fallback_sleep_ms) {
+        const uint32_t step = (fallback_sleep_ms - waited < kAttachPollMs) ? (fallback_sleep_ms - waited) : kAttachPollMs;
+        Sleep(step);
+        waited += step;
+    }
+    if (g_grmlHost.load(std::memory_order_acquire) && !g_grmlPostScanDone.load(std::memory_order_acquire)) {
+        if (HANDLE ev = g_grmlPostScanEvent.load(std::memory_order_acquire)) {
+            WaitForSingleObject(ev, 15000);
+        }
+    }
 }
 
 void WRSR_OVERLAY_CALL ModOverlay_RecordHookTicks(const char* hook_name, int64_t qpc_ticks)

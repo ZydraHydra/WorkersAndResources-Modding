@@ -268,6 +268,42 @@ std::optional<GameContext> GameContext::initialize(uint8_t* exeBase,
         return std::nullopt;
     }
 
+    if (const GrmlHostApi* host = getGrmlHost();
+        host && host->abi_version >= 2u && host->struct_size >= sizeof(GrmlHostApi) &&
+        host->wrsr && host->wrsr->GetOffsets) {
+        GrmlWrsrOffsets grmlOff{};
+        grmlOff.abi_version = GRML_API_VERSION;
+        grmlOff.struct_size = sizeof(GrmlWrsrOffsets);
+        if (host->wrsr->GetOffsets(&grmlOff) != 0) {
+            ctx.layout.exactProfileMatch     = (grmlOff.exact_profile_match != 0);
+            ctx.layout.resStride             = grmlOff.res_stride;
+            ctx.layout.resMinHeaderSize      = grmlOff.res_min_header_size;
+            ctx.layout.resNameOff            = grmlOff.res_name_off;
+            ctx.layout.resKindOff            = grmlOff.res_kind_off;
+            ctx.layout.resBuyUsdOff          = grmlOff.res_buy_usd_off;
+            ctx.layout.resBuyRubOff          = grmlOff.res_buy_rub_off;
+            ctx.layout.resSellUsdOff         = grmlOff.res_sell_usd_off;
+            ctx.layout.resSellRubOff         = grmlOff.res_sell_rub_off;
+            ctx.layout.taskResOff            = grmlOff.task_res_off;
+            ctx.layout.taskSrcBldOff         = grmlOff.task_src_bld_off;
+            ctx.layout.taskDstBldOff         = grmlOff.task_dst_bld_off;
+            ctx.layout.taskScoreSrcDoubleOff = grmlOff.task_score_src_double_off;
+            ctx.layout.taskScoreSrcFlag1Off  = grmlOff.task_score_src_flag1_off;
+            ctx.layout.taskScoreSrcFlag2Off  = grmlOff.task_score_src_flag2_off;
+            ctx.layout.taskScoreDstDoubleOff = grmlOff.task_score_dst_double_off;
+            ctx.layout.taskScoreDstFlag1Off  = grmlOff.task_score_dst_flag1_off;
+            ctx.layout.taskScoreDstFlag2Off  = grmlOff.task_score_dst_flag2_off;
+            ctx.layout.bldDescOff            = grmlOff.bld_desc_off;
+            ctx.layout.bldFactionOff         = grmlOff.bld_faction_off;
+            ctx.layout.descTypeOff           = grmlOff.desc_type_off;
+            ctx.layout.customsBuildingType   = grmlOff.customs_building_type;
+            ctx.layout.factionUsd            = grmlOff.faction_usd;
+            ctx.layout.factionRub            = grmlOff.faction_rub;
+            wrsr::log::info("CommonLayout populated via GRML GrmlWrsrApi::GetOffsets (exact=%d, res_stride=0x%X)",
+                            ctx.layout.exactProfileMatch ? 1 : 0, ctx.layout.resStride);
+        }
+    }
+
     const auto textSec = wrsr::pe::getSectionRange(exeBase, ".text");
     ctx.scanBase       = textSec.base ? textSec.base : exeBase;
     ctx.scanSize       = textSec.size ? textSec.size : exeSize;

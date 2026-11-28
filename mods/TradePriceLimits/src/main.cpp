@@ -37,8 +37,18 @@ namespace {
 
 std::atomic<bool>            g_workerStarted{false};
 std::atomic<const GrmlHostApi*> g_grmlHost{nullptr};
+std::atomic<HANDLE>             g_grmlPostScanEvent{nullptr};
+std::atomic<bool>               g_grmlPostScanDone{false};
 const wrsr::abi::RmlHostApi* g_rmlHost = nullptr;
 const wrsr::abi::TsmHost*    g_tsmHost = nullptr;
+
+void GRML_CALL onGrmlPostScan(void*)
+{
+    g_grmlPostScanDone.store(true, std::memory_order_release);
+    if (HANDLE ev = g_grmlPostScanEvent.load(std::memory_order_acquire)) {
+        SetEvent(ev);
+    }
+}
 
 void GRML_CALL onGrmlSaveLoad(const wchar_t* saveDir, void*)
 {
@@ -87,7 +97,17 @@ std::wstring getSelfModuleDir()
 
 DWORD WINAPI workerThread(LPVOID)
 {
-    Sleep(500);
+    constexpr DWORD kAttachPollMs = 20;
+    DWORD waited = 0;
+    while (!g_grmlHost.load(std::memory_order_acquire) && waited < 500) {
+        Sleep(kAttachPollMs);
+        waited += kAttachPollMs;
+    }
+    if (g_grmlHost.load(std::memory_order_acquire) && !g_grmlPostScanDone.load(std::memory_order_acquire)) {
+        if (HANDLE ev = g_grmlPostScanEvent.load(std::memory_order_acquire)) {
+            WaitForSingleObject(ev, 15000);
+        }
+    }
 
     wrsr::log::info("TradePriceLimits v%s (WRSR target: %s) — worker thread started",
                     WRSR_MOD_VERSION, WRSR_GAME_VERSION);
@@ -201,7 +221,7 @@ WRSR_ABI_EXPORT int WRSR_ABI_CALL RmlPluginLoad(const wrsr::abi::RmlHostApi* hos
 // ============================================================================
 // TesmioLoader — Compatibility Exports (API v4, Target v0.4.5)
 // ============================================================================
-WRSR_ABI_EXPORT const char TsmPluginTargetVersion[] = "0.4.5";
+WRSR_ABI_EXPORT const char TsmPluginTargetVersion[] = "0.4.6";
 
 WRSR_ABI_EXPORT unsigned TsmPluginApiVersion(void)
 {
@@ -240,8 +260,20 @@ GRML_EXPORT void GRML_CALL GrmlPluginInit(const GrmlHostApi* host)
     if (!host || host->abi_version < 1 || host->struct_size < sizeof(GrmlHostApi)) {
         return;
     }
+    if (!g_grmlPostScanEvent.load(std::memory_order_acquire)) {
+        HANDLE ev = CreateEventW(nullptr, TRUE, FALSE, nullptr);
+        HANDLE expected = nullptr;
+        if (ev && !g_grmlPostScanEvent.compare_exchange_strong(expected, ev, std::memory_order_acq_rel)) {
+            CloseHandle(ev);
+        }
+    }
     g_grmlHost.store(host, std::memory_order_release);
     wrsr::game::setGrmlHost(host);
+    if (host->abi_version >= 2 && host->RegisterPostScanCallback) {
+        host->RegisterPostScanCallback(&onGrmlPostScan, nullptr);
+    } else {
+        onGrmlPostScan(nullptr);
+    }
     if (host->RegisterSaveEvents) {
         host->RegisterSaveEvents(&onGrmlSaveLoad, nullptr, nullptr);
     }

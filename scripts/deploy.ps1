@@ -62,9 +62,12 @@ if (-not $grmlPluginsDir -and $grmlDir) {
     $grmlPluginsDir = Join-Path $grmlDir "plugins"
 }
 if (-not $grmlPluginsDir) {
-    $siblingGrmlBin = Join-Path (Split-Path $Root -Parent) "GloriousRepublicModLoader\build\$($Config.ToLower())\bin"
-    if (Test-Path $siblingGrmlBin) {
-        $grmlPluginsDir = Join-Path $siblingGrmlBin "plugins"
+    foreach ($sub in @("build\$($Config.ToLower())\bin", "build\$($Config.ToLower())")) {
+        $cand = Join-Path (Split-Path $Root -Parent) "GloriousRepublicModLoader\$sub"
+        if (Test-Path $cand) {
+            $grmlPluginsDir = Join-Path $cand "plugins"
+            break
+        }
     }
 }
 
